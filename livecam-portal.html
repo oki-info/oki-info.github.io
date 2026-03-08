@@ -126,7 +126,10 @@ nav::-webkit-scrollbar{display:none;}
 .sec-title::before{content:'';width:3px;height:14px;background:var(--teal);border-radius:2px;}
 .cam-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));}
 .cam-grid.wide{grid-template-columns:repeat(auto-fill,minmax(380px,1fr));}
-@media(max-width:600px){.cam-grid,.cam-grid.wide{grid-template-columns:1fr;}}
+@media(max-width:600px){
+  .cam-grid,.cam-grid.wide{grid-template-columns:1fr 1fr;}
+  .cam-embed{padding-bottom:75%;}
+}
 .sub-sec{margin-bottom:20px;}
 .sub-title{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
 
@@ -234,11 +237,11 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
     <div class="sub-sec">
       <div class="sub-title">📍 那覇・中南部</div>
       <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇空港</div><div class="cam-loc">那覇市鏡水</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/Yzl9offu5g8?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇市役所前・国際通り</div><div class="cam-loc">那覇市泉崎</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/nU41kpfKLJM?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">国際通り 牧志交番前</div><div class="cam-loc">那覇市牧志</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/Zhfodg0io7M?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">県庁前駅（朝日新聞那覇総局）</div><div class="cam-loc">那覇市久茂地</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/6HYjCFkmDPA?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宜野湾市 大謝名交差点</div><div class="cam-loc">宜野湾市大謝名</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/WIYUrH4luck?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇空港</div><div class="cam-loc">那覇市鏡水</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-0" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇市役所前・国際通り</div><div class="cam-loc">那覇市泉崎</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">国際通り 牧志交番前</div><div class="cam-loc">那覇市牧志</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-2" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">県庁前駅（朝日新聞那覇総局）</div><div class="cam-loc">那覇市久茂地</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-3" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宜野湾市 大謝名交差点</div><div class="cam-loc">宜野湾市大謝名</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-4" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">豊見城市宜保</div><div class="cam-loc">豊見城市宜保</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-豊見城市宜保" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
       </div>
     </div>
@@ -246,7 +249,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
     <div class="sub-sec">
       <div class="sub-title">📍 中部・北部</div>
       <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">本部町備瀬（エメラルドビーチ近く）</div><div class="cam-loc">国頭郡本部町備瀬</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/XTeL4encP9o?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">本部町備瀬（エメラルドビーチ近く）</div><div class="cam-loc">国頭郡本部町備瀬</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-5" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">恩納村 マリブビーチ</div><div class="cam-loc">国頭郡恩納村</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-恩納村マリブビーチ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">かりゆしビーチリゾート</div><div class="cam-loc">国頭郡恩納村</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-かりゆしビーチリゾート" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">北谷町砂辺</div><div class="cam-loc">中頭郡北谷町砂辺</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-北谷町砂辺" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
@@ -257,18 +260,18 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
     <div class="sub-sec">
       <div class="sub-title">🌊 小波津川（西原町）</div>
       <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">小波津川 さわふじ保育園前</div><div class="cam-loc">中頭郡西原町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/EkbG_VYkExM?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">小波津川 金秀鉄工前</div><div class="cam-loc">中頭郡西原町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/DBju-AkvIVM?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">小波津川 さわふじ保育園前</div><div class="cam-loc">中頭郡西原町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-6" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">小波津川 金秀鉄工前</div><div class="cam-loc">中頭郡西原町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-7" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
       </div>
     </div>
 
     <div class="sub-sec">
       <div class="sub-title">📍 離島</div>
       <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島</div><div class="cam-loc">石垣市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/5jHCxMEGor0?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島</div><div class="cam-loc">石垣市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-8" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島730交差点</div><div class="cam-loc">石垣市美崎町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-石垣島730交差点" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島ユーグレナ離島ターミナル</div><div class="cam-loc">石垣市美崎町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-石垣島ユーグレナ離島ターミナル" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宮古島 ウォーターマークホテル</div><div class="cam-loc">宮古島市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe src="https://www.youtube.com/embed/4v5e4eKIT_E?autoplay=0&mute=1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宮古島 ウォーターマークホテル</div><div class="cam-loc">宮古島市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-9" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
       </div>
     </div>
 
@@ -337,253 +340,198 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 </footer>
 
 <script>
-// 固定動画IDのYouTubeカメラ（河川グリッド内）
 const YT_FIXED = [
   { id:'DBju-AkvIVM', name:'🌊 小波津川 金秀鉄工前',     loc:'西原町', ytUrl:'https://www.youtube.com/watch?v=DBju-AkvIVM' },
   { id:'EkbG_VYkExM', name:'🌊 小波津川 さわふじ保育園前', loc:'西原町', ytUrl:'https://www.youtube.com/watch?v=EkbG_VYkExM' },
 ];
-
 const EXTRA_CAM_INFO = {
   'okinawa-city-hija':   { name:'🌊 比謝川',  loc:'沖縄市（水位監視）', link:'https://www.city.okinawa.okinawa.jp/k058-003/anshin/bousai/saigaijouhou/22230.html' },
   'okinawa-city-awase1': { name:'🌊 泡瀬川①', loc:'沖縄市（水位監視）', link:'https://www.city.okinawa.okinawa.jp/k058-003/anshin/bousai/saigaijouhou/22230.html' },
   'okinawa-city-awase2': { name:'🌊 泡瀬川②', loc:'沖縄市（水位監視）', link:'https://www.city.okinawa.okinawa.jp/k058-003/anshin/bousai/saigaijouhou/22230.html' },
 };
+// YouTubeタブ内の固定iframe（タブを開いた時に自動再生セット）
+const YT_TAB_FIXED = [
+  { id:'Yzl9offu5g8', el:'ytf-0' }, { id:'nU41kpfKLJM', el:'ytf-1' },
+  { id:'Zhfodg0io7M', el:'ytf-2' }, { id:'6HYjCFkmDPA', el:'ytf-3' },
+  { id:'WIYUrH4luck', el:'ytf-4' }, { id:'XTeL4encP9o', el:'ytf-5' },
+  { id:'EkbG_VYkExM', el:'ytf-6' }, { id:'DBju-AkvIVM', el:'ytf-7' },
+  { id:'5jHCxMEGor0', el:'ytf-8' }, { id:'4v5e4eKIT_E', el:'ytf-9' },
+];
 
-let CAMERAS = [];
-let mode = 4;
-let nextAt = null;
-const st = {};
-let lbIdx = null;
+let CAMERAS=[], mode=4, initialized=false, ytTabLoaded=false, nextAt=null, lbIdx=null;
+const st={};
+let _lastYtLive=null;
 
-function pad(n){ return String(n).padStart(2,'0'); }
-function esc(s){ return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
-function imgSrc(f){ return `img_cam/${f}?t=${Date.now()}`; }
+function pad(n){return String(n).padStart(2,'0');}
+function esc(s){return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function imgSrc(f){return `img_cam/${f}?t=${Date.now()}`;}
 
-function showTab(id) {
-  ['river','youtube','road','bousai'].forEach(t => {
-    document.getElementById('sec-'+t).classList.toggle('active', t===id);
-    document.getElementById('tab-'+t).classList.toggle('active', t===id);
+function showTab(id){
+  ['river','youtube','road','bousai'].forEach(t=>{
+    document.getElementById('sec-'+t).classList.toggle('active',t===id);
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
-  document.getElementById('fetch-bar').style.display = id==='river' ? 'flex' : 'none';
+  document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
+  // YouTubeタブを初めて開いた時にiframeをセット→自動再生
+  if(id==='youtube' && !ytTabLoaded){
+    ytTabLoaded=true;
+    YT_TAB_FIXED.forEach(item=>{
+      const el=document.getElementById(item.el);
+      if(el) el.src=`https://www.youtube.com/embed/${item.id}?autoplay=1&mute=1&rel=0`;
+    });
+    if(_lastYtLive) applyYoutubeLive(_lastYtLive);
+  }
 }
 
-// YouTube動的カードに動画IDを反映
-function applyYoutubeLive(youtubeList) {
-  if (!youtubeList) return;
-  youtubeList.forEach(cam => {
-    const el = document.getElementById('yt-dyn-' + cam.name);
-    if (!el) return;
-    if (cam.video_id) {
-      el.innerHTML = `<iframe style="position:absolute;inset:0;width:100%;height:100%;border:none"
-        src="https://www.youtube.com/embed/${cam.video_id}?autoplay=0&mute=1"
+function applyYoutubeLive(list){
+  if(!list) return;
+  _lastYtLive=list;
+  list.forEach(cam=>{
+    const el=document.getElementById('yt-dyn-'+cam.name);
+    if(!el) return;
+    if(cam.video_id){
+      const autoplay=ytTabLoaded?'autoplay=1&mute=1&':'';
+      el.innerHTML=`<iframe style="position:absolute;inset:0;width:100%;height:100%;border:none"
+        src="https://www.youtube.com/embed/${cam.video_id}?${autoplay}rel=0"
         allowfullscreen allow="autoplay;encrypted-media"></iframe>`;
     } else {
-      el.innerHTML = `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+      el.innerHTML=`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
         <div style="font-size:20px;opacity:.3">📡</div>
         <div style="font-family:var(--mono);font-size:9px;color:var(--muted)">現在配信なし</div>
-        <a href="https://www.youtube.com/channel/${cam.channel_id || ''}" target="_blank"
+        <a href="https://www.youtube.com/channel/${cam.channel_id||''}" target="_blank"
            style="font-family:var(--mono);font-size:8px;color:var(--teal);text-decoration:none">チャンネルを開く↗</a>
       </div>`;
     }
   });
 }
 
-async function loadCameras() {
-  try {
-    const res  = await fetch('cameras.json?t=' + Date.now());
-    const data = await res.json();
-    document.getElementById('fb-time').textContent = data.last_fetch_jst || '—';
-
-    // 河川カメラリスト構築
-    CAMERAS = data.cameras.map(c => ({
-      type:'static', filename:`p-${c.pid}.jpg`,
-      name:'🌊 カメラ '+c.pid, loc:'p-'+c.pid,
-      link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/'
-    }));
-    if(data.extra_cameras){
-      data.extra_cameras.forEach(c => {
-        const info = EXTRA_CAM_INFO[c.key]||{};
-        CAMERAS.push({ type:'static', filename:`${c.key}.jpg`, name:info.name||c.name, loc:info.loc||c.loc, link:info.link||'#' });
-      });
-    }
-    YT_FIXED.forEach(y => CAMERAS.push({ type:'youtube', ytId:y.id, name:y.name, loc:y.loc, ytUrl:y.ytUrl }));
-
-    const total = data.camera_count + (data.extra_cameras?data.extra_cameras.length:0) + YT_FIXED.length;
-    document.getElementById('fb-count').textContent = total + '台';
-    document.getElementById('tc-river').textContent  = total + '台';
-
-    // YouTube動的カード更新
+async function loadCameras(){
+  try{
+    const res=await fetch('cameras.json?t='+Date.now());
+    const data=await res.json();
+    document.getElementById('fb-time').textContent=data.last_fetch_jst||'—';
+    const total=data.camera_count+(data.extra_cameras?data.extra_cameras.length:0)+YT_FIXED.length;
+    document.getElementById('fb-count').textContent=total+'台';
+    document.getElementById('tc-river').textContent=total+'台';
     applyYoutubeLive(data.youtube_live);
 
-    // 国道カメラグリッド描画
-    if(data.road_cameras && data.road_cameras.length > 0) {
-      const rg = document.getElementById('road-grid');
-      rg.innerHTML = '';
-      rg.className = 'cam-grid wide';
-      data.road_cameras.forEach((cam, i) => {
-        const d = document.createElement('div');
-        d.className = 'card'; d.id = 'rcard-'+i;
-        const num = cam.key.replace('road-','');
-        d.innerHTML = `
-          <div class="card-head">
-            <div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div>
-            <div class="live-badge"><div class="live-dot"></div>10分更新</div>
-          </div>
-          <div class="card-img">
-            <div class="state-ov" id="rld-${i}"><div class="spin"></div></div>
-            <div class="state-ov" id="rer-${i}" style="display:none">
-              <div style="font-size:20px;opacity:.2">🚗</div>
-              <div class="state-txt">画像未取得</div>
-            </div>
-            <img class="cam-img" id="rimg-${i}" style="opacity:0"
-                 onload="rimgOK(${i})" onerror="rimgNG(${i})">
-          </div>
-          <div class="card-foot">
-            <span class="foot-stamp" id="rst-${i}">—</span>
-            <a class="foot-link" href="https://www.dc.ogb.go.jp/nankoku/cctv/${num}.html" target="_blank">公式サイト↗</a>
-          </div>`;
-        rg.appendChild(d);
-        setTimeout(() => { const img=document.getElementById('rimg-'+i); if(img) img.src=imgSrc(cam.key+'.jpg'); }, i*200);
+    if(!initialized){
+      // ── 初回のみ：カメラリスト構築＋グリッド描画 ──
+      initialized=true;
+      CAMERAS=data.cameras.map(c=>({type:'static',filename:`p-${c.pid}.jpg`,name:'🌊 カメラ '+c.pid,loc:'p-'+c.pid,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/'}));
+      if(data.extra_cameras) data.extra_cameras.forEach(c=>{const info=EXTRA_CAM_INFO[c.key]||{};CAMERAS.push({type:'static',filename:`${c.key}.jpg`,name:info.name||c.name,loc:info.loc||c.loc,link:info.link||'#'});});
+      YT_FIXED.forEach(y=>CAMERAS.push({type:'youtube',ytId:y.id,name:y.name,loc:y.loc,ytUrl:y.ytUrl}));
+      // 国道グリッド描画
+      if(data.road_cameras&&data.road_cameras.length>0){
+        const rg=document.getElementById('road-grid');
+        rg.innerHTML=''; rg.className='cam-grid wide';
+        data.road_cameras.forEach((cam,i)=>{
+          const d=document.createElement('div'); d.className='card'; d.id='rcard-'+i;
+          const num=cam.key.replace('road-','');
+          d.innerHTML=`<div class="card-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="live-badge"><div class="live-dot"></div>10分更新</div></div>
+            <div class="card-img"><div class="state-ov" id="rld-${i}"><div class="spin"></div></div>
+            <div class="state-ov" id="rer-${i}" style="display:none"><div style="font-size:20px;opacity:.2">🚗</div><div class="state-txt">画像未取得</div></div>
+            <img class="cam-img" id="rimg-${i}" style="opacity:0" onload="rimgOK(${i})" onerror="rimgNG(${i})"></div>
+            <div class="card-foot"><span class="foot-stamp" id="rst-${i}">—</span>
+            <a class="foot-link" href="https://www.dc.ogb.go.jp/nankoku/cctv/${num}.html" target="_blank">公式サイト↗</a></div>`;
+          rg.appendChild(d);
+          setTimeout(()=>{const img=document.getElementById('rimg-'+i);if(img)img.src=imgSrc(cam.key+'.jpg');},i*200);
+        });
+      }
+      render();
+    } else {
+      // ── 2回目以降：DOMを壊さず画像srcだけ静かに更新 ──
+      const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
+      for(let i=0;i<count;i++){
+        if(!CAMERAS[i]||CAMERAS[i].type!=='static') continue;
+        if(st[i]==='ok'){
+          // バックグラウンドで新しい画像を先読みしてから切り替え（ちらつきなし）
+          const newSrc=imgSrc(CAMERAS[i].filename);
+          const tmp=new Image();
+          tmp.onload=(function(idx,src){return function(){const el=document.getElementById('img-'+idx);if(el)el.src=src;};})(i,newSrc);
+          tmp.src=newSrc;
+        }
+      }
+      if(data.road_cameras) data.road_cameras.forEach((cam,i)=>{
+        const img=document.getElementById('rimg-'+i);
+        if(img&&img.style.opacity==='1'){
+          const newSrc=imgSrc(cam.key+'.jpg');
+          const tmp=new Image();
+          tmp.onload=(function(idx,src){return function(){const el=document.getElementById('rimg-'+idx);if(el)el.src=src;};})(i,newSrc);
+          tmp.src=newSrc;
+        }
       });
     }
-
-    render();
-  } catch(e) {
-    document.getElementById('fb-time').textContent = '(未実行)';
-    document.getElementById('grid').innerHTML = '<div class="loading-msg">cameras.json が見つかりません。Actions を実行してください。</div>';
+  } catch(e){
+    if(!initialized){
+      document.getElementById('fb-time').textContent='(未実行)';
+      document.getElementById('grid').innerHTML='<div class="loading-msg">cameras.json が見つかりません。Actions を実行してください。</div>';
+    }
   }
 }
 
-function render() {
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  const modeMap = {1:'g1',2:'g2',4:'g4',8:'g8',all:'gall'};
-  grid.className = 'grid ' + (modeMap[mode]||'g4');
-  const count = mode==='all' ? CAMERAS.length : Math.min(mode, CAMERAS.length);
-  for(let i=0; i<count; i++){
-    const cam = CAMERAS[i]; if(!cam) continue;
+function render(){
+  const grid=document.getElementById('grid'); grid.innerHTML='';
+  const modeMap={1:'g1',2:'g2',4:'g4',8:'g8',all:'gall'};
+  grid.className='grid '+(modeMap[mode]||'g4');
+  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
+  for(let i=0;i<count;i++){
+    const cam=CAMERAS[i]; if(!cam) continue;
     if(cam.type==='youtube'){
-      const d = document.createElement('div');
-      d.className='yt-card'; d.id='card-'+i;
-      d.innerHTML=`
-        <div class="yt-head">
-          <div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div>
-          <div class="yt-badge"><div class="yt-badge-dot"></div>LIVE</div>
-        </div>
-        <div class="yt-wrap">
-          <iframe src="https://www.youtube.com/embed/${cam.ytId}?autoplay=1&mute=1&controls=1&rel=0"
-            allow="autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe>
-        </div>
-        <div class="yt-foot">
-          <span class="yt-foot-txt">YouTube ライブ</span>
-          <a class="foot-link" href="${cam.ytUrl}" target="_blank">YouTubeで開く↗</a>
-        </div>`;
+      const d=document.createElement('div'); d.className='yt-card'; d.id='card-'+i;
+      d.innerHTML=`<div class="yt-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="yt-badge"><div class="yt-badge-dot"></div>LIVE</div></div>
+        <div class="yt-wrap"><iframe src="https://www.youtube.com/embed/${cam.ytId}?autoplay=1&mute=1&controls=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe></div>
+        <div class="yt-foot"><span class="yt-foot-txt">YouTube ライブ</span><a class="foot-link" href="${cam.ytUrl}" target="_blank">YouTubeで開く↗</a></div>`;
       grid.appendChild(d); st[i]='ok';
     } else {
-      const d = document.createElement('div');
-      d.className='card'; d.id='card-'+i;
-      d.innerHTML=`
-        <div class="card-head">
-          <div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div>
-          <div class="live-badge"><div class="live-dot"></div>10分更新</div>
-        </div>
+      const d=document.createElement('div'); d.className='card'; d.id='card-'+i;
+      d.innerHTML=`<div class="card-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="live-badge"><div class="live-dot"></div>10分更新</div></div>
         <div class="card-img">
           <div class="state-ov" id="ld-${i}"><div class="spin"></div></div>
-          <div class="state-ov" id="er-${i}" style="display:none">
-            <div style="font-size:20px;opacity:.2">📡</div>
+          <div class="state-ov" id="er-${i}" style="display:none"><div style="font-size:20px;opacity:.2">📡</div>
             <div class="state-txt">画像未取得<br><span style="color:rgba(245,158,11,.7)">${esc(cam.filename)}</span></div>
-            <button onclick="retry(${i})" style="margin-top:4px;padding:4px 12px;background:var(--teal3);border:1px solid rgba(45,212,191,.4);border-radius:5px;color:var(--teal);font-family:var(--mono);font-size:10px;cursor:pointer">↺ 再取得</button>
-          </div>
-          <img class="cam-img" id="img-${i}" style="opacity:0" src="" onload="imgOK(${i})" onerror="imgNG(${i})" onclick="openLb(${i})">
-          <div class="img-bot">
-            <span class="ov-time" id="ov-${i}">—</span>
-            <span class="ov-pid">${esc(cam.filename)}</span>
-          </div>
+            <button onclick="retry(${i})" style="margin-top:4px;padding:4px 12px;background:var(--teal3);border:1px solid rgba(45,212,191,.4);border-radius:5px;color:var(--teal);font-family:var(--mono);font-size:10px;cursor:pointer">↺ 再取得</button></div>
+          <img class="cam-img" id="img-${i}" style="opacity:0" onload="imgOK(${i})" onerror="imgNG(${i})" onclick="openLb(${i})">
+          <div class="img-bot"><span class="ov-time" id="ov-${i}">—</span><span class="ov-pid">${esc(cam.filename)}</span></div>
         </div>
-        <div class="card-foot">
-          <span class="foot-stamp" id="st-${i}">—</span>
+        <div class="card-foot"><span class="foot-stamp" id="st-${i}">—</span>
           <a class="foot-link" href="${cam.link}" target="_blank">公式サイト↗</a>
-          <button class="foot-retry" onclick="retry(${i})">↺</button>
-        </div>`;
+          <button class="foot-retry" onclick="retry(${i})">↺</button></div>`;
       grid.appendChild(d); st[i]='loading';
-      setTimeout(()=>loadImg(i), i*150);
+      setTimeout(()=>loadImg(i),i*150);
     }
   }
   updateCounts();
 }
 
-function rimgOK(i){
-  const img=document.getElementById('rimg-'+i), ld=document.getElementById('rld-'+i), card=document.getElementById('rcard-'+i);
-  if(img) img.style.opacity='1'; if(ld) ld.style.display='none'; if(card) card.className='card ok';
-  const now=new Date(), s=document.getElementById('rst-'+i);
-  if(s) s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());
-}
-function rimgNG(i){
-  const img=document.getElementById('rimg-'+i), ld=document.getElementById('rld-'+i), er=document.getElementById('rer-'+i), card=document.getElementById('rcard-'+i);
-  if(ld) ld.style.display='none'; if(img) img.style.display='none';
-  if(er) er.style.display='flex'; if(card) card.className='card err';
-}
-function loadImg(i){ const img=document.getElementById('img-'+i); if(img) img.src=imgSrc(CAMERAS[i].filename); }
+function rimgOK(i){const img=document.getElementById('rimg-'+i),ld=document.getElementById('rld-'+i),card=document.getElementById('rcard-'+i);if(img)img.style.opacity='1';if(ld)ld.style.display='none';if(card)card.className='card ok';const now=new Date(),s=document.getElementById('rst-'+i);if(s)s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());}
+function rimgNG(i){const img=document.getElementById('rimg-'+i),ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(ld)ld.style.display='none';if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';}
+function loadImg(i){const img=document.getElementById('img-'+i);if(img)img.src=imgSrc(CAMERAS[i].filename);}
 function imgOK(i){
-  const img=document.getElementById('img-'+i), ld=document.getElementById('ld-'+i), card=document.getElementById('card-'+i);
-  if(img) img.style.opacity='1'; if(ld) ld.style.display='none'; if(card) card.className='card ok';
+  const img=document.getElementById('img-'+i),ld=document.getElementById('ld-'+i),card=document.getElementById('card-'+i);
+  if(img)img.style.opacity='1';if(ld)ld.style.display='none';if(card)card.className='card ok';
   st[i]='ok';
-  const now=new Date(), ov=document.getElementById('ov-'+i), s=document.getElementById('st-'+i);
-  if(ov) ov.textContent=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
-  if(s)  s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());
+  const now=new Date(),ov=document.getElementById('ov-'+i),s=document.getElementById('st-'+i);
+  if(ov)ov.textContent=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+  if(s)s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());
   updateCounts();
 }
-function imgNG(i){
-  const img=document.getElementById('img-'+i), ld=document.getElementById('ld-'+i), er=document.getElementById('er-'+i), card=document.getElementById('card-'+i);
-  if(ld) ld.style.display='none'; if(img) img.style.display='none';
-  if(er) er.style.display='flex'; if(card) card.className='card err';
-  st[i]='error'; updateCounts();
-}
+function imgNG(i){const ld=document.getElementById('ld-'+i);if(ld)ld.style.display='none';if(st[i]==='ok')return;const img=document.getElementById('img-'+i),er=document.getElementById('er-'+i),card=document.getElementById('card-'+i);if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';st[i]='error';updateCounts();}
 function retry(i){
   if(!CAMERAS[i]||CAMERAS[i].type==='youtube') return;
-  const img=document.getElementById('img-'+i), ld=document.getElementById('ld-'+i), er=document.getElementById('er-'+i), card=document.getElementById('card-'+i);
-  if(er) er.style.display='none'; if(ld) ld.style.display='flex';
+  const img=document.getElementById('img-'+i),ld=document.getElementById('ld-'+i),er=document.getElementById('er-'+i),card=document.getElementById('card-'+i);
+  if(er)er.style.display='none';if(ld)ld.style.display='flex';
   if(img){img.style.display='block';img.style.opacity='0';}
-  if(card) card.className='card'; st[i]='loading'; updateCounts(); loadImg(i);
+  if(card)card.className='card';st[i]='loading';updateCounts();loadImg(i);
 }
-function reloadAll(){
-  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
-  for(let i=0;i<count;i++) if(CAMERAS[i]&&CAMERAS[i].type!=='youtube') retry(i);
-  nextAt=Date.now()+10*60*1000;
-}
-function updateCounts(){
-  let ok=0,err=0;
-  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
-  for(let i=0;i<count;i++){if(st[i]==='ok')ok++;if(st[i]==='error')err++;}
-  document.getElementById('cnt-ok').textContent=ok;
-  document.getElementById('cnt-err').textContent=err;
-}
-function setMode(n){
-  mode=n;
-  ['1','2','4','8','all'].forEach(v=>document.getElementById('btn'+v).classList.toggle('active',v==String(n)));
-  Object.keys(st).forEach(k=>delete st[k]); render();
-}
-function openLb(i){
-  if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube') return;
-  const img=document.getElementById('img-'+i);
-  document.getElementById('lb-img').src=img.src;
-  document.getElementById('lb-cap').textContent=CAMERAS[i].name+' — '+CAMERAS[i].loc;
-  document.getElementById('lb').classList.add('open'); lbIdx=i;
-}
+function reloadAll(){const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++)if(CAMERAS[i]&&CAMERAS[i].type!=='youtube')retry(i);nextAt=Date.now()+10*60*1000;}
+function updateCounts(){let ok=0,err=0;const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++){if(st[i]==='ok')ok++;if(st[i]==='error')err++;}document.getElementById('cnt-ok').textContent=ok;document.getElementById('cnt-err').textContent=err;}
+function setMode(n){mode=n;['1','2','4','8','all'].forEach(v=>document.getElementById('btn'+v).classList.toggle('active',v==String(n)));Object.keys(st).forEach(k=>delete st[k]);render();}
+function openLb(i){if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube')return;const img=document.getElementById('img-'+i);document.getElementById('lb-img').src=img.src;document.getElementById('lb-cap').textContent=CAMERAS[i].name+' — '+CAMERAS[i].loc;document.getElementById('lb').classList.add('open');lbIdx=i;}
 function closeLb(){document.getElementById('lb').classList.remove('open');lbIdx=null;}
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape') closeLb();
-  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
-  if(e.key==='ArrowRight'&&lbIdx!==null) openLb((lbIdx+1)%count);
-  if(e.key==='ArrowLeft'&&lbIdx!==null) openLb((lbIdx-1+count)%count);
-});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);if(e.key==='ArrowRight'&&lbIdx!==null)openLb((lbIdx+1)%count);if(e.key==='ArrowLeft'&&lbIdx!==null)openLb((lbIdx-1+count)%count);});
 
-function tick(){
-  const n=new Date();
-  document.getElementById('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
-  document.getElementById('hdate').textContent=n.getFullYear()+' / '+pad(n.getMonth()+1)+' / '+pad(n.getDate());
-  if(nextAt){const s=Math.max(0,Math.round((nextAt-Date.now())/1000));document.getElementById('foot-r').textContent='次回更新: '+pad(Math.floor(s/60))+':'+pad(s%60);}
-}
+function tick(){const n=new Date();document.getElementById('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());document.getElementById('hdate').textContent=n.getFullYear()+' / '+pad(n.getMonth()+1)+' / '+pad(n.getDate());if(nextAt){const s=Math.max(0,Math.round((nextAt-Date.now())/1000));document.getElementById('foot-r').textContent='次回更新: '+pad(Math.floor(s/60))+':'+pad(s%60);}}
 
 setTimeout(()=>location.reload(),10*60*1000);
 nextAt=Date.now()+10*60*1000;
