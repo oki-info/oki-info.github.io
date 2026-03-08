@@ -51,6 +51,47 @@ jobs:
               && echo "OK: 国道${N}" || echo "NG: 国道${N}"
           done
 
+          # ── 東村 防災監視カメラ ──
+          HIGASHI_BASE="http://www2.vill.higashi.okinawa.jp"
+          for CAM in \
+            "takae-school:高江小学校" \
+            "takae-school-seimon:高江小学校正門" \
+            "higashi-port:東漁港" \
+            "fkc-park:福地川海浜公園" \
+            "center-pbh:中央公民館" \
+            "hirugi:慶佐次ふれあいヒルギ公園" \
+            "arime-school:有銘小学校グラウンド" \
+            "higashi-school:東小中学校"; do
+            KEY="${CAM%%:*}"
+            LABEL="${CAM##*:}"
+            curl -sf --max-time 15 --retry 2 \
+              -H "Referer: ${HIGASHI_BASE}/" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/higashi-${KEY}.jpg" \
+              "${HIGASHI_BASE}/${KEY}.jpg" \
+              && echo "OK: 東村 ${LABEL}" || echo "NG: 東村 ${LABEL}"
+          done
+
+          # ── 大宜味村 防災ネットワークカメラ ──
+          OGIMI_BASE="http://www-camera.vill.ogimi.lg.jp"
+          for CAM in \
+            "nousonic:農村環境改善センター" \
+            "takazatocc:田嘉里公民館" \
+            "ogimiej:大宜味小中学校" \
+            "tuhacc:津波公民館" \
+            "taihocc:大保公民館" \
+            "shioya:旧塩屋小学校" \
+            "ogimiejgrd:旧大宜味小学校グラウンド"; do
+            KEY="${CAM%%:*}"
+            LABEL="${CAM##*:}"
+            curl -sf --max-time 15 --retry 2 \
+              -H "Referer: ${OGIMI_BASE}/" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/ogimi-${KEY}.jpg" \
+              "${OGIMI_BASE}/${KEY}.jpg" \
+              && echo "OK: 大宜味村 ${LABEL}" || echo "NG: 大宜味村 ${LABEL}"
+          done
+
       - name: YouTube ライブID取得 + cameras.json 生成
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -151,18 +192,51 @@ jobs:
               if os.path.exists(f) and os.path.getsize(f) > 100:
                   road_cameras.append({**cam, 'size': os.path.getsize(f)})
 
+          # 東村カメラ
+          higashi_cameras = []
+          for cam in [
+              {'key': 'higashi-takae-school',        'name': '高江小学校',           'loc': '東村'},
+              {'key': 'higashi-takae-school-seimon', 'name': '高江小学校正門',       'loc': '東村'},
+              {'key': 'higashi-higashi-port',        'name': '東漁港',               'loc': '東村'},
+              {'key': 'higashi-fkc-park',            'name': '福地川海浜公園',       'loc': '東村'},
+              {'key': 'higashi-center-pbh',          'name': '中央公民館',           'loc': '東村'},
+              {'key': 'higashi-hirugi',              'name': '慶佐次ふれあいヒルギ公園', 'loc': '東村'},
+              {'key': 'higashi-arime-school',        'name': '有銘小学校グラウンド', 'loc': '東村'},
+              {'key': 'higashi-higashi-school',      'name': '東小中学校',           'loc': '東村'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  higashi_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          # 大宜味村カメラ
+          ogimi_cameras = []
+          for cam in [
+              {'key': 'ogimi-nousonic',    'name': '農村環境改善センター',     'loc': '大宜味村'},
+              {'key': 'ogimi-takazatocc',  'name': '田嘉里公民館',             'loc': '大宜味村'},
+              {'key': 'ogimi-ogimiej',     'name': '大宜味小中学校',           'loc': '大宜味村'},
+              {'key': 'ogimi-tuhacc',      'name': '津波公民館',               'loc': '大宜味村'},
+              {'key': 'ogimi-taihocc',     'name': '大保公民館',               'loc': '大宜味村'},
+              {'key': 'ogimi-shioya',      'name': '旧塩屋小学校',             'loc': '大宜味村'},
+              {'key': 'ogimi-ogimiejgrd',  'name': '旧大宜味小学校グラウンド', 'loc': '大宜味村'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  ogimi_cameras.append({**cam, 'size': os.path.getsize(f)})
+
           result = {
               'last_fetch_jst': now.strftime('%Y-%m-%d %H:%M:%S'),
               'camera_count': len(cameras),
               'cameras': cameras,
               'extra_cameras': extra_cameras,
               'road_cameras': road_cameras,
+              'higashi_cameras': higashi_cameras,
+              'ogimi_cameras': ogimi_cameras,
               'youtube_live': youtube_live
           }
           with open('cameras.json', 'w', encoding='utf-8') as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
 
-          print(f"河川: {len(cameras)}台 / 沖縄市: {len(extra_cameras)}台 / 国道: {len(road_cameras)}台 / YouTube動的: {len(youtube_live)}件")
+          print(f"河川: {len(cameras)}台 / 沖縄市: {len(extra_cameras)}台 / 国道: {len(road_cameras)}台 / 東村: {len(higashi_cameras)}台 / 大宜味村: {len(ogimi_cameras)}台 / YouTube動的: {len(youtube_live)}件")
           PYEOF
 
       - name: コミット・プッシュ
