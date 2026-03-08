@@ -288,6 +288,10 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 
 <!-- ③ 道路カメラ -->
 <div class="section" id="sec-road">
+  <div class="river-toolbar">
+    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">南部国道事務所 道路カメラ</span>
+    <button class="tbtn" onclick="reloadRoad()">↺ 今すぐ更新</button>
+  </div>
   <div class="portal-body">
     <div class="sec-title">道路ライブカメラ — 沖縄総合事務局 南部国道事務所</div>
     <div id="road-grid" class="cam-grid wide">
@@ -306,6 +310,10 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 
 <!-- ④ 防災カメラ -->
 <div class="section" id="sec-bousai">
+  <div class="river-toolbar">
+    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">東村・大宜味村 防災カメラ</span>
+    <button class="tbtn" onclick="reloadBousai()">↺ 今すぐ更新</button>
+  </div>
   <div class="portal-body">
     <div class="sec-title">防災監視カメラ</div>
 
@@ -559,6 +567,8 @@ function retry(i){
   if(card)card.className='card';st[i]='loading';updateCounts();loadImg(i);
 }
 function reloadAll(){const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++)if(CAMERAS[i]&&CAMERAS[i].type!=='youtube')retry(i);nextAt=Date.now()+10*60*1000;}
+function reloadRoad(){const imgs=document.querySelectorAll('[id^="rimg-"]');imgs.forEach((img,i)=>{const ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>{img.src=img.src.replace(/\?t=\d+/,'')+'?t='+Date.now();},i*200);});}
+function reloadBousai(){const imgs=document.querySelectorAll('[id^="bimg-"]');imgs.forEach((img,i)=>{const uid=img.id.replace('bimg-',''),ld=document.getElementById('bld-'+uid),er=document.getElementById('ber-'+uid),card=document.getElementById('bc-'+uid);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>{img.src=img.src.replace(/\?t=\d+/,'')+'?t='+Date.now();},i*200);});}
 function updateCounts(){let ok=0,err=0;const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++){if(st[i]==='ok')ok++;if(st[i]==='error')err++;}document.getElementById('cnt-ok').textContent=ok;document.getElementById('cnt-err').textContent=err;}
 function setMode(n){mode=n;['1','2','4','8','all'].forEach(v=>document.getElementById('btn'+v).classList.toggle('active',v==String(n)));Object.keys(st).forEach(k=>delete st[k]);render();}
 function openLb(i){if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube')return;const img=document.getElementById('img-'+i);document.getElementById('lb-img').src=img.src;document.getElementById('lb-cap').textContent=CAMERAS[i].name+' — '+CAMERAS[i].loc;document.getElementById('lb').classList.add('open');lbIdx=i;}
