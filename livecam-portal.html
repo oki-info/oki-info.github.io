@@ -531,6 +531,21 @@ function openLb(i){if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube')ret
 function closeLb(){document.getElementById('lb').classList.remove('open');lbIdx=null;}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);if(e.key==='ArrowRight'&&lbIdx!==null)openLb((lbIdx+1)%count);if(e.key==='ArrowLeft'&&lbIdx!==null)openLb((lbIdx-1+count)%count);});
 
+// スワイプ対応
+let _touchX=null;
+const lb=document.getElementById('lb');
+lb.addEventListener('touchstart',e=>{_touchX=e.touches[0].clientX;},{passive:true});
+lb.addEventListener('touchend',e=>{
+  if(_touchX===null) return;
+  const dx=e.changedTouches[0].clientX-_touchX;
+  _touchX=null;
+  if(Math.abs(dx)<40) return; // 40px未満は誤操作とみなす
+  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
+  if(lbIdx===null) return;
+  if(dx<0) openLb((lbIdx+1)%count);  // 左スワイプ→次
+  else      openLb((lbIdx-1+count)%count); // 右スワイプ→前
+},{passive:true});
+
 function tick(){const n=new Date();document.getElementById('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());document.getElementById('hdate').textContent=n.getFullYear()+' / '+pad(n.getMonth()+1)+' / '+pad(n.getDate());if(nextAt){const s=Math.max(0,Math.round((nextAt-Date.now())/1000));document.getElementById('foot-r').textContent='次回更新: '+pad(Math.floor(s/60))+':'+pad(s%60);}}
 
 setTimeout(()=>location.reload(),10*60*1000);
