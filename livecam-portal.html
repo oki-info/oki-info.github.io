@@ -370,7 +370,7 @@ const YT_TAB_FIXED = [
   { id:'5jHCxMEGor0', el:'ytf-8' }, { id:'4v5e4eKIT_E', el:'ytf-9' },
 ];
 
-let CAMERAS=[], mode=4, initialized=false, ytTabLoaded=false, nextAt=null, lbIdx=null;
+let CAMERAS=[], mode=4, initialized=false, ytTabLoaded=false, nextAt=null;
 const st={};
 let _lastYtLive=null;
 
@@ -458,7 +458,7 @@ async function loadCameras(){
           d.innerHTML=`<div class="card-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="live-badge"><div class="live-dot"></div>10分更新</div></div>
             <div class="card-img"><div class="state-ov" id="rld-${i}"><div class="spin"></div></div>
             <div class="state-ov" id="rer-${i}" style="display:none"><div style="font-size:20px;opacity:.2">🚗</div><div class="state-txt">画像未取得</div></div>
-            <img class="cam-img" id="rimg-${i}" style="opacity:0" onload="rimgOK(${i})" onerror="rimgNG(${i})"></div>
+            <img class="cam-img" id="rimg-${i}" style="opacity:0;cursor:pointer" onload="rimgOK(${i})" onerror="rimgNG(${i})" onclick="openLbRoad(${i})"></div>
             <div class="card-foot"><span class="foot-stamp" id="rst-${i}">—</span>
             <a class="foot-link" href="https://www.dc.ogb.go.jp/nankoku/cctv/${num}.html" target="_blank">公式サイト↗</a></div>`;
           rg.appendChild(d);
@@ -480,7 +480,7 @@ async function loadCameras(){
           d.innerHTML = `<div class="card-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="live-badge"><div class="live-dot"></div>10分更新</div></div>
             <div class="card-img"><div class="state-ov" id="bld-${uid}"><div class="spin"></div></div>
             <div class="state-ov" id="ber-${uid}" style="display:none"><div style="font-size:20px;opacity:.2">📡</div><div class="state-txt">画像未取得</div></div>
-            <img class="cam-img" id="bimg-${uid}" data-src="img_cam/${cam.key}.jpg" style="opacity:0" onload="bimgOK('${uid}')" onerror="bimgNG('${uid}')"></div>
+            <img class="cam-img" id="bimg-${uid}" data-src="img_cam/${cam.key}.jpg" style="opacity:0;cursor:pointer" onload="bimgOK('${uid}')" onerror="bimgNG('${uid}')" onclick="openLbBousai('${uid}')"></div>
             <div class="card-foot"><span class="foot-stamp" id="bst-${uid}">—</span></div>`;
           g.appendChild(d);
           setTimeout(() => {
@@ -507,6 +507,10 @@ async function loadCameras(){
       if(data.road_cameras) data.road_cameras.forEach((cam,i)=>{
         const img=document.getElementById('rimg-'+i);
         if(img&&img.style.opacity==='1') setImgNoCache(img, `img_cam/${cam.key}.jpg`);
+      });
+      // 防災カメラも静かに更新
+      document.querySelectorAll('[id^="bimg-"]').forEach(img=>{
+        if(img.style.opacity==='1'&&img.dataset.src) setImgNoCache(img, img.dataset.src);
       });
     }
   } catch(e){
@@ -578,9 +582,65 @@ function reloadRoad(){document.querySelectorAll('[id^="rimg-"]').forEach((img,i)
 function reloadBousai(){document.querySelectorAll('[id^="bimg-"]').forEach((img,i)=>{const uid=img.id.replace('bimg-',''),ld=document.getElementById('bld-'+uid),er=document.getElementById('ber-'+uid),card=document.getElementById('bc-'+uid);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>setImgNoCache(img,img.src.split('?')[0].replace(/^blob:.+/,img.dataset.src||'')),i*200);});}
 function updateCounts(){let ok=0,err=0;const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++){if(st[i]==='ok')ok++;if(st[i]==='error')err++;}document.getElementById('cnt-ok').textContent=ok;document.getElementById('cnt-err').textContent=err;}
 function setMode(n){mode=n;['1','2','4','8','all'].forEach(v=>document.getElementById('btn'+v).classList.toggle('active',v==String(n)));Object.keys(st).forEach(k=>delete st[k]);render();}
-function openLb(i){if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube')return;const img=document.getElementById('img-'+i);document.getElementById('lb-img').src=img.src;document.getElementById('lb-cap').textContent=CAMERAS[i].name+' — '+CAMERAS[i].loc;document.getElementById('lb').classList.add('open');lbIdx=i;}
-function closeLb(){document.getElementById('lb').classList.remove('open');lbIdx=null;}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);if(e.key==='ArrowRight'&&lbIdx!==null)openLb((lbIdx+1)%count);if(e.key==='ArrowLeft'&&lbIdx!==null)openLb((lbIdx-1+count)%count);});
+// ── ライトボックス（河川・道路・防災 共通）──
+let lbMode=null, lbList=[], lbIdx=null;
+
+function openLbGeneric(list, idx){
+  if(idx<0||idx>=list.length) return;
+  const item=list[idx];
+  const img=document.getElementById(item.imgId);
+  if(!img||img.style.opacity!=='1') return;
+  document.getElementById('lb-img').src=img.src;
+  document.getElementById('lb-cap').textContent=item.name+' — '+item.loc;
+  document.getElementById('lb').classList.add('open');
+  lbList=list; lbIdx=idx;
+}
+function openLb(i){
+  if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube') return;
+  const img=document.getElementById('img-'+i);
+  const list=CAMERAS.slice(0, mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length))
+    .map((c,n)=>({imgId:'img-'+n, name:c.name||'', loc:c.loc||''}))
+    .filter((_,n)=>st[n]==='ok');
+  const idx=list.findIndex(x=>x.imgId==='img-'+i);
+  if(idx<0){
+    document.getElementById('lb-img').src=img.src;
+    document.getElementById('lb-cap').textContent=CAMERAS[i].name+' — '+CAMERAS[i].loc;
+    document.getElementById('lb').classList.add('open');
+    lbList=[{imgId:'img-'+i,name:CAMERAS[i].name,loc:CAMERAS[i].loc}]; lbIdx=0;
+    return;
+  }
+  openLbGeneric(list, idx);
+}
+function openLbRoad(i){
+  const imgs=[...document.querySelectorAll('[id^="rimg-"]')];
+  const list=imgs.map((img,n)=>{
+    const card=document.getElementById('rcard-'+n);
+    const name=card?card.querySelector('.card-river')?.textContent||'道路'+n:'道路'+n;
+    const loc=card?card.querySelector('.card-loc')?.textContent||'':'';
+    return {imgId:'rimg-'+n, name, loc};
+  }).filter((_,n)=>{const img=imgs[n];return img&&img.style.opacity==='1';});
+  const idx=list.findIndex(x=>x.imgId==='rimg-'+i);
+  openLbGeneric(list, idx<0?0:idx);
+}
+function openLbBousai(uid){
+  const imgs=[...document.querySelectorAll('[id^="bimg-"]')];
+  const list=imgs.map(img=>{
+    const u=img.id.replace('bimg-','');
+    const card=document.getElementById('bc-'+u);
+    const name=card?card.querySelector('.card-river')?.textContent||u:u;
+    const loc=card?card.querySelector('.card-loc')?.textContent||'':'';
+    return {imgId:'bimg-'+u, name, loc};
+  }).filter(item=>{const img=document.getElementById(item.imgId);return img&&img.style.opacity==='1';});
+  const idx=list.findIndex(x=>x.imgId==='bimg-'+uid);
+  openLbGeneric(list, idx<0?0:idx);
+}
+function closeLb(){document.getElementById('lb').classList.remove('open');lbIdx=null;lbList=[];}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeLb();
+  if(lbIdx===null||!lbList.length) return;
+  if(e.key==='ArrowRight') openLbGeneric(lbList,(lbIdx+1)%lbList.length);
+  if(e.key==='ArrowLeft')  openLbGeneric(lbList,(lbIdx-1+lbList.length)%lbList.length);
+});
 
 // スワイプ対応
 let _touchX=null;
@@ -590,11 +650,9 @@ lb.addEventListener('touchend',e=>{
   if(_touchX===null) return;
   const dx=e.changedTouches[0].clientX-_touchX;
   _touchX=null;
-  if(Math.abs(dx)<40) return; // 40px未満は誤操作とみなす
-  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
-  if(lbIdx===null) return;
-  if(dx<0) openLb((lbIdx+1)%count);  // 左スワイプ→次
-  else      openLb((lbIdx-1+count)%count); // 右スワイプ→前
+  if(Math.abs(dx)<40||lbIdx===null||!lbList.length) return;
+  if(dx<0) openLbGeneric(lbList,(lbIdx+1)%lbList.length);
+  else     openLbGeneric(lbList,(lbIdx-1+lbList.length)%lbList.length);
 },{passive:true});
 
 function tick(){const n=new Date();document.getElementById('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());document.getElementById('hdate').textContent=n.getFullYear()+' / '+pad(n.getMonth()+1)+' / '+pad(n.getDate());if(nextAt){const s=Math.max(0,Math.round((nextAt-Date.now())/1000));document.getElementById('foot-r').textContent='次回更新: '+pad(Math.floor(s/60))+':'+pad(s%60);}}
