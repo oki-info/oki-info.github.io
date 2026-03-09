@@ -52,6 +52,10 @@
   --green: #16a34a;
   --red:   #dc2626;
 }
+[data-theme="light"] .seg-btn{color:#1a3448;}
+[data-theme="light"] .seg-btn.active{background:rgba(13,122,112,.15);color:#0d7a70;}
+[data-theme="light"] .tbtn{color:#1a3448;}
+[data-theme="light"] .tbtn:hover{color:#0d7a70;}
 [data-theme="light"] body::before{display:none;}
 [data-theme="light"] header{background:rgba(240,244,248,.97);}
 .theme-btn{padding:3px 9px;background:transparent;border:1px solid var(--edge2);border-radius:5px;color:var(--muted);font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .15s;white-space:nowrap;}
@@ -202,6 +206,51 @@ nav::-webkit-scrollbar{display:none;}
 footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;flex-wrap:wrap;gap:4px;}
 .foot-l,.foot-r{font-family:var(--mono);font-size:11px;color:var(--muted);}
 </style>
+
+<!-- サイト説明モーダル -->
+<div id="info-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);overflow-y:auto" onclick="if(event.target===this)closeInfo()">
+  <div style="max-width:640px;margin:40px auto;background:var(--panel);border:1px solid var(--edge2);border-radius:14px;padding:28px 28px 24px;position:relative">
+    <button onclick="closeInfo()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1">✕</button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#0d9488,#0891b2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🌊</div>
+      <div>
+        <div style="font-family:var(--mono);font-weight:700;font-size:14px;color:var(--teal)">沖縄 防災ライブカメラ ポータル</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Okinawa Disaster Live Camera Portal</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px;line-height:1.8;color:var(--text);margin-bottom:18px">
+      沖縄県内の河川・道路・防災カメラおよびYouTubeライブ映像を一画面に集約した統合監視ポータルです。<br>
+      県・市町村・防災関係機関での利用を想定しています。
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px">🌊 河川カメラ</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7">沖縄県河川情報システム（42台）・沖縄市水位監視カメラ（3台）・小波津川YouTubeライブ（2台）を表示。画像は<strong>毎時05・15・25・35・45・55分</strong>に自動取得。タップで拡大、スワイプで切り替え可能。</div>
+      </div>
+      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#f87171;margin-bottom:6px">▶ YouTube ライブ</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7">県内各地のYouTubeライブカメラを一覧表示。「LIVE」は固定動画ID、「LIVE※」はAPIで動画IDを自動取得（配信停止中は「配信なし」と表示）。</div>
+      </div>
+      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">⚓ 海保カメラ</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7">第十一管区海上保安本部が提供するライブカメラ映像（5か所）。iframeで表示できない場合は「別タブで開く」から直接閲覧できます。</div>
+      </div>
+      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">🚗 道路カメラ / 🚨 防災カメラ</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7">沖縄総合事務局 南部国道事務所（5台）、東村防災カメラ（8台）、大宜味村防災ネットワークカメラ（7台）。「↺ 今すぐ更新」で手動再読み込み可能。</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8">
+      <div>📡 <strong style="color:var(--text)">データソース:</strong> 沖縄県河川情報システム / 沖縄市 / 沖縄総合事務局 / 東村 / 大宜味村 / 海上保安庁 / YouTube</div>
+      <div>🔄 <strong style="color:var(--text)">自動更新:</strong> 河川・防災画像は10分ごと（毎時05分〜） / ページは10分ごとに自動リロード</div>
+      <div>📱 <strong style="color:var(--text)">操作:</strong> 画像タップ → 拡大表示 / 拡大中にスワイプ → 前後の画像へ</div>
+    </div>
+  </div>
+</div>
+
 </head>
 <body>
 
@@ -214,6 +263,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
     </div>
   </div>
   <div class="theme-switcher">
+    <button class="theme-btn" onclick="openInfo()" style="font-size:13px;padding:3px 10px">？ このサイトについて</button>
     <button class="theme-btn active" id="theme-dark"  onclick="setTheme('dark')">🌑 ダーク</button>
     <button class="theme-btn"        id="theme-navy"  onclick="setTheme('navy')">🌊 ネイビー</button>
     <button class="theme-btn"        id="theme-light" onclick="setTheme('light')">☀️ ライト</button>
@@ -746,8 +796,10 @@ function openLbBousai(uid){
   openLbGeneric(list, idx<0?0:idx);
 }
 function closeLb(){document.getElementById('lb').classList.remove('open');lbIdx=null;lbList=[];}
+function openInfo(){document.getElementById('info-modal').style.display='block';}
+function closeInfo(){document.getElementById('info-modal').style.display='none';}
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape') closeLb();
+  if(e.key==='Escape'){closeInfo();closeLb();}
   if(lbIdx===null||!lbList.length) return;
   if(e.key==='ArrowRight') openLbGeneric(lbList,(lbIdx+1)%lbList.length);
   if(e.key==='ArrowLeft')  openLbGeneric(lbList,(lbIdx-1+lbList.length)%lbList.length);
