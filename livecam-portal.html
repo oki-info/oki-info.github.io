@@ -148,6 +148,16 @@ nav::-webkit-scrollbar{display:none;}
 .foot-link:hover{color:var(–teal);}
 .foot-retry{font-size:13px;background:none;border:none;cursor:pointer;color:var(–muted);}
 .foot-retry:hover{color:var(–teal);}
+.fav-btn{font-size:13px;background:none;border:none;cursor:pointer;padding:0 2px;transition:transform .15s;}
+.fav-btn:hover{transform:scale(1.3);}
+@media print{
+header,nav,.river-toolbar,.fetch-bar,.theme-switcher,footer,.tbtn,.seg,.foot-retry,.fav-btn,.lb-close{display:none!important;}
+.section{display:block!important;}
+.grid{grid-template-columns:repeat(3,1fr)!important;}
+body{background:#fff!important;color:#000!important;}
+.card{border:1px solid #ccc!important;background:#fff!important;}
+.card-river,.card-loc{color:#000!important;}
+}
 
 /* YouTubeカード */
 .yt-card{background:var(–card);border:1px solid rgba(248,113,113,.3);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;}
@@ -278,6 +288,8 @@ footer{background:var(–deep);border-top:1px solid var(–edge);padding:5px 14p
   </div>
   <div class="theme-switcher">
     <button class="theme-btn info-btn" onclick="openInfo()">？</button>
+    <button class="theme-btn" id="fullscreen-btn" onclick="toggleFullscreen()" title="全画面">⛶</button>
+    <button class="theme-btn" onclick="window.print()" title="印刷">🖨</button>
     <button class="theme-btn active" id="theme-dark"  onclick="setTheme('dark')">🌑</button>
     <button class="theme-btn"        id="theme-navy"  onclick="setTheme('navy')">🌊</button>
     <button class="theme-btn"        id="theme-light" onclick="setTheme('light')">☀️</button>
@@ -301,7 +313,8 @@ footer{background:var(–deep);border-top:1px solid var(–edge);padding:5px 14p
 </div>
 
 <nav>
-  <button class="tab active" id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
+  <button class="tab active" id="tab-bousaiinfo" onclick="showTab('bousaiinfo')">⚠️ 防災情報</button>
+  <button class="tab"        id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
   <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
   <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
@@ -310,7 +323,7 @@ footer{background:var(–deep);border-top:1px solid var(–edge);padding:5px 14p
 
 <!-- ① 河川カメラ -->
 
-<div class="section active" id="sec-river">
+<div class="section" id="sec-river">
   <div class="river-toolbar">
     <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">表示:</span>
     <div class="seg">
@@ -330,6 +343,57 @@ footer{background:var(–deep);border-top:1px solid var(–edge);padding:5px 14p
     <div id="grid" class="grid g4">
       <div class="loading-msg">カメラ情報を読み込み中…</div>
     </div>
+  </div>
+</div>
+
+<!-- ② 防災情報タブ -->
+
+<div class="section active" id="sec-bousaiinfo">
+  <div class="portal-body">
+    <div style="display:grid;gap:16px;grid-template-columns:1fr 1fr;">
+
+```
+  <!-- 気象警報・注意報 -->
+  <div style="grid-column:1/-1">
+    <div class="sec-title">気象警報・注意報 <span style="font-size:11px;font-weight:400;letter-spacing:0">（沖縄県 — 気象庁）</span>
+      <button class="tbtn" style="margin-left:auto" onclick="loadBousaiInfo()">↺ 更新</button>
+    </div>
+    <div id="warning-area" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
+    </div>
+  </div>
+
+  <!-- 雨雲レーダー -->
+  <div style="grid-column:1/-1">
+    <div class="sec-title">雨雲レーダー <span style="font-size:11px;font-weight:400;letter-spacing:0">（気象庁 高解像度降水ナウキャスト）</span></div>
+    <div style="position:relative;width:100%;padding-bottom:62%;background:#0a0f16;border-radius:10px;overflow:hidden;border:1px solid var(--edge)">
+      <iframe
+        src="https://www.jma.go.jp/bosai/map.html#5/27/130/&elem=nowc&contents=nowc&lang=ja"
+        style="position:absolute;inset:0;width:100%;height:100%;border:none"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px">
+      ※ 気象庁の高解像度降水ナウキャストページを埋め込んでいます。<a href="https://www.jma.go.jp/bosai/nowc/" target="_blank" style="color:var(--teal);text-decoration:none">別タブで開く↗</a>
+    </div>
+  </div>
+
+  <!-- 台風情報 -->
+  <div style="grid-column:1/-1">
+    <div class="sec-title">台風情報</div>
+    <div id="typhoon-area" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <a class="ext-link" href="https://www.jma.go.jp/bosai/typhoon/" target="_blank" style="font-size:12px"><span class="ext-link-name">気象庁 台風情報</span><span class="ext-link-arr">↗</span></a>
+      <a class="ext-link" href="https://www.jma.go.jp/bosai/map.html#5/27/130/&elem=typh&contents=typh" target="_blank" style="font-size:12px"><span class="ext-link-name">台風経路図</span><span class="ext-link-arr">↗</span></a>
+      <a class="ext-link" href="https://www.jma.go.jp/jp/warn/okinawa_index.html" target="_blank" style="font-size:12px"><span class="ext-link-name">沖縄地方 気象情報</span><span class="ext-link-arr">↗</span></a>
+    </div>
+  </div>
+
+</div>
+```
+
   </div>
 </div>
 
@@ -582,11 +646,12 @@ async function setImgNoCache(imgEl, url) {
 }
 
 function showTab(id){
-  ['river','youtube','kaiho','road','bousai'].forEach(t=>{
+  ['river','bousaiinfo','youtube','kaiho','road','bousai'].forEach(t=>{
     document.getElementById('sec-'+t).classList.toggle('active',t===id);
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
   document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
+  if(id==='bousaiinfo') loadBousaiInfo();
   // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
@@ -761,6 +826,7 @@ function render(){
         </div>
         <div class="card-foot"><span class="foot-stamp" id="st-${i}">—</span>
           <a class="foot-link" href="${cam.link}" target="_blank">公式サイト↗</a>
+          <button class="fav-btn" id="fav-${i}" onclick="toggleFav(${i})" title="お気に入り">${getFav(i)?'⭐':'☆'}</button>
           <button class="foot-retry" onclick="retry(${i})">↺</button></div>`;
       grid.appendChild(d); st[i]='loading';
       setTimeout(()=>loadImg(i),i*150);
@@ -890,9 +956,130 @@ function setTheme(t){
 // 起動時に保存済みテーマを適用
 (function(){try{const t=localStorage.getItem('theme');if(t)setTheme(t);}catch(e){}})();
 
+// ── お気に入り ──
+function getFav(i){try{const f=JSON.parse(localStorage.getItem('favs')||'[]');return f.includes(i);}catch(e){return false;}}
+function toggleFav(i){
+  try{
+    let f=JSON.parse(localStorage.getItem('favs')||'[]');
+    if(f.includes(i)) f=f.filter(x=>x!==i); else f.push(i);
+    localStorage.setItem('favs',JSON.stringify(f));
+    const btn=document.getElementById('fav-'+i);
+    if(btn) btn.textContent=f.includes(i)?'⭐':'☆';
+  }catch(e){}
+}
+
+// ── 全画面 ──
+function toggleFullscreen(){
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+    document.getElementById('fullscreen-btn').textContent='✕全';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('fullscreen-btn').textContent='⛶';
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  document.getElementById('fullscreen-btn').textContent=document.fullscreenElement?'✕全':'⛶';
+});
+
+// ── 気象警報・台風情報 ──
+const WARNING_COLORS={
+  '大雨特別警報':'#ff0000','洪水特別警報':'#ff0000','暴風特別警報':'#ff0000','暴風雪特別警報':'#ff0000','高潮特別警報':'#ff0000','波浪特別警報':'#ff0000',
+  '大雨警報':'#f97316','洪水警報':'#f97316','暴風警報':'#f87171','高潮警報':'#f87171','波浪警報':'#f87171',
+  '大雨注意報':'#fbbf24','洪水注意報':'#fbbf24','強風注意報':'#fbbf24','高潮注意報':'#fbbf24','波浪注意報':'#fbbf24',
+};
+const AREA_NAMES={
+  '110':'那覇市','120':'宜野湾市','130':'石垣市','140':'浦添市','150':'名護市',
+  '160':'糸満市','170':'沖縄市','180':'豊見城市','190':'うるま市','200':'宮古島市',
+  '210':'南城市','301':'国頭村','302':'大宜味村','303':'東村','306':'今帰仁村',
+  '308':'本部町','310':'恩納村','312':'宜野座村','313':'金武町','314':'伊江村',
+  '321':'読谷村','322':'嘉手納町','323':'北谷町','324':'北中城村','325':'中城村',
+  '326':'西原町','331':'与那原町','332':'南風原町','333':'八重瀬町',
+  '341':'渡嘉敷村','342':'座間味村','343':'粟国村','344':'渡名喜村','345':'南大東村',
+  '346':'北大東村','347':'伊平屋村','348':'伊是名村','349':'久米島町','350':'八重山郡','999':'沖縄県全域'
+};
+
+let bousaiInfoLoaded=false;
+async function loadBousaiInfo(){
+  if(document.getElementById('sec-bousaiinfo').style.display==='none') return;
+  // 警報
+  try{
+    const res=await fetch('https://www.jma.go.jp/bosai/warning/data/warning/471000.json',{cache:'no-store'});
+    const data=await res.json();
+    renderWarnings(data);
+  }catch(e){
+    document.getElementById('warning-area').innerHTML=`<div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">警報情報の取得に失敗しました。<a href="https://www.jma.go.jp/bosai/warning/#area_type=offices&area_code=471000" target="_blank" style="color:var(--teal)">気象庁サイト↗</a></div>`;
+  }
+  // 台風
+  try{
+    const res=await fetch('https://www.jma.go.jp/bosai/typhoon/data/alltyphoon.json',{cache:'no-store'});
+    const data=await res.json();
+    renderTyphoon(data);
+  }catch(e){
+    document.getElementById('typhoon-area').innerHTML=`<div style="font-family:var(--mono);font-size:11px;color:var(--muted)">台風情報の取得に失敗しました。</div>`;
+  }
+}
+
+function renderWarnings(data){
+  const el=document.getElementById('warning-area');
+  const areas=data.areaTypes?.[1]?.areas||[];
+  let hasWarning=false;
+  const cards=[];
+  areas.forEach(area=>{
+    const warnings=area.warnings||[];
+    const active=warnings.filter(w=>w.status==='発表');
+    if(!active.length) return;
+    hasWarning=true;
+    const name=area.name||AREA_NAMES[area.code]||area.code;
+    const items=active.map(w=>{
+      const col=WARNING_COLORS[w.type]||(w.type.includes('特別警報')?'#ff0000':w.type.includes('警報')?'#f97316':'#fbbf24');
+      return `<span style="display:inline-block;background:${col}22;border:1px solid ${col}66;color:${col};font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;margin:2px">${w.type}</span>`;
+    }).join('');
+    cards.push(`<div style="background:var(--card);border:1px solid var(--edge);border-radius:8px;padding:10px 12px">
+      <div style="font-size:12px;font-weight:700;color:var(--bright);margin-bottom:6px">${name}</div>
+      <div>${items}</div>
+    </div>`);
+  });
+  if(!hasWarning){
+    el.innerHTML=`<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:10px;grid-column:1/-1">
+      <span style="font-size:22px">✅</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#4ade80">現在、沖縄県内に発表中の警報・注意報はありません</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px">気象庁 警報・注意報 （${new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})} 現在）</div>
+      </div>
+    </div>`;
+  } else {
+    el.innerHTML=cards.join('');
+  }
+}
+
+function renderTyphoon(data){
+  const el=document.getElementById('typhoon-area');
+  const active=(data||[]).filter(t=>t.active);
+  if(!active.length){
+    el.innerHTML=`<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">🌀</span>
+      <div style="font-size:13px;font-weight:700;color:#4ade80">現在、発生中の台風はありません</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML=active.map(t=>`
+    <div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.4);border-radius:8px;padding:12px 16px;min-width:220px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:20px">🌀</span>
+        <div style="font-size:13px;font-weight:700;color:#f87171">${t.name_ja||t.name||'台風'} ${t.number?t.number+'号':''}</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text);line-height:1.8">
+        ${t.category?`<div>強度: ${t.category}</div>`:''}
+        ${t.pressure?`<div>中心気圧: ${t.pressure} hPa</div>`:''}
+        ${t.wind_speed_max?`<div>最大風速: ${t.wind_speed_max} m/s</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
 setTimeout(()=>location.reload(),10*60*1000);
 nextAt=Date.now()+10*60*1000;
-loadCameras(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
+loadCameras(); loadBousaiInfo(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
 </script>
 
 </body>
