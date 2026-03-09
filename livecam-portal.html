@@ -59,9 +59,9 @@
 [data-theme="light"] .tbtn:hover{color:#0d7a70;}
 [data-theme="light"] body::before{display:none;}
 [data-theme="light"] header{background:rgba(240,244,248,.97);}
-.theme-btn{padding:4px 10px;background:transparent;border:1px solid var(--edge2);border-radius:5px;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.theme-btn{padding:4px 8px;background:transparent;border:1px solid var(--edge2);border-radius:5px;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
 .theme-btn:hover,.theme-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal3);}
-.theme-switcher{display:flex;gap:4px;align-items:center;margin-right:8px;}
+.theme-switcher{display:flex;gap:3px;align-items:center;flex-shrink:0;}
 /* PC: ボタンにラベルを付加 */
 @media(min-width:641px){
   #theme-dark::after{content:' ダーク';}
@@ -74,15 +74,16 @@ html{scroll-behavior:smooth;}
 body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);}
 
-header{position:sticky;top:0;z-index:200;background:rgba(8,14,23,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(–edge2);padding:0 10px;display:flex;align-items:center;gap:6px;height:54px;flex-shrink:0;}
-.logo{display:flex;align-items:center;gap:8px;min-width:0;}
-.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#0d9488,#0891b2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.logo-title{font-family:var(–mono);font-weight:700;font-size:13px;color:var(–teal);letter-spacing:.08em;white-space:nowrap;}
-.logo-sub{font-family:var(–mono);font-size:10px;color:var(–muted);}
-@media(max-width:640px){.logo-title{font-size:11px;}.logo-sub{display:none;}}
+header{position:sticky;top:0;z-index:200;background:rgba(8,14,23,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(–edge2);padding:0 8px;display:flex;align-items:center;gap:5px;height:54px;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:7px;min-width:0;flex-shrink:1;overflow:hidden;}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#0d9488,#0891b2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.logo-title{font-family:var(–mono);font-weight:700;font-size:12px;color:var(–teal);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.logo-sub{font-family:var(–mono);font-size:9px;color:var(–muted);white-space:nowrap;}
+@media(max-width:640px){.logo-sub{display:none;}}
 .h-right{margin-left:auto;text-align:right;flex-shrink:0;}
-.hclock{font-family:var(–mono);font-size:18px;color:var(–teal);letter-spacing:.06em;}
+.hclock{font-family:var(–mono);font-size:16px;color:var(–teal);letter-spacing:.06em;}
 .hdate{font-family:var(–mono);font-size:10px;color:var(–muted);}
+@media(max-width:640px){.hdate{display:none;}.hclock{font-size:14px;}}
 
 .fetch-bar{padding:5px 14px;background:rgba(0,0,0,.3);border-bottom:1px solid var(–edge);display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
 .fb-label{font-family:var(–mono);font-size:11px;color:var(–muted);}
@@ -586,34 +587,60 @@ function showTab(id){
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
   document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
-  // YouTubeタブを初めて開いた時にiframeをセット→自動再生
+  // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
-    YT_TAB_FIXED.forEach(item=>{
-      const el=document.getElementById(item.el);
-      if(el) el.src=`https://www.youtube.com/embed/${item.id}?autoplay=1&mute=1&rel=0`;
-    });
     if(_lastYtLive) applyYoutubeLive(_lastYtLive);
+    setupYtLazyLoad();
   }
+}
+
+// 画面に入った時だけiframeをロード（メモリ節約）
+function setupYtLazyLoad(){
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting) return;
+      const el=entry.target;
+      if(el.dataset.ytid && !el.src){
+        el.src=`https://www.youtube.com/embed/${el.dataset.ytid}?autoplay=0&mute=1&rel=0`;
+      }
+      obs.unobserve(el);
+    });
+  },{rootMargin:'200px'});
+  YT_TAB_FIXED.forEach(item=>{
+    const el=document.getElementById(item.el);
+    if(el){el.dataset.ytid=item.id; obs.observe(el);}
+  });
 }
 
 function applyYoutubeLive(list){
   if(!list) return;
   _lastYtLive=list;
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting) return;
+      const el=entry.target;
+      if(el.dataset.pendingHtml){
+        el.innerHTML=el.dataset.pendingHtml;
+        delete el.dataset.pendingHtml;
+      }
+      obs.unobserve(el);
+    });
+  },{rootMargin:'200px'});
   list.forEach(cam=>{
     const el=document.getElementById('yt-dyn-'+cam.name);
     if(!el) return;
     if(cam.video_id){
-      const autoplay=ytTabLoaded?'autoplay=1&mute=1&':'';
-      el.innerHTML=`<iframe style="position:absolute;inset:0;width:100%;height:100%;border:none"
-        src="https://www.youtube.com/embed/${cam.video_id}?${autoplay}rel=0"
+      const html=`<iframe style="position:absolute;inset:0;width:100%;height:100%;border:none"
+        src="https://www.youtube.com/embed/${cam.video_id}?autoplay=0&mute=1&rel=0"
         allowfullscreen allow="autoplay;encrypted-media"></iframe>`;
+      if(ytTabLoaded){el.dataset.pendingHtml=html; obs.observe(el);}
+      else el.dataset.pendingHtml=html;
     } else {
       el.innerHTML=`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
         <div style="font-size:20px;opacity:.3">📡</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--muted)">現在配信なし</div>
-        <a href="https://www.youtube.com/channel/${cam.channel_id||''}" target="_blank"
-           style="font-family:var(--mono);font-size:8px;color:var(--teal);text-decoration:none">チャンネルを開く↗</a>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">現在配信なし</div>
+        <a href="https://www.youtube.com/@${cam.name}" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--teal);text-decoration:none">チャンネルを開く↗</a>
       </div>`;
     }
   });
