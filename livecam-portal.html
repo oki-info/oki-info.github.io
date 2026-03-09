@@ -237,7 +237,8 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 
 <nav>
   <button class="tab active" id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
-  <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">18</span></button>
+  <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
+  <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-bousai"   onclick="showTab('bousai')">🚨 防災カメラ <span class="tab-count">4</span></button>
 </nav>
@@ -275,18 +276,35 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
       <div class="sub-title">📍 那覇・中南部</div>
       <div class="cam-grid">
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇空港</div><div class="cam-loc">那覇市鏡水</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-0" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇空港・那覇新港（日テレNews）</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-18" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇空港（日テレNews）</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-22" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">QAB琉球朝日放送 お天気カメラ</div><div class="cam-loc">那覇市ほか</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-20" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇市役所前・国際通り</div><div class="cam-loc">那覇市泉崎</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">国際通り 牧志交番前</div><div class="cam-loc">那覇市牧志</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-2" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">県庁前駅（朝日新聞那覇総局）</div><div class="cam-loc">那覇市久茂地</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-3" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇クルーズターミナル</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-21" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宜野湾市 大謝名交差点</div><div class="cam-loc">宜野湾市大謝名</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-4" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">ラグナガーデンホテル</div><div class="cam-loc">宜野湾市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-10" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">アメリカンビレッジ</div><div class="cam-loc">中頭郡北谷町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-15" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">豊見城市宜保</div><div class="cam-loc">豊見城市宜保</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-豊見城市宜保" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">南風原町（１）</div><div class="cam-loc">島尻郡南風原町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-島尻郡南風原町ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">南風原町（２）</div><div class="cam-loc">島尻郡南風原町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-沖縄県島尻郡ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">与那原町 字与那原</div><div class="cam-loc">島尻郡与那原町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-与那原ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
       </div>
     </div>
 
     <div class="sub-sec">
       <div class="sub-title">📍 中部・北部</div>
       <div class="cam-grid">
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">西原高台（１）</div><div class="cam-loc">中頭郡西原町上原付近</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-11" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">西原高台（２）</div><div class="cam-loc">中頭郡西原町上原付近</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-12" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">浦添市城間</div><div class="cam-loc">浦添市城間</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-浦添市城間ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">本部町備瀬（エメラルドビーチ近く）</div><div class="cam-loc">国頭郡本部町備瀬</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-5" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">本部町備瀬（ニルヤカナヤBISE屋上）</div><div class="cam-loc">国頭郡本部町備瀬</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-19" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">モトブテラス</div><div class="cam-loc">国頭郡本部町伊野波</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-16" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">道の駅やんばるパイナップルの丘安波（１）</div><div class="cam-loc">国頭村安波近辺</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-13" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">道の駅やんばるパイナップルの丘安波（太平洋側）</div><div class="cam-loc">国頭村安波近辺</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-14" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">うるま市洲崎</div><div class="cam-loc">うるま市洲崎</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-うるま市州崎ライブカメラ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">恩納村 マリブビーチ</div><div class="cam-loc">国頭郡恩納村</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-恩納村マリブビーチ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">かりゆしビーチリゾート</div><div class="cam-loc">国頭郡恩納村</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-かりゆしビーチリゾート" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">北谷町砂辺</div><div class="cam-loc">中頭郡北谷町砂辺</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-北谷町砂辺" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
@@ -304,12 +322,14 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
     </div>
 
     <div class="sub-sec">
-      <div class="sub-title">📍 離島</div>
+      <div class="sub-title">📍 離島・宮古</div>
       <div class="cam-grid">
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島</div><div class="cam-loc">石垣市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-8" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島730交差点</div><div class="cam-loc">石垣市美崎町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-石垣島730交差点" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島ユーグレナ離島ターミナル</div><div class="cam-loc">石垣市美崎町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-石垣島ユーグレナ離島ターミナル" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
         <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宮古島 ウォーターマークホテル</div><div class="cam-loc">宮古島市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-9" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宮古島 バイナガマビーチ（OTV）</div><div class="cam-loc">宮古島市平良下里</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-17" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
+        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">鳩間島</div><div class="cam-loc">八重山郡竹富町鳩間</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-23" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
       </div>
     </div>
 
@@ -324,7 +344,53 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   </div>
 </div>
 
-<!-- ③ 道路カメラ -->
+<!-- ③ 海上保安庁カメラ -->
+<div class="section" id="sec-kaiho">
+  <div class="portal-body">
+    <div class="sec-title">海上保安庁 ライブカメラ — 第十一管区</div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">※ サイト側の設定でiframeに表示できない場合は「別タブで開く↗」から直接閲覧できます。</p>
+    <div class="cam-grid">
+      <div class="cam-card">
+        <div class="cam-head"><div><div class="cam-name">第十一管区海上保安本部庁舎</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-bousai">海保</span></div>
+        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
+          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/11th_rcgh/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+        </div>
+        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/11th_rcgh/" target="_blank">別タブで開く↗</a></div>
+      </div>
+      <div class="cam-card">
+        <div class="cam-head"><div><div class="cam-name">伊計島灯台</div><div class="cam-loc">うるま市与那城伊計</div></div><span class="cam-badge badge-bousai">海保</span></div>
+        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
+          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/ikeishima_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+        </div>
+        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/ikeishima_lt/" target="_blank">別タブで開く↗</a></div>
+      </div>
+      <div class="cam-card">
+        <div class="cam-head"><div><div class="cam-name">琉球観音埼灯台</div><div class="cam-loc">石垣市新川</div></div><span class="cam-badge badge-bousai">海保</span></div>
+        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
+          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/ryukyukannonsaki_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+        </div>
+        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/ryukyukannonsaki_lt/" target="_blank">別タブで開く↗</a></div>
+      </div>
+      <div class="cam-card">
+        <div class="cam-head"><div><div class="cam-name">西埼灯台</div><div class="cam-loc">八重山郡与那国町</div></div><span class="cam-badge badge-bousai">海保</span></div>
+        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
+          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/irisaki_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+        </div>
+        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/irisaki_lt/" target="_blank">別タブで開く↗</a></div>
+      </div>
+      <div class="cam-card" style="opacity:.5">
+        <div class="cam-head"><div><div class="cam-name">平安名埼灯台</div><div class="cam-loc">宮古島市</div></div><span class="cam-badge" style="background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3)">故障中</span></div>
+        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+          <div style="font-size:28px;opacity:.3">🔧</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">現在故障中</div>
+        </div>
+        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/hennasaki_lt/" target="_blank">別タブで開く↗</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 道路カメラ -->
 <div class="section" id="sec-road">
   <div class="river-toolbar">
     <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">南部国道事務所 道路カメラ</span>
@@ -406,6 +472,13 @@ const YT_TAB_FIXED = [
   { id:'WIYUrH4luck', el:'ytf-4' }, { id:'XTeL4encP9o', el:'ytf-5' },
   { id:'EkbG_VYkExM', el:'ytf-6' }, { id:'DBju-AkvIVM', el:'ytf-7' },
   { id:'5jHCxMEGor0', el:'ytf-8' }, { id:'4v5e4eKIT_E', el:'ytf-9' },
+  { id:'o7i9-ZK0U6c', el:'ytf-10' }, { id:'lVSfo5jnMH8', el:'ytf-11' },
+  { id:'0zIiC88ccwA', el:'ytf-12' }, { id:'gxIrB0DYUzU', el:'ytf-13' },
+  { id:'LT_mSo_AlEI', el:'ytf-14' }, { id:'briBfx5IZbg', el:'ytf-15' },
+  { id:'Tlc3uegvdrQ', el:'ytf-16' }, { id:'vALZRyqT_Jg', el:'ytf-17' },
+  { id:'PS96EPeWljE', el:'ytf-18' }, { id:'VyT694OcIHM', el:'ytf-19' },
+  { id:'ZdvNQ3D0PY4', el:'ytf-20' }, { id:'uLZ3pTdxr6M', el:'ytf-21' },
+  { id:'CP_1osP5ayo', el:'ytf-22' }, { id:'wRq4tg4d-aA', el:'ytf-23' },
 ];
 
 let CAMERAS=[], mode=4, initialized=false, ytTabLoaded=false, nextAt=null;
@@ -432,7 +505,7 @@ async function setImgNoCache(imgEl, url) {
 }
 
 function showTab(id){
-  ['river','youtube','road','bousai'].forEach(t=>{
+  ['river','youtube','kaiho','road','bousai'].forEach(t=>{
     document.getElementById('sec-'+t).classList.toggle('active',t===id);
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
