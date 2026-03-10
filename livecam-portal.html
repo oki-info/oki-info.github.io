@@ -213,30 +213,6 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 .foot-l,.foot-r{font-family:var(--mono);font-size:11px;color:var(--muted);}
 </style>
 
-<!-- PAT入力モーダル -->
-<div id="pat-modal" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.75);backdrop-filter:blur(6px)" onclick="if(event.target===this)closePatModal()">
-  <div style="max-width:480px;margin:80px auto 40px;background:var(--panel);border:1px solid var(--edge2);border-radius:14px;padding:24px;position:relative">
-    <button onclick="closePatModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
-    <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--teal);margin-bottom:12px">🔑 GitHub Personal Access Token</div>
-    <p style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:14px">
-      「今すぐ更新」ボタンでActionsを直接起動するために、GitHub PATが必要です。<br>
-      トークンはこの端末の<strong>このセッション中のみ</strong>保存されます。ブラウザを閉じると自動で削除されます。
-    </p>
-    <div style="background:rgba(0,0,0,.3);border:1px solid var(--edge);border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:14px">
-      <div style="color:var(--text);font-weight:700;margin-bottom:4px">PAT作成手順</div>
-      <div>① GitHub → Settings → Developer settings</div>
-      <div>② Personal access tokens → Fine-grained tokens</div>
-      <div>③ Repository: <strong style="color:var(--teal)">bosai-oki/bosai-oki.github.io</strong></div>
-      <div>④ Permissions → <strong style="color:var(--teal)">Actions: Read and write</strong></div>
-    </div>
-    <input id="pat-input" type="password" placeholder="github_pat_..." style="width:100%;box-sizing:border-box;padding:8px 10px;background:var(--card);border:1px solid var(--edge2);border-radius:6px;color:var(--bright);font-family:var(--mono);font-size:12px;margin-bottom:10px;outline:none">
-    <div style="display:flex;gap:8px">
-      <button onclick="savePat()" style="flex:1;padding:8px;background:var(--teal);border:none;border-radius:6px;color:#000;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer">保存して実行</button>
-      <button onclick="clearPat()" style="padding:8px 12px;background:transparent;border:1px solid var(--edge2);border-radius:6px;color:var(--muted);font-family:var(--mono);font-size:12px;cursor:pointer">トークン削除</button>
-    </div>
-  </div>
-</div>
-
 <!-- サイト説明モーダル -->
 <div id="info-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);overflow-y:auto" onclick="if(event.target===this)closeInfo()">
   <div style="max-width:640px;margin:40px auto;background:var(--panel);border:1px solid var(--edge2);border-radius:14px;padding:28px 28px 24px;position:relative">
@@ -334,8 +310,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
       <button class="seg-btn" id="btn8"   onclick="setMode(8)">８画面</button>
       <button class="seg-btn" id="btnall" onclick="setMode('all')">全画面</button>
     </div>
-    <button class="tbtn" onclick="triggerFetch()" id="fetch-trigger-btn">↺ 今すぐ更新</button>
-    <span id="fetch-trigger-msg" style="font-family:var(--mono);font-size:10px;color:var(--muted)"></span>
+    <button class="tbtn" onclick="reloadAll()">↺ 今すぐ更新</button>
     <div class="ml-auto s-row">
       <div class="s-pill"><div class="dot dot-ok"></div><span id="cnt-ok">0</span></div>
       <div class="s-pill"><div class="dot dot-err"></div><span id="cnt-err">0</span> エラー</div>
@@ -862,75 +837,6 @@ function retry(i){
   if(img){img.style.display='block';img.style.opacity='0';}
   if(card)card.className='card';st[i]='loading';updateCounts();loadImg(i);
 }
-// ── GitHub Actions トリガー ──
-const GH_REPO = 'bosai-oki/bosai-oki.github.io';
-const GH_WORKFLOW = 'fetch_images.yml';
-
-async function triggerFetch(){
-  let token;
-  try{ token = sessionStorage.getItem('gh_pat'); }catch(e){}
-  if(!token){
-    openPatModal();
-    return;
-  }
-  const btn = document.getElementById('fetch-trigger-btn');
-  const msg = document.getElementById('fetch-trigger-msg');
-  btn.disabled = true;
-  msg.textContent = '送信中…';
-  try{
-    const res = await fetch(
-      `https://api.github.com/repos/${GH_REPO}/actions/workflows/${GH_WORKFLOW}/dispatches`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ref: 'main'})
-      }
-    );
-    if(res.status === 204){
-      msg.style.color = 'var(--green)';
-      msg.textContent = '✓ Actions起動 — 約1分後に画像が更新されます';
-      // 65秒後に自動リロード
-      setTimeout(()=>{ reloadAll(); msg.textContent=''; msg.style.color='var(--muted)'; }, 65000);
-    } else if(res.status === 401){
-      msg.style.color = '#f87171';
-      msg.textContent = '✗ 認証エラー — トークンを確認してください';
-      try{ sessionStorage.removeItem('gh_pat'); }catch(e){}
-    } else {
-      msg.style.color = '#f87171';
-      msg.textContent = `✗ エラー (${res.status})`;
-    }
-  }catch(e){
-    msg.style.color = '#f87171';
-    msg.textContent = '✗ 通信エラー';
-  }
-  btn.disabled = false;
-  setTimeout(()=>{ if(msg.style.color !== 'var(--green)') msg.textContent=''; }, 5000);
-}
-
-function openPatModal(){
-  document.getElementById('pat-modal').style.display = 'block';
-}
-function closePatModal(){
-  document.getElementById('pat-modal').style.display = 'none';
-}
-function savePat(){
-  const val = document.getElementById('pat-input').value.trim();
-  if(!val){ return; }
-  try{ sessionStorage.setItem('gh_pat', val); }catch(e){}
-  closePatModal();
-  triggerFetch();
-}
-function clearPat(){
-  try{ sessionStorage.removeItem('gh_pat'); }catch(e){}
-  document.getElementById('pat-input').value = '';
-  document.getElementById('fetch-trigger-msg').textContent = 'トークンを削除しました';
-  setTimeout(()=>{ document.getElementById('fetch-trigger-msg').textContent=''; }, 3000);
-}
-
 function reloadAll(){const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++)if(CAMERAS[i]&&CAMERAS[i].type!=='youtube')retry(i);nextAt=Date.now()+10*60*1000;}
 function reloadRoad(){document.querySelectorAll('[id^="rimg-"]').forEach((img,i)=>{const ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>setImgNoCache(img,img.src.split('?')[0]),i*200);});}
 function reloadBousai(){document.querySelectorAll('[id^="bimg-"]').forEach((img,i)=>{const uid=img.id.replace('bimg-',''),ld=document.getElementById('bld-'+uid),er=document.getElementById('ber-'+uid),card=document.getElementById('bc-'+uid);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>setImgNoCache(img,img.src.split('?')[0].replace(/^blob:.+/,img.dataset.src||'')),i*200);});}
