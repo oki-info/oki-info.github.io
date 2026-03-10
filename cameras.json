@@ -1,58 +1,58 @@
 {
-  "last_fetch_jst": "2026-03-11 01:43:50",
+  "last_fetch_jst": "2026-03-11 04:26:51",
   "camera_count": 42,
   "cameras": [
     {
       "pid": "01",
-      "size": 65177
+      "size": 65417
     },
     {
       "pid": "02",
-      "size": 45143
+      "size": 38080
     },
     {
       "pid": "03",
-      "size": 60535
+      "size": 57735
     },
     {
       "pid": "04",
-      "size": 43291
+      "size": 43694
     },
     {
       "pid": "05",
-      "size": 63626
+      "size": 64101
     },
     {
       "pid": "06",
-      "size": 31769
+      "size": 32922
     },
     {
       "pid": "07",
-      "size": 53792
+      "size": 52567
     },
     {
       "pid": "08",
-      "size": 49141
+      "size": 48749
     },
     {
       "pid": "09",
-      "size": 22785
+      "size": 22613
     },
     {
       "pid": "10",
-      "size": 43961
+      "size": 44824
     },
     {
       "pid": "11",
-      "size": 86322
+      "size": 88802
     },
     {
       "pid": "12",
-      "size": 64904
+      "size": 68071
     },
     {
       "pid": "13",
-      "size": 24153
+      "size": 23994
     },
     {
       "pid": "14",
@@ -60,7 +60,7 @@
     },
     {
       "pid": "15",
-      "size": 42934
+      "size": 45903
     },
     {
       "pid": "16",
@@ -68,19 +68,19 @@
     },
     {
       "pid": "17",
-      "size": 53547
+      "size": 52096
     },
     {
       "pid": "18",
-      "size": 28571
+      "size": 28487
     },
     {
       "pid": "19",
-      "size": 40219
+      "size": 40385
     },
     {
       "pid": "20",
-      "size": 57627
+      "size": 28564
     },
     {
       "pid": "21",
@@ -88,19 +88,19 @@
     },
     {
       "pid": "22",
-      "size": 56743
+      "size": 58886
     },
     {
       "pid": "23",
-      "size": 45703
+      "size": 45495
     },
     {
       "pid": "24",
-      "size": 36610
+      "size": 42563
     },
     {
       "pid": "25",
-      "size": 50356
+      "size": 50313
     },
     {
       "pid": "26",
@@ -120,11 +120,11 @@
     },
     {
       "pid": "41",
-      "size": 71637
+      "size": 72018
     },
     {
       "pid": "42",
-      "size": 45123
+      "size": 47092
     },
     {
       "pid": "43",
@@ -152,11 +152,11 @@
     },
     {
       "pid": "52",
-      "size": 45216
+      "size": 43216
     },
     {
       "pid": "53",
-      "size": 68241
+      "size": 68065
     },
     {
       "pid": "64",
@@ -176,19 +176,19 @@
       "key": "okinawa-city-hija",
       "name": "比謝川",
       "loc": "沖縄市（水位監視）",
-      "size": 40510
+      "size": 41550
     },
     {
       "key": "okinawa-city-awase1",
       "name": "泡瀬川①",
       "loc": "沖縄市（水位監視）",
-      "size": 24279
+      "size": 23580
     },
     {
       "key": "okinawa-city-awase2",
       "name": "泡瀬川②",
       "loc": "沖縄市（水位監視）",
-      "size": 24173
+      "size": 23025
     }
   ],
   "road_cameras": [
@@ -240,7 +240,7 @@
       "key": "higashi-higashi-port",
       "name": "東漁港",
       "loc": "東村",
-      "size": 34957
+      "size": 41615
     },
     {
       "key": "higashi-fkc-park",
@@ -264,7 +264,7 @@
       "key": "higashi-arime-school",
       "name": "有銘小学校グラウンド",
       "loc": "東村",
-      "size": 43148
+      "size": 48917
     },
     {
       "key": "higashi-higashi-school",
@@ -278,43 +278,43 @@
       "key": "ogimi-nousonic",
       "name": "農村環境改善センター",
       "loc": "大宜味村",
-      "size": 30412
+      "size": 30233
     },
     {
       "key": "ogimi-takazatocc",
       "name": "田嘉里公民館",
       "loc": "大宜味村",
-      "size": 27701
+      "size": 28401
     },
     {
       "key": "ogimi-ogimiej",
       "name": "大宜味小中学校",
       "loc": "大宜味村",
-      "size": 27764
+      "size": 27863
     },
     {
       "key": "ogimi-tuhacc",
       "name": "津波公民館",
       "loc": "大宜味村",
-      "size": 29865
+      "size": 31552
     },
     {
       "key": "ogimi-taihocc",
       "name": "大保公民館",
       "loc": "大宜味村",
-      "size": 31332
+      "size": 26773
     },
     {
       "key": "ogimi-shioya",
       "name": "旧塩屋小学校",
       "loc": "大宜味村",
-      "size": 27780
+      "size": 28328
     },
     {
       "key": "ogimi-ogimiejgrd",
       "name": "旧大宜味小学校グラウンド",
       "loc": "大宜味村",
-      "size": 29842
+      "size": 31791
     }
   ],
   "youtube_live": [
