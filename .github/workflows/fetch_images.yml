@@ -93,11 +93,11 @@ uses: actions/checkout@v4
           && echo "OK: 大宜味村 ${LABEL}" || echo "NG: 大宜味村 ${LABEL}"
       done
 
-  - name: YouTube ライブID取得 + cameras.json 生成
+  - name: YouTube ライブID取得 + cameras.json + warning.json 生成
     env:
       YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+    shell: python3 {0}
     run: |
-      python3 << 'PYEOF'
       import json, os, glob, urllib.request, urllib.parse
       from datetime import datetime, timezone, timedelta
 
@@ -286,7 +286,6 @@ uses: actions/checkout@v4
 
       with open('warning.json', 'w', encoding='utf-8') as f:
           json.dump(warning_result, f, ensure_ascii=False, indent=2)
-      PYEOF
 
   - name: コミット・プッシュ
     run: |
