@@ -1,296 +1,294 @@
 name: 河川カメラ画像取得
 
 on:
-schedule:
-- cron: ‘5,15,25,35,45,55 * * * *’
-workflow_dispatch:
+  schedule:
+    - cron: '5,15,25,35,45,55 * * * *'
+  workflow_dispatch:
 
 jobs:
-fetch-images:
-runs-on: ubuntu-latest
-steps:
-- name: リポジトリをチェックアウト
-uses: actions/checkout@v4
+  fetch-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
 
-```
-  - name: 画像取得
-    run: |
-      mkdir -p img_cam
+      - name: 画像取得
+        run: |
+          mkdir -p img_cam
 
-      # ── 沖縄県河川カメラ（p-01〜p-99 自動スキャン）──
-      BASE="http://bousai-kasen.pref.okinawa.jp/river/kasen/img_cam"
-      for N in $(seq 1 99); do
-        PID=$(echo $N | awk '{printf "%02d", $1}')
-        curl -sf --max-time 10 --retry 1 \
-          -H "Referer: http://bousai-kasen.pref.okinawa.jp/" \
-          -H "User-Agent: Mozilla/5.0" \
-          -o "img_cam/p-${PID}.jpg" \
-          "${BASE}/p-${PID}.jpg" && echo "OK: p-${PID}" || rm -f "img_cam/p-${PID}.jpg"
-      done
+          # ── 沖縄県河川カメラ（p-01〜p-99 自動スキャン）──
+          BASE="http://bousai-kasen.pref.okinawa.jp/river/kasen/img_cam"
+          for N in $(seq 1 99); do
+            PID=$(echo $N | awk '{printf "%02d", $1}')
+            curl -sf --max-time 10 --retry 1 \
+              -H "Referer: http://bousai-kasen.pref.okinawa.jp/" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/p-${PID}.jpg" \
+              "${BASE}/p-${PID}.jpg" && echo "OK: p-${PID}" || rm -f "img_cam/p-${PID}.jpg"
+          done
 
-      # ── 沖縄市水位監視カメラ ──
-      curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
-        -o "img_cam/okinawa-city-hija.jpg" \
-        "https://www.city.okinawa.okinawa.jp/suiikanshi/hijacam/hijacam.jpg" \
-        && echo "OK: 比謝川" || echo "NG: 比謝川"
-      curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
-        -o "img_cam/okinawa-city-awase1.jpg" \
-        "https://www.city.okinawa.okinawa.jp/suiikanshi/awasecam01/TRIFORA.jpg" \
-        && echo "OK: 泡瀬1" || echo "NG: 泡瀬1"
-      curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
-        -o "img_cam/okinawa-city-awase2.jpg" \
-        "https://www.city.okinawa.okinawa.jp/suiikanshi/awasecam02/TRIFORA.jpg" \
-        && echo "OK: 泡瀬2" || echo "NG: 泡瀬2"
+          # ── 沖縄市水位監視カメラ ──
+          curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
+            -o "img_cam/okinawa-city-hija.jpg" \
+            "https://www.city.okinawa.okinawa.jp/suiikanshi/hijacam/hijacam.jpg" \
+            && echo "OK: 比謝川" || echo "NG: 比謝川"
+          curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
+            -o "img_cam/okinawa-city-awase1.jpg" \
+            "https://www.city.okinawa.okinawa.jp/suiikanshi/awasecam01/TRIFORA.jpg" \
+            && echo "OK: 泡瀬1" || echo "NG: 泡瀬1"
+          curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
+            -o "img_cam/okinawa-city-awase2.jpg" \
+            "https://www.city.okinawa.okinawa.jp/suiikanshi/awasecam02/TRIFORA.jpg" \
+            && echo "OK: 泡瀬2" || echo "NG: 泡瀬2"
 
-      # ── 南部国道事務所 道路カメラ ──
-      for N in 01 02 03 04 05; do
-        curl -sf --max-time 15 --retry 2 \
-          -H "Referer: https://www.dc.ogb.go.jp/nankoku/cctv/${N}.html" \
-          -H "User-Agent: Mozilla/5.0" \
-          -o "img_cam/road-${N}.jpg" \
-          "https://www.dc.ogb.go.jp/nankoku/cctv/images/${N}.jpg" \
-          && echo "OK: 国道${N}" || echo "NG: 国道${N}"
-      done
+          # ── 南部国道事務所 道路カメラ ──
+          for N in 01 02 03 04 05; do
+            curl -sf --max-time 15 --retry 2 \
+              -H "Referer: https://www.dc.ogb.go.jp/nankoku/cctv/${N}.html" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/road-${N}.jpg" \
+              "https://www.dc.ogb.go.jp/nankoku/cctv/images/${N}.jpg" \
+              && echo "OK: 国道${N}" || echo "NG: 国道${N}"
+          done
 
-      # ── 東村 防災監視カメラ ──
-      HIGASHI_BASE="http://www2.vill.higashi.okinawa.jp"
-      for CAM in \
-        "takae-school:高江小学校" \
-        "takae-school-seimon:高江小学校正門" \
-        "higashi-port:東漁港" \
-        "fkc-park:福地川海浜公園" \
-        "center-pbh:中央公民館" \
-        "hirugi:慶佐次ふれあいヒルギ公園" \
-        "arime-school:有銘小学校グラウンド" \
-        "higashi-school:東小中学校"; do
-        KEY="${CAM%%:*}"
-        LABEL="${CAM##*:}"
-        curl -sf --max-time 15 --retry 2 \
-          -H "Referer: ${HIGASHI_BASE}/${KEY}.html" \
-          -H "User-Agent: Mozilla/5.0" \
-          -o "img_cam/higashi-${KEY}.jpg" \
-          "${HIGASHI_BASE}/photo/${KEY}.jpg" \
-          && echo "OK: 東村 ${LABEL}" || echo "NG: 東村 ${LABEL}"
-      done
+          # ── 東村 防災監視カメラ ──
+          HIGASHI_BASE="http://www2.vill.higashi.okinawa.jp"
+          for CAM in \
+            "takae-school:高江小学校" \
+            "takae-school-seimon:高江小学校正門" \
+            "higashi-port:東漁港" \
+            "fkc-park:福地川海浜公園" \
+            "center-pbh:中央公民館" \
+            "hirugi:慶佐次ふれあいヒルギ公園" \
+            "arime-school:有銘小学校グラウンド" \
+            "higashi-school:東小中学校"; do
+            KEY="${CAM%%:*}"
+            LABEL="${CAM##*:}"
+            curl -sf --max-time 15 --retry 2 \
+              -H "Referer: ${HIGASHI_BASE}/${KEY}.html" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/higashi-${KEY}.jpg" \
+              "${HIGASHI_BASE}/photo/${KEY}.jpg" \
+              && echo "OK: 東村 ${LABEL}" || echo "NG: 東村 ${LABEL}"
+          done
 
-      # ── 大宜味村 防災ネットワークカメラ ──
-      OGIMI_BASE="http://www-camera.vill.ogimi.lg.jp"
-      for CAM in \
-        "nousonic:農村環境改善センター" \
-        "takazatocc:田嘉里公民館" \
-        "ogimiej:大宜味小中学校" \
-        "tuhacc:津波公民館" \
-        "taihocc:大保公民館" \
-        "shioya:旧塩屋小学校" \
-        "ogimiejgrd:旧大宜味小学校グラウンド"; do
-        KEY="${CAM%%:*}"
-        LABEL="${CAM##*:}"
-        curl -sf --max-time 15 --retry 2 \
-          -H "Referer: ${OGIMI_BASE}/${KEY}.html" \
-          -H "User-Agent: Mozilla/5.0" \
-          -o "img_cam/ogimi-${KEY}.jpg" \
-          "${OGIMI_BASE}/photo/${KEY}.jpg" \
-          && echo "OK: 大宜味村 ${LABEL}" || echo "NG: 大宜味村 ${LABEL}"
-      done
+          # ── 大宜味村 防災ネットワークカメラ ──
+          OGIMI_BASE="http://www-camera.vill.ogimi.lg.jp"
+          for CAM in \
+            "nousonic:農村環境改善センター" \
+            "takazatocc:田嘉里公民館" \
+            "ogimiej:大宜味小中学校" \
+            "tuhacc:津波公民館" \
+            "taihocc:大保公民館" \
+            "shioya:旧塩屋小学校" \
+            "ogimiejgrd:旧大宜味小学校グラウンド"; do
+            KEY="${CAM%%:*}"
+            LABEL="${CAM##*:}"
+            curl -sf --max-time 15 --retry 2 \
+              -H "Referer: ${OGIMI_BASE}/${KEY}.html" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/ogimi-${KEY}.jpg" \
+              "${OGIMI_BASE}/photo/${KEY}.jpg" \
+              && echo "OK: 大宜味村 ${LABEL}" || echo "NG: 大宜味村 ${LABEL}"
+          done
 
-  - name: YouTube ライブID取得 + cameras.json + warning.json 生成
-    env:
-      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-    shell: python3 {0}
-    run: |
-      import json, os, glob, urllib.request, urllib.parse
-      from datetime import datetime, timezone, timedelta
+      - name: YouTube ライブID取得 + cameras.json + warning.json 生成
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        shell: python3 {0}
+        run: |
+          import json, os, glob, urllib.request, urllib.parse
+          from datetime import datetime, timezone, timedelta
 
-      JST = timezone(timedelta(hours=9))
-      now = datetime.now(JST)
-      API_KEY = os.environ.get('YOUTUBE_API_KEY', '')
+          JST = timezone(timedelta(hours=9))
+          now = datetime.now(JST)
+          API_KEY = os.environ.get('YOUTUBE_API_KEY', '')
 
-      def yt_api(endpoint, params):
-          params['key'] = API_KEY
-          url = "https://www.googleapis.com/youtube/v3/" + endpoint + "?" + urllib.parse.urlencode(params)
-          try:
-              with urllib.request.urlopen(url, timeout=10) as r:
-                  return json.loads(r.read())
-          except Exception as e:
-              print(f"API error ({endpoint}): {e}")
-              return {}
+          def yt_api(endpoint, params):
+              params['key'] = API_KEY
+              url = "https://www.googleapis.com/youtube/v3/" + endpoint + "?" + urllib.parse.urlencode(params)
+              try:
+                  with urllib.request.urlopen(url, timeout=10) as r:
+                      return json.loads(r.read())
+              except Exception as e:
+                  print(f"API error ({endpoint}): {e}")
+                  return {}
 
-      def get_channel_id(handle):
-          handle = handle.lstrip('@')
-          data = yt_api('channels', {'part': 'id', 'forHandle': handle})
-          items = data.get('items', [])
-          return items[0]['id'] if items else None
+          def get_channel_id(handle):
+              handle = handle.lstrip('@')
+              data = yt_api('channels', {'part': 'id', 'forHandle': handle})
+              items = data.get('items', [])
+              return items[0]['id'] if items else None
 
-      def get_live_video_id(channel_id):
-          data = yt_api('search', {
-              'part': 'id',
-              'channelId': channel_id,
-              'eventType': 'live',
-              'type': 'video',
-              'maxResults': 1
-          })
-          items = data.get('items', [])
-          return items[0]['id']['videoId'] if items else None
+          def get_live_video_id(channel_id):
+              data = yt_api('search', {
+                  'part': 'id',
+                  'channelId': channel_id,
+                  'eventType': 'live',
+                  'type': 'video',
+                  'maxResults': 1
+              })
+              items = data.get('items', [])
+              return items[0]['id']['videoId'] if items else None
 
-      # チャンネルのみのカメラ（動画IDが定期的に変わるもの）
-      CHANNEL_CAMERAS = [
-          {'name': '那覇市古島',                    'loc': '那覇市古島',   'channel_id': 'UCsmhYj8SkM1cCcXekuaViAg'},
-          {'name': '石垣島730交差点',               'loc': '石垣市美崎町', 'handle': '-ishigakiisland-2224'},
-          {'name': '恩納村マリブビーチ',             'loc': '国頭郡恩納村', 'handle': 'now2352'},
-          {'name': 'かりゆしビーチリゾート',         'loc': '国頭郡恩納村', 'handle': 'Kariyushi.Hotels'},
-          {'name': '石垣島ユーグレナ離島ターミナル', 'loc': '石垣市美崎町', 'handle': '離島ターミナル側LIVEカメラ'},
-          {'name': '北谷町砂辺',                    'loc': '中頭郡北谷町', 'handle': 'オーシャンビュー北谷町砂辺宮'},
-          {'name': '豊見城市宜保',                  'loc': '豊見城市宜保', 'handle': '豊見城市宜保ライブ'},
-          {'name': '比地川（国頭村）',               'loc': '国頭郡国頭村', 'handle': 'jotsu_vision'},
-          {'name': '浦添市城間ライブ',               'loc': '浦添市城間',   'handle': '浦添市城間ライブ'},
-          {'name': '島尻郡南風原町ライブ',           'loc': '島尻郡南風原町', 'handle': '島尻郡南風原町ライブ'},
-          {'name': '沖縄県島尻郡ライブ',             'loc': '島尻郡南風原町', 'handle': '沖縄県島尻郡ライブ'},
-          {'name': '与那原ライブ',                   'loc': '島尻郡与那原町', 'handle': '与那原ライブ'},
-          {'name': 'うるま市州崎ライブカメラ',         'loc': 'うるま市洲崎',   'handle': 'うるま市州崎ライブカメラ'},
-      ]
-
-      youtube_live = []
-      if API_KEY:
-          for cam in CHANNEL_CAMERAS:
-              channel_id = cam.get('channel_id')
-              if not channel_id:
-                  channel_id = get_channel_id(cam['handle'])
-              if channel_id:
-                  video_id = get_live_video_id(channel_id)
-                  youtube_live.append({
-                      'name': cam['name'],
-                      'loc': cam['loc'],
-                      'channel_id': channel_id,
-                      'video_id': video_id
-                  })
-                  print(f"{cam['name']}: {'OK ' + video_id if video_id else '配信なし'}")
-              else:
-                  youtube_live.append({'name': cam['name'], 'loc': cam['loc'], 'channel_id': None, 'video_id': None})
-                  print(f"{cam['name']}: チャンネルID取得失敗")
-
-      # 沖縄県河川カメラ
-      cameras = []
-      for f in sorted(glob.glob('img_cam/p-*.jpg')):
-          pid = os.path.basename(f).replace('p-','').replace('.jpg','')
-          if os.path.getsize(f) > 100:
-              cameras.append({'pid': pid, 'size': os.path.getsize(f)})
-
-      # 沖縄市カメラ
-      extra_cameras = []
-      for cam in [
-          {'key': 'okinawa-city-hija',  'name': '比謝川',  'loc': '沖縄市（水位監視）'},
-          {'key': 'okinawa-city-awase1', 'name': '泡瀬川①', 'loc': '沖縄市（水位監視）'},
-          {'key': 'okinawa-city-awase2', 'name': '泡瀬川②', 'loc': '沖縄市（水位監視）'},
-      ]:
-          f = f"img_cam/{cam['key']}.jpg"
-          if os.path.exists(f) and os.path.getsize(f) > 100:
-              extra_cameras.append({**cam, 'size': os.path.getsize(f)})
-
-      # 国道カメラ
-      road_cameras = []
-      for cam in [
-          {'key': 'road-01', 'name': '①国道58号 読谷村比謝',    'loc': '中頭郡読谷村'},
-          {'key': 'road-02', 'name': '②国道329号 中城村久場',   'loc': '中頭郡中城村'},
-          {'key': 'road-03', 'name': '③国道329号 西原町小那覇', 'loc': '中頭郡西原町'},
-          {'key': 'road-04', 'name': '④国道331号 糸満市摩文仁', 'loc': '糸満市摩文仁'},
-          {'key': 'road-05', 'name': '⑤国道332号 那覇市安次嶺', 'loc': '那覇市安次嶺'},
-      ]:
-          f = f"img_cam/{cam['key']}.jpg"
-          if os.path.exists(f) and os.path.getsize(f) > 100:
-              road_cameras.append({**cam, 'size': os.path.getsize(f)})
-
-      # 東村カメラ
-      higashi_cameras = []
-      for cam in [
-          {'key': 'higashi-takae-school',        'name': '高江小学校',           'loc': '東村'},
-          {'key': 'higashi-takae-school-seimon', 'name': '高江小学校正門',       'loc': '東村'},
-          {'key': 'higashi-higashi-port',        'name': '東漁港',               'loc': '東村'},
-          {'key': 'higashi-fkc-park',            'name': '福地川海浜公園',       'loc': '東村'},
-          {'key': 'higashi-center-pbh',          'name': '中央公民館',           'loc': '東村'},
-          {'key': 'higashi-hirugi',              'name': '慶佐次ふれあいヒルギ公園', 'loc': '東村'},
-          {'key': 'higashi-arime-school',        'name': '有銘小学校グラウンド', 'loc': '東村'},
-          {'key': 'higashi-higashi-school',      'name': '東小中学校',           'loc': '東村'},
-      ]:
-          f = f"img_cam/{cam['key']}.jpg"
-          if os.path.exists(f) and os.path.getsize(f) > 100:
-              higashi_cameras.append({**cam, 'size': os.path.getsize(f)})
-
-      # 大宜味村カメラ
-      ogimi_cameras = []
-      for cam in [
-          {'key': 'ogimi-nousonic',    'name': '農村環境改善センター',     'loc': '大宜味村'},
-          {'key': 'ogimi-takazatocc',  'name': '田嘉里公民館',             'loc': '大宜味村'},
-          {'key': 'ogimi-ogimiej',     'name': '大宜味小中学校',           'loc': '大宜味村'},
-          {'key': 'ogimi-tuhacc',      'name': '津波公民館',               'loc': '大宜味村'},
-          {'key': 'ogimi-taihocc',     'name': '大保公民館',               'loc': '大宜味村'},
-          {'key': 'ogimi-shioya',      'name': '旧塩屋小学校',             'loc': '大宜味村'},
-          {'key': 'ogimi-ogimiejgrd',  'name': '旧大宜味小学校グラウンド', 'loc': '大宜味村'},
-      ]:
-          f = f"img_cam/{cam['key']}.jpg"
-          if os.path.exists(f) and os.path.getsize(f) > 100:
-              ogimi_cameras.append({**cam, 'size': os.path.getsize(f)})
-
-      result = {
-          'last_fetch_jst': now.strftime('%Y-%m-%d %H:%M:%S'),
-          'camera_count': len(cameras),
-          'cameras': cameras,
-          'extra_cameras': extra_cameras,
-          'road_cameras': road_cameras,
-          'higashi_cameras': higashi_cameras,
-          'ogimi_cameras': ogimi_cameras,
-          'youtube_live': youtube_live
-      }
-      with open('cameras.json', 'w', encoding='utf-8') as f:
-          json.dump(result, f, ensure_ascii=False, indent=2)
-
-      print(f"河川: {len(cameras)}台 / 沖縄市: {len(extra_cameras)}台 / 国道: {len(road_cameras)}台 / 東村: {len(higashi_cameras)}台 / 大宜味村: {len(ogimi_cameras)}台 / YouTube動的: {len(youtube_live)}件")
-
-      # 気象警報・台風情報の取得
-      import urllib.request
-      warning_result = {'fetched_jst': now.strftime('%Y-%m-%d %H:%M:%S'), 'warnings': [], 'typhoons': []}
-      try:
-          req = urllib.request.Request(
-              'https://www.jma.go.jp/bosai/warning/data/warning/471000.json',
-              headers={'User-Agent': 'Mozilla/5.0'}
-          )
-          with urllib.request.urlopen(req, timeout=15) as r:
-              jma = json.loads(r.read().decode())
-          areas = []
-          for at in (jma.get('areaTypes') or []):
-              cands = [a for a in (at.get('areas') or []) if any(w.get('status')=='発表' for w in (a.get('warnings') or []))]
-              if cands:
-                  areas = cands
-                  break
-          if not areas:
-              for at in (jma.get('areaTypes') or []):
-                  areas.extend(at.get('areas') or [])
-          warning_result['warnings'] = [
-              {'area_name': a.get('name',''), 'warnings': a.get('warnings',[])}
-              for a in areas
+          # チャンネルのみのカメラ（動画IDが定期的に変わるもの）
+          CHANNEL_CAMERAS = [
+              {'name': '那覇市古島',                    'loc': '那覇市古島',   'channel_id': 'UCsmhYj8SkM1cCcXekuaViAg'},
+              {'name': '石垣島730交差点',               'loc': '石垣市美崎町', 'handle': '-ishigakiisland-2224'},
+              {'name': '恩納村マリブビーチ',             'loc': '国頭郡恩納村', 'handle': 'now2352'},
+              {'name': 'かりゆしビーチリゾート',         'loc': '国頭郡恩納村', 'handle': 'Kariyushi.Hotels'},
+              {'name': '石垣島ユーグレナ離島ターミナル', 'loc': '石垣市美崎町', 'handle': '離島ターミナル側LIVEカメラ'},
+              {'name': '北谷町砂辺',                    'loc': '中頭郡北谷町', 'handle': 'オーシャンビュー北谷町砂辺宮'},
+              {'name': '豊見城市宜保',                  'loc': '豊見城市宜保', 'handle': '豊見城市宜保ライブ'},
+              {'name': '比地川（国頭村）',               'loc': '国頭郡国頭村', 'handle': 'jotsu_vision'},
+              {'name': '浦添市城間ライブ',               'loc': '浦添市城間',   'handle': '浦添市城間ライブ'},
+              {'name': '島尻郡南風原町ライブ',           'loc': '島尻郡南風原町', 'handle': '島尻郡南風原町ライブ'},
+              {'name': '沖縄県島尻郡ライブ',             'loc': '島尻郡南風原町', 'handle': '沖縄県島尻郡ライブ'},
+              {'name': '与那原ライブ',                   'loc': '島尻郡与那原町', 'handle': '与那原ライブ'},
+              {'name': 'うるま市州崎ライブカメラ',         'loc': 'うるま市洲崎',   'handle': 'うるま市州崎ライブカメラ'},
           ]
-          print(f"警報取得: {len(warning_result['warnings'])}地域")
-      except Exception as e:
-          print(f"警報取得失敗: {e}")
 
-      try:
-          req2 = urllib.request.Request(
-              'https://www.jma.go.jp/bosai/typhoon/data/alltyphoon.json',
-              headers={'User-Agent': 'Mozilla/5.0'}
-          )
-          with urllib.request.urlopen(req2, timeout=15) as r:
-              typhoons_raw = json.loads(r.read().decode())
-          warning_result['typhoons'] = [t for t in (typhoons_raw or []) if t.get('active')]
-          print(f"台風取得: {len(warning_result['typhoons'])}件")
-      except Exception as e:
-          print(f"台風取得失敗: {e}")
+          youtube_live = []
+          if API_KEY:
+              for cam in CHANNEL_CAMERAS:
+                  channel_id = cam.get('channel_id')
+                  if not channel_id:
+                      channel_id = get_channel_id(cam['handle'])
+                  if channel_id:
+                      video_id = get_live_video_id(channel_id)
+                      youtube_live.append({
+                          'name': cam['name'],
+                          'loc': cam['loc'],
+                          'channel_id': channel_id,
+                          'video_id': video_id
+                      })
+                      print(f"{cam['name']}: {'OK ' + video_id if video_id else '配信なし'}")
+                  else:
+                      youtube_live.append({'name': cam['name'], 'loc': cam['loc'], 'channel_id': None, 'video_id': None})
+                      print(f"{cam['name']}: チャンネルID取得失敗")
 
-      with open('warning.json', 'w', encoding='utf-8') as f:
-          json.dump(warning_result, f, ensure_ascii=False, indent=2)
+          # 沖縄県河川カメラ
+          cameras = []
+          for f in sorted(glob.glob('img_cam/p-*.jpg')):
+              pid = os.path.basename(f).replace('p-','').replace('.jpg','')
+              if os.path.getsize(f) > 100:
+                  cameras.append({'pid': pid, 'size': os.path.getsize(f)})
 
-  - name: コミット・プッシュ
-    run: |
-      git config user.name  "github-actions[bot]"
-      git config user.email "github-actions[bot]@users.noreply.github.com"
-      git add img_cam/ cameras.json warning.json
-      git diff --staged --quiet || git commit -m "🌊 カメラ更新 $(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M') JST" && git push
-```
+          # 沖縄市カメラ
+          extra_cameras = []
+          for cam in [
+              {'key': 'okinawa-city-hija',  'name': '比謝川',  'loc': '沖縄市（水位監視）'},
+              {'key': 'okinawa-city-awase1', 'name': '泡瀬川①', 'loc': '沖縄市（水位監視）'},
+              {'key': 'okinawa-city-awase2', 'name': '泡瀬川②', 'loc': '沖縄市（水位監視）'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  extra_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          # 国道カメラ
+          road_cameras = []
+          for cam in [
+              {'key': 'road-01', 'name': '①国道58号 読谷村比謝',    'loc': '中頭郡読谷村'},
+              {'key': 'road-02', 'name': '②国道329号 中城村久場',   'loc': '中頭郡中城村'},
+              {'key': 'road-03', 'name': '③国道329号 西原町小那覇', 'loc': '中頭郡西原町'},
+              {'key': 'road-04', 'name': '④国道331号 糸満市摩文仁', 'loc': '糸満市摩文仁'},
+              {'key': 'road-05', 'name': '⑤国道332号 那覇市安次嶺', 'loc': '那覇市安次嶺'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  road_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          # 東村カメラ
+          higashi_cameras = []
+          for cam in [
+              {'key': 'higashi-takae-school',        'name': '高江小学校',           'loc': '東村'},
+              {'key': 'higashi-takae-school-seimon', 'name': '高江小学校正門',       'loc': '東村'},
+              {'key': 'higashi-higashi-port',        'name': '東漁港',               'loc': '東村'},
+              {'key': 'higashi-fkc-park',            'name': '福地川海浜公園',       'loc': '東村'},
+              {'key': 'higashi-center-pbh',          'name': '中央公民館',           'loc': '東村'},
+              {'key': 'higashi-hirugi',              'name': '慶佐次ふれあいヒルギ公園', 'loc': '東村'},
+              {'key': 'higashi-arime-school',        'name': '有銘小学校グラウンド', 'loc': '東村'},
+              {'key': 'higashi-higashi-school',      'name': '東小中学校',           'loc': '東村'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  higashi_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          # 大宜味村カメラ
+          ogimi_cameras = []
+          for cam in [
+              {'key': 'ogimi-nousonic',    'name': '農村環境改善センター',     'loc': '大宜味村'},
+              {'key': 'ogimi-takazatocc',  'name': '田嘉里公民館',             'loc': '大宜味村'},
+              {'key': 'ogimi-ogimiej',     'name': '大宜味小中学校',           'loc': '大宜味村'},
+              {'key': 'ogimi-tuhacc',      'name': '津波公民館',               'loc': '大宜味村'},
+              {'key': 'ogimi-taihocc',     'name': '大保公民館',               'loc': '大宜味村'},
+              {'key': 'ogimi-shioya',      'name': '旧塩屋小学校',             'loc': '大宜味村'},
+              {'key': 'ogimi-ogimiejgrd',  'name': '旧大宜味小学校グラウンド', 'loc': '大宜味村'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  ogimi_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          result = {
+              'last_fetch_jst': now.strftime('%Y-%m-%d %H:%M:%S'),
+              'camera_count': len(cameras),
+              'cameras': cameras,
+              'extra_cameras': extra_cameras,
+              'road_cameras': road_cameras,
+              'higashi_cameras': higashi_cameras,
+              'ogimi_cameras': ogimi_cameras,
+              'youtube_live': youtube_live
+          }
+          with open('cameras.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+          print(f"河川: {len(cameras)}台 / 沖縄市: {len(extra_cameras)}台 / 国道: {len(road_cameras)}台 / 東村: {len(higashi_cameras)}台 / 大宜味村: {len(ogimi_cameras)}台 / YouTube動的: {len(youtube_live)}件")
+
+          # 気象警報・台風情報の取得
+          import urllib.request
+          warning_result = {'fetched_jst': now.strftime('%Y-%m-%d %H:%M:%S'), 'warnings': [], 'typhoons': []}
+          try:
+              req = urllib.request.Request(
+                  'https://www.jma.go.jp/bosai/warning/data/warning/471000.json',
+                  headers={'User-Agent': 'Mozilla/5.0'}
+              )
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  jma = json.loads(r.read().decode())
+              areas = []
+              for at in (jma.get('areaTypes') or []):
+                  cands = [a for a in (at.get('areas') or []) if any(w.get('status')=='発表' for w in (a.get('warnings') or []))]
+                  if cands:
+                      areas = cands
+                      break
+              if not areas:
+                  for at in (jma.get('areaTypes') or []):
+                      areas.extend(at.get('areas') or [])
+              warning_result['warnings'] = [
+                  {'area_name': a.get('name',''), 'warnings': a.get('warnings',[])}
+                  for a in areas
+              ]
+              print(f"警報取得: {len(warning_result['warnings'])}地域")
+          except Exception as e:
+              print(f"警報取得失敗: {e}")
+
+          try:
+              req2 = urllib.request.Request(
+                  'https://www.jma.go.jp/bosai/typhoon/data/alltyphoon.json',
+                  headers={'User-Agent': 'Mozilla/5.0'}
+              )
+              with urllib.request.urlopen(req2, timeout=15) as r:
+                  typhoons_raw = json.loads(r.read().decode())
+              warning_result['typhoons'] = [t for t in (typhoons_raw or []) if t.get('active')]
+              print(f"台風取得: {len(warning_result['typhoons'])}件")
+          except Exception as e:
+              print(f"台風取得失敗: {e}")
+
+          with open('warning.json', 'w', encoding='utf-8') as f:
+              json.dump(warning_result, f, ensure_ascii=False, indent=2)
+
+      - name: コミット・プッシュ
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add img_cam/ cameras.json warning.json
+          git diff --staged --quiet || git commit -m "🌊 カメラ更新 $(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M') JST" && git push
