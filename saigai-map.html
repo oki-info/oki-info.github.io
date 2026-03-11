@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -37,223 +38,223 @@ body {
 
 /* ── TOP BAR ── */
 #topbar {
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
-  position: relative;
+background: var(–panel);
+border-bottom: 1px solid var(–border);
+padding: 10px 16px;
+display: flex;
+align-items: center;
+gap: 20px;
+flex-shrink: 0;
+position: relative;
 }
 #topbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
-  opacity: 0.4;
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0; right: 0;
+height: 1px;
+background: linear-gradient(90deg, var(–accent) 0%, transparent 60%);
+opacity: 0.4;
 }
 .title-block { display: flex; align-items: center; gap: 10px; }
 .title-icon {
-  width: 32px; height: 32px;
-  background: var(--danger);
-  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-  display: flex; align-items: center; justify-content: center;
-  animation: pulse 2s infinite;
+width: 32px; height: 32px;
+background: var(–danger);
+clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+display: flex; align-items: center; justify-content: center;
+animation: pulse 2s infinite;
 }
 @keyframes pulse {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.6; }
+0%,100% { opacity: 1; }
+50% { opacity: 0.6; }
 }
 h1 {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 14px;
-  letter-spacing: 2px;
-  color: var(--accent);
-  text-transform: uppercase;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 14px;
+letter-spacing: 2px;
+color: var(–accent);
+text-transform: uppercase;
 }
-h1 span { color: var(--text); font-size: 11px; display: block; letter-spacing: 1px; }
+h1 span { color: var(–text); font-size: 11px; display: block; letter-spacing: 1px; }
 
 #stats { display: flex; gap: 16px; margin-left: auto; }
 .stat {
-  text-align: center;
-  font-family: 'Share Tech Mono', monospace;
+text-align: center;
+font-family: ‘Share Tech Mono’, monospace;
 }
 .stat .num {
-  font-size: 22px;
-  color: var(--accent);
-  display: block;
-  line-height: 1;
+font-size: 22px;
+color: var(–accent);
+display: block;
+line-height: 1;
 }
-.stat .lbl { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+.stat .lbl { font-size: 9px; color: var(–dim); letter-spacing: 1px; }
 
 .top-btns { display: flex; gap: 8px; }
 .btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 6px 14px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: all 0.15s;
+background: transparent;
+border: 1px solid var(–border);
+color: var(–text);
+padding: 6px 14px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+cursor: pointer;
+letter-spacing: 1px;
+transition: all 0.15s;
 }
-.btn:hover { border-color: var(--accent); color: var(--accent); }
-.btn.primary { border-color: var(--accent); color: var(--accent); }
-.btn.danger-btn { border-color: var(--danger); color: var(--danger); }
+.btn:hover { border-color: var(–accent); color: var(–accent); }
+.btn.primary { border-color: var(–accent); color: var(–accent); }
+.btn.danger-btn { border-color: var(–danger); color: var(–danger); }
 
 /* ── MAIN LAYOUT ── */
 #main { display: flex; flex: 1; overflow: hidden; }
 
 /* ── SIDEBAR ── */
 #sidebar {
-  width: 300px;
-  background: var(--panel);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow: hidden;
+width: 300px;
+background: var(–panel);
+border-right: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+flex-shrink: 0;
+overflow: hidden;
 }
 
 /* ── DROP ZONE ── */
 #dropzone {
-  margin: 12px;
-  border: 1.5px dashed var(--border);
-  border-radius: 4px;
-  padding: 20px 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
+margin: 12px;
+border: 1.5px dashed var(–border);
+border-radius: 4px;
+padding: 20px 12px;
+text-align: center;
+cursor: pointer;
+transition: all 0.2s;
+flex-shrink: 0;
+position: relative;
+overflow: hidden;
 }
 #dropzone::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(0,212,255,0.03) 0%, transparent 60%);
+content: ‘’;
+position: absolute;
+inset: 0;
+background: linear-gradient(135deg, rgba(0,212,255,0.03) 0%, transparent 60%);
 }
 #dropzone:hover, #dropzone.drag-over {
-  border-color: var(--accent);
-  background: rgba(0,212,255,0.05);
+border-color: var(–accent);
+background: rgba(0,212,255,0.05);
 }
 #dropzone .dz-icon { font-size: 28px; display: block; margin-bottom: 8px; }
-#dropzone .dz-main { font-size: 12px; color: var(--text); margin-bottom: 4px; }
-#dropzone .dz-sub { font-size: 10px; color: var(--dim); }
+#dropzone .dz-main { font-size: 12px; color: var(–text); margin-bottom: 4px; }
+#dropzone .dz-sub { font-size: 10px; color: var(–dim); }
 #fileInput { display: none; }
 
 /* ── LEGEND ── */
 #legend {
-  margin: 0 12px 12px;
-  flex-shrink: 0;
+margin: 0 12px 12px;
+flex-shrink: 0;
 }
 .legend-title {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--dim);
-  margin-bottom: 6px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–dim);
+margin-bottom: 6px;
 }
 .cat-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 6px;
-  margin-bottom: 2px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background 0.15s;
-  font-size: 11px;
-  border: 1px solid transparent;
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 5px 6px;
+margin-bottom: 2px;
+border-radius: 3px;
+cursor: pointer;
+transition: background 0.15s;
+font-size: 11px;
+border: 1px solid transparent;
 }
 .cat-row:hover { background: rgba(255,255,255,0.04); }
-.cat-row.active { background: rgba(255,255,255,0.06); border-color: var(--border); }
+.cat-row.active { background: rgba(255,255,255,0.06); border-color: var(–border); }
 .cat-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
+width: 10px; height: 10px;
+border-radius: 50%;
+flex-shrink: 0;
 }
 .cat-count {
-  margin-left: auto;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: var(--dim);
+margin-left: auto;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+color: var(–dim);
 }
 
 /* ── INCIDENT LIST ── */
 #incidentSection {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid var(--border);
+flex: 1;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+border-top: 1px solid var(–border);
 }
 .section-hdr {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--dim);
-  padding: 8px 12px;
-  flex-shrink: 0;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–dim);
+padding: 8px 12px;
+flex-shrink: 0;
 }
 #incidentList {
-  flex: 1;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+flex: 1;
+overflow-y: auto;
+scrollbar-width: thin;
+scrollbar-color: var(–border) transparent;
 }
 .incident-item {
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(30,48,72,0.5);
-  cursor: pointer;
-  transition: background 0.15s;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
+padding: 8px 12px;
+border-bottom: 1px solid rgba(30,48,72,0.5);
+cursor: pointer;
+transition: background 0.15s;
+display: flex;
+gap: 8px;
+align-items: flex-start;
 }
 .incident-item:hover { background: rgba(0,212,255,0.04); }
 .incident-item.selected { background: rgba(0,212,255,0.08); }
 .inc-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 4px;
+width: 8px; height: 8px;
+border-radius: 50%;
+flex-shrink: 0;
+margin-top: 4px;
 }
 .inc-info { flex: 1; min-width: 0; }
 .inc-cat { font-size: 10px; font-weight: 600; }
 .inc-loc {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  color: var(--dim);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 9px;
+color: var(–dim);
+margin-top: 2px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
-.inc-time { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--dim); flex-shrink: 0; }
+.inc-time { font-family: ‘Share Tech Mono’, monospace; font-size: 9px; color: var(–dim); flex-shrink: 0; }
 .inc-del {
-  background: none;
-  border: none;
-  color: var(--dim);
-  cursor: pointer;
-  font-size: 12px;
-  padding: 2px 4px;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.15s;
+background: none;
+border: none;
+color: var(–dim);
+cursor: pointer;
+font-size: 12px;
+padding: 2px 4px;
+flex-shrink: 0;
+opacity: 0;
+transition: opacity 0.15s;
 }
 .incident-item:hover .inc-del { opacity: 1; }
-.inc-del:hover { color: var(--danger); }
+.inc-del:hover { color: var(–danger); }
 
 /* ── MAP ── */
 #mapwrap {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+flex: 1;
+position: relative;
+overflow: hidden;
 }
 #map { width: 100%; height: 100%; }
 
@@ -261,261 +262,263 @@ h1 span { color: var(--text); font-size: 11px; display: block; letter-spacing: 1
 .leaflet-container { background: #0d1520; }
 .leaflet-tile { filter: brightness(0.7) saturate(0.6) hue-rotate(180deg); }
 .leaflet-control-zoom a {
-  background: var(--panel) !important;
-  color: var(--text) !important;
-  border-color: var(--border) !important;
+background: var(–panel) !important;
+color: var(–text) !important;
+border-color: var(–border) !important;
 }
 
 /* Custom popup */
 .leaflet-popup-content-wrapper {
-  background: var(--panel) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 4px !important;
-  color: var(--text) !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+background: var(–panel) !important;
+border: 1px solid var(–border) !important;
+border-radius: 4px !important;
+color: var(–text) !important;
+box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
 }
-.leaflet-popup-tip { background: var(--panel) !important; }
-.leaflet-popup-close-button { color: var(--dim) !important; }
+.leaflet-popup-tip { background: var(–panel) !important; }
+.leaflet-popup-close-button { color: var(–dim) !important; }
 
 .popup-inner { min-width: 220px; }
 .popup-img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 2px;
-  margin-bottom: 8px;
-  border: 1px solid var(--border);
+width: 100%;
+height: 150px;
+object-fit: cover;
+border-radius: 2px;
+margin-bottom: 8px;
+border: 1px solid var(–border);
 }
 .popup-cat {
-  font-size: 11px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  letter-spacing: 0.5px;
+font-size: 11px;
+font-weight: 700;
+margin-bottom: 4px;
+letter-spacing: 0.5px;
 }
 .popup-meta {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: var(--dim);
-  line-height: 1.6;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 10px;
+color: var(–dim);
+line-height: 1.6;
 }
 .popup-memo {
-  margin-top: 6px;
-  font-size: 11px;
-  color: var(--text);
-  background: rgba(0,0,0,0.3);
-  padding: 4px 6px;
-  border-radius: 2px;
-  border-left: 2px solid var(--border);
+margin-top: 6px;
+font-size: 11px;
+color: var(–text);
+background: rgba(0,0,0,0.3);
+padding: 4px 6px;
+border-radius: 2px;
+border-left: 2px solid var(–border);
 }
 
 /* ── MAP OVERLAY INFO ── */
 #mapinfo {
-  position: absolute;
-  top: 10px; right: 10px;
-  background: rgba(10,14,20,0.85);
-  border: 1px solid var(--border);
-  padding: 8px 12px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  color: var(--dim);
-  pointer-events: none;
-  z-index: 1000;
-  letter-spacing: 1px;
-  line-height: 1.8;
+position: absolute;
+top: 10px; right: 10px;
+background: rgba(10,14,20,0.85);
+border: 1px solid var(–border);
+padding: 8px 12px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 9px;
+color: var(–dim);
+pointer-events: none;
+z-index: 1000;
+letter-spacing: 1px;
+line-height: 1.8;
 }
-#datetime { color: var(--accent); font-size: 10px; }
+#datetime { color: var(–accent); font-size: 10px; }
 
 /* ── MODAL ── */
 #modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.75);
+z-index: 9999;
+align-items: center;
+justify-content: center;
+backdrop-filter: blur(4px);
 }
 #modal.open { display: flex; }
 #modal-box {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  width: 440px;
-  max-width: 95vw;
-  padding: 24px;
+background: var(–panel);
+border: 1px solid var(–border);
+border-radius: 4px;
+width: 440px;
+max-width: 95vw;
+padding: 24px;
 }
 #modal-box h2 {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: var(--accent);
-  margin-bottom: 16px;
-  text-transform: uppercase;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 12px;
+letter-spacing: 2px;
+color: var(–accent);
+margin-bottom: 16px;
+text-transform: uppercase;
 }
 #modal-box img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  margin-bottom: 14px;
+width: 100%;
+height: 180px;
+object-fit: cover;
+border: 1px solid var(–border);
+border-radius: 2px;
+margin-bottom: 14px;
 }
-.modal-label { font-size: 10px; color: var(--dim); margin-bottom: 4px; letter-spacing: 0.5px; }
+.modal-label { font-size: 10px; color: var(–dim); margin-bottom: 4px; letter-spacing: 0.5px; }
 .modal-cats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+margin-bottom: 14px;
 }
 .modal-cat-btn {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  padding: 5px 10px;
-  font-size: 11px;
-  cursor: pointer;
-  border-radius: 2px;
-  transition: all 0.15s;
-  font-family: 'Noto Sans JP', sans-serif;
+border: 1px solid var(–border);
+background: transparent;
+color: var(–text);
+padding: 5px 10px;
+font-size: 11px;
+cursor: pointer;
+border-radius: 2px;
+transition: all 0.15s;
+font-family: ‘Noto Sans JP’, sans-serif;
 }
-.modal-cat-btn:hover { border-color: var(--accent); }
+.modal-cat-btn:hover { border-color: var(–accent); }
 .modal-cat-btn.selected { color: white; }
 textarea#memo {
-  width: 100%;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 8px;
-  font-size: 11px;
-  font-family: 'Noto Sans JP', sans-serif;
-  resize: vertical;
-  min-height: 64px;
-  border-radius: 2px;
-  margin-bottom: 14px;
+width: 100%;
+background: rgba(0,0,0,0.3);
+border: 1px solid var(–border);
+color: var(–text);
+padding: 8px;
+font-size: 11px;
+font-family: ‘Noto Sans JP’, sans-serif;
+resize: vertical;
+min-height: 64px;
+border-radius: 2px;
+margin-bottom: 14px;
 }
-textarea#memo:focus { outline: none; border-color: var(--accent); }
+textarea#memo:focus { outline: none; border-color: var(–accent); }
 .modal-coords {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: var(--dim);
-  margin-bottom: 14px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 10px;
+color: var(–dim);
+margin-bottom: 14px;
 }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
 /* no gps error */
 .no-gps {
-  background: rgba(255,59,59,0.1);
-  border: 1px solid rgba(255,59,59,0.3);
-  color: #ff8888;
-  padding: 8px 10px;
-  font-size: 11px;
-  border-radius: 2px;
-  margin-bottom: 14px;
+background: rgba(255,59,59,0.1);
+border: 1px solid rgba(255,59,59,0.3);
+color: #ff8888;
+padding: 8px 10px;
+font-size: 11px;
+border-radius: 2px;
+margin-bottom: 14px;
 }
 
 /* empty state */
 #emptyState {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(10,14,20,0.8);
-  border: 1px solid var(--border);
-  padding: 10px 18px;
-  font-size: 11px;
-  color: var(--dim);
-  font-family: 'Share Tech Mono', monospace;
-  letter-spacing: 1px;
-  pointer-events: none;
-  z-index: 1000;
-  white-space: nowrap;
+position: absolute;
+bottom: 20px;
+left: 50%;
+transform: translateX(-50%);
+background: rgba(10,14,20,0.8);
+border: 1px solid var(–border);
+padding: 10px 18px;
+font-size: 11px;
+color: var(–dim);
+font-family: ‘Share Tech Mono’, monospace;
+letter-spacing: 1px;
+pointer-events: none;
+z-index: 1000;
+white-space: nowrap;
 }
 
 /* scan line effect */
 #mapwrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 3px,
-    rgba(0,0,0,0.03) 3px,
-    rgba(0,0,0,0.03) 4px
-  );
-  pointer-events: none;
-  z-index: 500;
+content: ‘’;
+position: absolute;
+inset: 0;
+background: repeating-linear-gradient(
+0deg,
+transparent,
+transparent 3px,
+rgba(0,0,0,0.03) 3px,
+rgba(0,0,0,0.03) 4px
+);
+pointer-events: none;
+z-index: 500;
 }
 
 /* manual pin mode */
 #pinModeOverlay {
-  display: none;
-  position: absolute;
-  inset: 0;
-  z-index: 2000;
-  cursor: crosshair;
-  background: rgba(0,212,255,0.04);
-  border: 2px solid var(--accent);
+display: none;
+position: absolute;
+inset: 0;
+z-index: 2000;
+cursor: crosshair;
+background: rgba(0,212,255,0.04);
+border: 2px solid var(–accent);
 }
 #pinModeMsg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(10,14,20,0.92);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  letter-spacing: 1px;
-  padding: 14px 24px;
-  text-align: center;
-  pointer-events: none;
-  white-space: nowrap;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background: rgba(10,14,20,0.92);
+border: 1px solid var(–accent);
+color: var(–accent);
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 13px;
+letter-spacing: 1px;
+padding: 14px 24px;
+text-align: center;
+pointer-events: none;
+white-space: nowrap;
 }
-#pinModeMsg span { display:block; font-size:10px; color:var(--dim); margin-top:4px; }
+#pinModeMsg span { display:block; font-size:10px; color:var(–dim); margin-top:4px; }
 #pinModeCancelBtn {
-  position: absolute;
-  top: 12px; right: 12px;
-  pointer-events: all;
+position: absolute;
+top: 12px; right: 12px;
+pointer-events: all;
 }
 /* temp pin while in manual mode */
 .temp-pin {
-  width: 24px; height: 24px;
-  background: var(--accent);
-  border: 2px solid white;
-  border-radius: 50%;
-  box-shadow: 0 0 12px var(--accent);
-  animation: pinBounce 0.3s ease-out;
+width: 24px; height: 24px;
+background: var(–accent);
+border: 2px solid white;
+border-radius: 50%;
+box-shadow: 0 0 12px var(–accent);
+animation: pinBounce 0.3s ease-out;
 }
 @keyframes pinBounce {
-  0%   { transform: scale(0.5); opacity: 0; }
-  70%  { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
+0%   { transform: scale(0.5); opacity: 0; }
+70%  { transform: scale(1.2); }
+100% { transform: scale(1); opacity: 1; }
 }
 #progress {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s;
-  z-index: 99999;
+position: fixed;
+top: 0; left: 0; right: 0;
+height: 2px;
+background: var(–accent);
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.3s;
+z-index: 99999;
 }
 
 @media (max-width: 600px) {
-  #sidebar { width: 240px; }
-  #stats { display: none; }
+#sidebar { width: 240px; }
+#stats { display: none; }
 }
 </style>
+
 </head>
 <body>
 
 <div id="progress"></div>
 
 <!-- TOP BAR -->
+
 <div id="topbar">
   <div class="title-block">
     <div class="title-icon">⚠</div>
@@ -539,9 +542,11 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <!-- MAIN -->
+
 <div id="main">
 
   <!-- SIDEBAR -->
+
   <div id="sidebar">
     <!-- DROPZONE -->
     <div id="dropzone" onclick="document.getElementById('fileInput').click()">
@@ -557,43 +562,47 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
       </button>
     </div>
 
-    <!-- LEGEND -->
-    <div id="legend">
-      <div class="legend-title">▸ DAMAGE CATEGORY</div>
-      <div class="cat-row active" data-cat="all" onclick="filterCat('all',this)">
-        <span style="font-size:10px">◉</span> <span style="font-size:11px">全て表示</span>
-        <span class="cat-count" id="leg-all">0</span>
-      </div>
-      <div class="cat-row" data-cat="浸水・冠水" onclick="filterCat('浸水・冠水',this)">
-        <span class="cat-dot" style="background:var(--cat-flood)"></span> 浸水・冠水
-        <span class="cat-count" id="leg-flood">0</span>
-      </div>
-      <div class="cat-row" data-cat="土砂崩れ" onclick="filterCat('土砂崩れ',this)">
-        <span class="cat-dot" style="background:var(--cat-landslide)"></span> 土砂崩れ
-        <span class="cat-count" id="leg-land">0</span>
-      </div>
-      <div class="cat-row" data-cat="道路損壊・通行止め" onclick="filterCat('道路損壊・通行止め',this)">
-        <span class="cat-dot" style="background:var(--cat-road)"></span> 道路損壊・通行止め
-        <span class="cat-count" id="leg-road">0</span>
-      </div>
-      <div class="cat-row" data-cat="建物被害" onclick="filterCat('建物被害',this)">
-        <span class="cat-dot" style="background:var(--cat-building)"></span> 建物被害
-        <span class="cat-count" id="leg-bld">0</span>
-      </div>
-      <div class="cat-row" data-cat="人的被害" onclick="filterCat('人的被害',this)">
-        <span class="cat-dot" style="background:var(--cat-human)"></span> 人的被害
-        <span class="cat-count" id="leg-hum">0</span>
-      </div>
-    </div>
+```
+<!-- LEGEND -->
+<div id="legend">
+  <div class="legend-title">▸ DAMAGE CATEGORY</div>
+  <div class="cat-row active" data-cat="all" onclick="filterCat('all',this)">
+    <span style="font-size:10px">◉</span> <span style="font-size:11px">全て表示</span>
+    <span class="cat-count" id="leg-all">0</span>
+  </div>
+  <div class="cat-row" data-cat="浸水・冠水" onclick="filterCat('浸水・冠水',this)">
+    <span class="cat-dot" style="background:var(--cat-flood)"></span> 浸水・冠水
+    <span class="cat-count" id="leg-flood">0</span>
+  </div>
+  <div class="cat-row" data-cat="土砂崩れ" onclick="filterCat('土砂崩れ',this)">
+    <span class="cat-dot" style="background:var(--cat-landslide)"></span> 土砂崩れ
+    <span class="cat-count" id="leg-land">0</span>
+  </div>
+  <div class="cat-row" data-cat="道路損壊・通行止め" onclick="filterCat('道路損壊・通行止め',this)">
+    <span class="cat-dot" style="background:var(--cat-road)"></span> 道路損壊・通行止め
+    <span class="cat-count" id="leg-road">0</span>
+  </div>
+  <div class="cat-row" data-cat="建物被害" onclick="filterCat('建物被害',this)">
+    <span class="cat-dot" style="background:var(--cat-building)"></span> 建物被害
+    <span class="cat-count" id="leg-bld">0</span>
+  </div>
+  <div class="cat-row" data-cat="人的被害" onclick="filterCat('人的被害',this)">
+    <span class="cat-dot" style="background:var(--cat-human)"></span> 人的被害
+    <span class="cat-count" id="leg-hum">0</span>
+  </div>
+</div>
 
-    <!-- INCIDENT LIST -->
-    <div id="incidentSection">
-      <div class="section-hdr">▸ INCIDENT LOG</div>
-      <div id="incidentList"></div>
-    </div>
+<!-- INCIDENT LIST -->
+<div id="incidentSection">
+  <div class="section-hdr">▸ INCIDENT LOG</div>
+  <div id="incidentList"></div>
+</div>
+```
+
   </div>
 
   <!-- MAP -->
+
   <div id="mapwrap">
     <div id="map"></div>
     <!-- manual pin overlay -->
@@ -615,9 +624,13 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <!-- MODAL: タグ付け -->
+
 <div id="modal">
   <div id="modal-box">
-    <h2>▸ 被害情報を登録</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="margin-bottom:0">▸ 被害情報を登録</h2>
+      <span id="queue-badge" style="display:none;font-family:'Share Tech Mono','Courier New',monospace;font-size:11px;color:var(--accent);background:rgba(0,212,255,0.1);border:1px solid var(--accent);padding:3px 10px;border-radius:2px"></span>
+    </div>
     <img id="modal-img" src="" alt="">
     <div id="no-gps-msg" class="no-gps" style="display:none">
       ⚠ GPS情報が見つかりません。<br>
@@ -632,6 +645,7 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
     <textarea id="memo" placeholder="状況の詳細、優先度など…"></textarea>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">キャンセル</button>
+      <button class="btn" id="skip-btn" style="display:none" onclick="skipQueue()">スキップ →</button>
       <button class="btn primary" onclick="confirmAdd()">地図に追加</button>
     </div>
   </div>
@@ -686,12 +700,51 @@ dz.addEventListener('drop', e => {
 });
 document.getElementById('fileInput').addEventListener('change', e => handleFiles(e.target.files));
 
+// ── FILE QUEUE ──
+let fileQueue = [];    // 未処理ファイルのキュー
+let queueTotal = 0;   // 今回バッチの総数
+
 function handleFiles(files) {
-  [...files].forEach(f => {
-    if (!f.type.startsWith('image/')) return;
-    readExif(f);
-  });
+  const imgs = [...files].filter(f => f.type.startsWith('image/'));
+  if (imgs.length === 0) return;
+  fileQueue.push(...imgs);
+  queueTotal += imgs.length;
   document.getElementById('fileInput').value = '';
+  // モーダルが開いていなければ次を処理
+  if (!document.getElementById('modal').classList.contains('open')) {
+    processNextQueue();
+  }
+}
+
+function processNextQueue() {
+  if (fileQueue.length === 0) {
+    queueTotal = 0;
+    return;
+  }
+  const file = fileQueue.shift();
+  readExif(file);
+}
+
+function updateQueueBadge() {
+  const badge = document.getElementById('queue-badge');
+  const skipBtn = document.getElementById('skip-btn');
+  const remaining = fileQueue.length; // まだキューに残っている数
+  const done = queueTotal - remaining - 1; // 今処理中が1枚
+  const current = done + 1;
+  if (queueTotal > 1) {
+    badge.textContent = `${current} / ${queueTotal}`;
+    badge.style.display = 'inline';
+    skipBtn.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+    skipBtn.style.display = 'none';
+  }
+}
+
+function skipQueue() {
+  if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
+  _hideModal();
+  processNextQueue();
 }
 
 // ── EXIF ──
@@ -738,14 +791,14 @@ let pendingModalData = null; // { imgUrl, dt, filename } for GPS-less photos
 let tempPinMarker = null;
 
 function startManualPin() {
-  // called from within modal (GPS-less photo)
+  // GPS なし写真からピンモードへ移行（キューは維持する）
   pendingModalData = {
     imgUrl: modalImgUrl,
     dt: '',
     filename: '',
     fromModal: true,
   };
-  closeModal();
+  _hideModal();  // ← closeModal() ではなく _hideModal() を使う
   enterPinMode();
 }
 
@@ -767,6 +820,11 @@ function cancelManualPin() {
   map.getContainer().style.cursor = '';
   if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
   pendingModalData = null;
+  // ピンモードキャンセル＝残りキューも破棄
+  fileQueue = [];
+  queueTotal = 0;
+  document.getElementById('queue-badge').style.display = 'none';
+  document.getElementById('skip-btn').style.display = 'none';
 }
 
 // map click handler for manual pin
@@ -836,12 +894,22 @@ function openModal(imgUrl, coords, dt, filename) {
   });
 
   document.getElementById('memo').value = '';
+  updateQueueBadge();
   document.getElementById('modal').classList.add('open');
 }
 
 function closeModal() {
+  // 全キャンセル：キューも破棄
+  _hideModal();
+  fileQueue = [];
+  queueTotal = 0;
+  document.getElementById('queue-badge').style.display = 'none';
+  document.getElementById('skip-btn').style.display = 'none';
+}
+
+function _hideModal() {
+  // モーダルを閉じるだけ（キューは触らない）
   document.getElementById('modal').classList.remove('open');
-  // キャンセル時はtempPinも消す
   if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
   modalCoords = null;
   modalImgUrl = null;
@@ -854,7 +922,6 @@ function confirmAdd() {
   const cat = selBtn.textContent;
   const memo = document.getElementById('memo').value.trim();
 
-  // remove temp pin if exists
   if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
 
   addIncident({
@@ -866,7 +933,10 @@ function confirmAdd() {
     imgUrl: modalImgUrl,
     time: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}),
   });
-  closeModal();
+
+  _hideModal();
+  // 次のキューへ
+  processNextQueue();
 }
 
 // ── ADD INCIDENT ──
@@ -1064,5 +1134,6 @@ function clearAll() {
 // init
 updateUI();
 </script>
+
 </body>
 </html>
