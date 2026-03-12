@@ -502,9 +502,64 @@ transition: transform 0.3s;
 z-index: 99999;
 }
 
-@media (max-width: 600px) {
-#sidebar { width: 240px; }
+@media (max-width: 700px) {
+/* bodyをスクロール可能に */
+body { height: auto; overflow: auto; }
+
+/* トップバー：コンパクトに */
+#topbar {
+flex-wrap: wrap;
+gap: 8px;
+padding: 8px 12px;
+}
 #stats { display: none; }
+.top-btns { gap: 4px; }
+.top-btns .btn { font-size: 10px; padding: 5px 8px; }
+h1 { font-size: 12px; }
+
+/* メインを縦並びに */
+#main { flex-direction: column; overflow: visible; height: auto; }
+
+/* サイドバーを上に・横幅100% */
+#sidebar {
+width: 100%;
+border-right: none;
+border-bottom: 1px solid var(–border);
+overflow: visible;
+height: auto;
+}
+
+/* インシデントリストは高さ固定スクロール */
+#incidentSection { height: auto; }
+#incidentList { max-height: 200px; overflow-y: auto; }
+
+/* 地図を下に・高さ固定 */
+#mapwrap {
+width: 100%;
+height: 65vh;
+flex-shrink: 0;
+}
+
+/* ドロップゾーン：タップしやすく */
+#dropzone { padding: 16px 12px; margin: 10px; }
+#dropzone .dz-icon { font-size: 22px; }
+
+/* モーダルをモバイル最適化 */
+#modal-box {
+width: 96vw;
+padding: 16px;
+max-height: 90vh;
+overflow-y: auto;
+}
+#modal-box img { height: 140px; }
+
+/* ボタン：タップしやすく */
+.modal-cat-btn { padding: 8px 12px; font-size: 13px; }
+.modal-actions { flex-wrap: wrap; }
+.modal-actions button { flex: 1; min-width: 80px; }
+
+/* mapinfo非表示 */
+#mapinfo { display: none; }
 }
 </style>
 
@@ -684,6 +739,11 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 function pad(n) { return String(n).padStart(2,'0'); }
+
+// モバイルでサイドバー描画後に地図サイズを再計算
+window.addEventListener('resize', () => map.invalidateSize());
+setTimeout(() => map.invalidateSize(), 400);
+
 
 // ── DRAG & DROP ──
 const dz = document.getElementById('dropzone');
@@ -949,12 +1009,44 @@ function confirmAdd() {
 
 // ── ADD INCIDENT ──
 function addIncident(inc) {
+  inc.address = null; // 取得前はnull
   incidents.push(inc);
   const marker = createMarker(inc);
   markers[inc.id] = marker;
   updateUI();
-  // fly to new marker
   map.flyTo([inc.lat, inc.lng], Math.max(map.getZoom(), 14), { duration: 1 });
+
+  // 逆ジオコーディング（Nominatim）
+  fetchAddress(inc.lat, inc.lng).then(addr => {
+    inc.address = addr;
+    // ポップアップを更新
+    if (markers[inc.id]) {
+      markers[inc.id].setPopupContent(buildPopup(inc));
+    }
+    // リストも更新
+    renderList();
+  });
+}
+
+async function fetchAddress(lat, lng) {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ja`,
+      { headers: { 'Accept-Language': 'ja' } }
+    );
+    const data = await res.json();
+    // 市区町村＋町名レベルで返す
+    const a = data.address || {};
+    const parts = [
+      a.province || a.state,       // 沖縄県
+      a.city || a.town || a.village || a.county, // 那覇市など
+      a.suburb || a.neighbourhood || a.quarter || a.hamlet, // 町名
+      a.road,                      // 道路名
+    ].filter(Boolean);
+    return parts.length > 0 ? parts.join(' ') : data.display_name || null;
+  } catch {
+    return null;
+  }
 }
 
 function createMarker(inc) {
@@ -1012,11 +1104,17 @@ function createMarker(inc) {
 
 function buildPopup(inc) {
   const col = CATS[inc.cat]?.color || '#888';
+  const addrHtml = inc.address
+    ? `🏠 ${inc.address}<br>`
+    : inc.address === null && inc.id
+      ? `<span style="color:#aaa;font-size:10px">📍 住所取得中…</span><br>`
+      : '';
   return `<div class="popup-inner">
     ${inc.imgUrl ? `<img class="popup-img" src="${inc.imgUrl}">` : ''}
     <div class="popup-cat" style="color:${col}">● ${inc.cat}</div>
     <div class="popup-meta">
-      📍 ${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}<br>
+      ${addrHtml}
+      🌐 ${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}<br>
       🕐 ${inc.time}
     </div>
     ${inc.memo ? `<div class="popup-memo">${inc.memo}</div>` : ''}
@@ -1101,7 +1199,7 @@ function renderList() {
       <span class="inc-dot" style="background:${col}"></span>
       <div class="inc-info">
         <div class="inc-cat" style="color:${col}">${inc.cat}</div>
-        <div class="inc-loc">${inc.lat.toFixed(4)}, ${inc.lng.toFixed(4)}${inc.memo ? ' — ' + inc.memo : ''}</div>
+        <div class="inc-loc">${inc.address || `${inc.lat.toFixed(4)}, ${inc.lng.toFixed(4)}`}${inc.memo ? ' — ' + inc.memo : ''}</div>
       </div>
       <span class="inc-time">${inc.time}</span>
       <button class="inc-del" onclick="event.stopPropagation();deleteIncident(${inc.id})" title="削除">✕</button>
@@ -1114,7 +1212,6 @@ function renderList() {
 // ── EXPORT / IMPORT ──
 function exportJSON() {
   if (incidents.length === 0) { alert('データがありません。'); return; }
-  // export without image data to keep file small (optional: include)
   const data = incidents.map(i => ({
     id: i.id,
     lat: i.lat,
@@ -1122,7 +1219,7 @@ function exportJSON() {
     cat: i.cat,
     memo: i.memo,
     time: i.time,
-    // imgUrl included for full fidelity
+    address: i.address || null,
     imgUrl: i.imgUrl,
   }));
   const blob = new Blob([JSON.stringify({ version: 1, exported: new Date().toISOString(), incidents: data }, null, 2)], { type: 'application/json' });
@@ -1148,6 +1245,14 @@ document.getElementById('importInput').addEventListener('change', function(e) {
         if (!incidents.find(i => i.id === inc.id)) {
           incidents.push(inc);
           markers[inc.id] = createMarker(inc);
+          // 住所がなければ再取得
+          if (!inc.address) {
+            fetchAddress(inc.lat, inc.lng).then(addr => {
+              inc.address = addr;
+              if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
+              renderList();
+            });
+          }
         }
       });
       updateUI();
