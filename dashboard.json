@@ -1,5 +1,5 @@
 {
-  "fetched_jst": "2026-03-12 22:31:24",
+  "fetched_jst": "2026-03-12 22:36:54",
   "amedas": [],
   "rivers": [],
   "dams": [],
@@ -10,7 +10,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "石垣市",
@@ -18,7 +18,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "糸満市",
@@ -26,7 +26,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "沖縄市",
@@ -34,15 +34,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
-    },
-    {
-      "area": "4721000",
-      "shinsu": 2,
-      "kouzui": 2,
-      "dosa": 3,
-      "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "豊見城市",
@@ -50,7 +42,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "うるま市",
@@ -58,7 +50,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "宮古島市",
@@ -66,15 +58,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
-    },
-    {
-      "area": "4721500",
-      "shinsu": 2,
-      "kouzui": 2,
-      "dosa": 3,
-      "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "国頭村",
@@ -82,7 +66,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "大宜味村",
@@ -90,7 +74,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "東村",
@@ -98,7 +82,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "今帰仁村",
@@ -106,7 +90,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "本部町",
@@ -114,7 +98,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "恩納村",
@@ -122,7 +106,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "宜野座村",
@@ -130,7 +114,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "金武町",
@@ -138,7 +122,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "伊江村",
@@ -146,7 +130,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "読谷村",
@@ -154,7 +138,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "嘉手納町",
@@ -162,7 +146,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "北谷町",
@@ -170,7 +154,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "北中城村",
@@ -178,7 +162,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "中城村",
@@ -186,7 +170,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "西原町",
@@ -194,7 +178,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "与那原町",
@@ -202,7 +186,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "八重瀬町",
@@ -210,7 +194,7 @@
       "kouzui": 2,
       "dosa": 2,
       "level": 2,
-      "label": "警戒"
+      "label": "注意報"
     },
     {
       "area": "渡嘉敷村",
@@ -218,7 +202,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "座間味村",
@@ -226,7 +210,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "粟国村",
@@ -234,7 +218,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "渡名喜村",
@@ -242,7 +226,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "伊平屋村",
@@ -250,7 +234,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "伊是名村",
@@ -258,7 +242,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
+      "label": "警報"
     },
     {
       "area": "久米島町",
@@ -266,15 +250,7 @@
       "kouzui": 2,
       "dosa": 3,
       "level": 3,
-      "label": "危険"
-    },
-    {
-      "area": "八重瀬町",
-      "shinsu": 2,
-      "kouzui": 2,
-      "dosa": 3,
-      "level": 3,
-      "label": "危険"
+      "label": "警報"
     }
   ]
 }
