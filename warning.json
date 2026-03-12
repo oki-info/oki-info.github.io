@@ -1,5 +1,5 @@
 {
-  "fetched_jst": "2026-03-12 14:08:06",
+  "fetched_jst": "2026-03-12 16:53:10",
   "warnings": [
     {
       "area_name": "",
@@ -10,15 +10,11 @@
         },
         {
           "code": "15",
-          "status": "発表"
+          "status": "継続"
         },
         {
           "code": "16",
-          "status": "発表"
-        },
-        {
-          "code": "21",
-          "status": "解除"
+          "status": "継続"
         }
       ]
     },
@@ -31,15 +27,602 @@
         },
         {
           "code": "15",
-          "status": "発表"
+          "status": "継続"
         },
         {
           "code": "16",
-          "status": "発表"
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
         },
         {
-          "code": "21",
-          "status": "解除"
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
+        }
+      ]
+    },
+    {
+      "area_name": "",
+      "warnings": [
+        {
+          "code": "14",
+          "status": "継続"
+        },
+        {
+          "code": "15",
+          "status": "継続"
+        },
+        {
+          "code": "16",
+          "status": "継続"
         }
       ]
     }
