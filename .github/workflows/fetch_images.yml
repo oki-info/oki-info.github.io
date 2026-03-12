@@ -116,8 +116,22 @@ jobs:
               with urllib.request.urlopen(req, timeout=timeout) as r:
                   return r.read()
 
-          # ── キキクル（気象庁 警報JSON: codeベースで浸水・洪水・土砂を取得）────
-          # エリアコード(7桁=JIS5桁+"00") → 市町村名
+          # ── 気象警報・注意報（浸水・洪水・土砂 3種）────────────────
+          # 警報コード → (カテゴリ, レベル)
+          # 土砂:  10=特警5, 12=特警5, 16=警報3, 38=警報3, 14=注意報2
+          # 浸水:  11=特警5, 12=特警5, 37=警報3, 38=警報3, 14=注意報2
+          # 洪水:  17=警報3, 15=注意報2
+          CODE_MAP = {
+              '10': [('dosa',5)],
+              '11': [('shinsu',5)],
+              '12': [('dosa',5),('shinsu',5)],
+              '14': [('dosa',2),('shinsu',2)],
+              '15': [('kouzui',2)],
+              '16': [('dosa',3)],
+              '17': [('kouzui',3)],
+              '37': [('shinsu',3)],
+              '38': [('dosa',3),('shinsu',3)],
+          }
           AREA_NAMES = {
               '4720100':'那覇市',    '4720300':'宜野湾市', '4720500':'石垣市',
               '4720600':'浦添市',    '4720700':'名護市',   '4720800':'糸満市',
@@ -132,25 +146,9 @@ jobs:
               '4735300':'渡嘉敷村',  '4735400':'座間味村', '4735500':'粟国村',
               '4735600':'渡名喜村',  '4735700':'南大東村', '4735800':'北大東村',
               '4735900':'伊平屋村',  '4736000':'伊是名村', '4736100':'久米島町',
-              '4736200':'八重瀬町',  '4737500':'多良間村', '4738100':'竹富町',
-              '4738200':'与那国町',
+              '4737500':'多良間村',  '4738100':'竹富町',   '4738200':'与那国町',
           }
-          # 警報コード → (カテゴリ, レベル)
-          # 土砂: 10=特警5, 12=特警5, 16=警報3, 38=警報3, 14=注意報2
-          # 浸水: 11=特警5, 12=特警5, 37=警報3, 38=警報3, 14=注意報2
-          # 洪水: 17=警報3, 15=注意報2
-          CODE_MAP = {
-              '10': [('dosa',5)],
-              '11': [('shinsu',5)],
-              '12': [('dosa',5),('shinsu',5)],
-              '14': [('dosa',2),('shinsu',2)],
-              '15': [('kouzui',2)],
-              '16': [('dosa',3)],
-              '17': [('kouzui',3)],
-              '37': [('shinsu',3)],
-              '38': [('dosa',3),('shinsu',3)],
-          }
-          KIKI_LABELS = {0:'平常',1:'注意',2:'警戒',3:'危険',4:'非常に危険',5:'最大級'}
+          WARN_LABELS = {0:'発表なし', 2:'注意報', 3:'警報', 5:'特別警報'}
           try:
               w_url = 'https://www.jma.go.jp/bosai/warning/data/warning/471000.json'
               w_raw = json.loads(fetch(w_url))
@@ -159,10 +157,12 @@ jobs:
                   areas = at.get('areas') or []
                   if len(areas) > len(best_areas):
                       best_areas = areas
-              print(f"キキクル対象エリア数: {len(best_areas)}")
+              print(f"警報取得対象エリア数: {len(best_areas)}")
               for area in best_areas:
                   code = str(area.get('code',''))
-                  name = AREA_NAMES.get(code, code)  # コードが不明なら数字をそのまま表示
+                  name = AREA_NAMES.get(code, '')
+                  if not name:
+                      continue  # 不明コードはスキップ
                   shinsu = kouzui = dosa = 0
                   for w in (area.get('warnings') or []):
                       wcode  = str(w.get('code',''))
@@ -180,13 +180,13 @@ jobs:
                       'kouzui': kouzui,
                       'dosa':   dosa,
                       'level':  max_lv,
-                      'label':  KIKI_LABELS.get(max_lv,'平常'),
+                      'label':  WARN_LABELS.get(max_lv,'発表なし'),
                   })
               alert_count = sum(1 for k in result['kikukuru'] if k['level'] > 0)
-              print(f"キキクル取得: {len(result['kikukuru'])}市町村 (警戒以上: {alert_count}市町村)")
+              print(f"警報取得完了: {len(result['kikukuru'])}市町村 (発表中: {alert_count}市町村)")
           except Exception as e:
               import traceback; traceback.print_exc()
-              print(f"キキクル NG: {type(e).__name__}: {e}")
+              print(f"警報取得 NG: {type(e).__name__}: {e}")
           with open('dashboard.json', 'w', encoding='utf-8') as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"dashboard.json 生成完了 / AMeDAS:{len(result['amedas'])} 河川:{len(result['rivers'])} ダム:{len(result['dams'])} キキクル:{len(result['kikukuru'])}")
