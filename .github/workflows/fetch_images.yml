@@ -116,7 +116,40 @@ jobs:
               with urllib.request.urlopen(req, timeout=timeout) as r:
                   return r.read()
 
-          # ── キキクル（気象庁 警報JSONから浸水・洪水・土砂の3種を取得）────
+          # ── キキクル（気象庁 警報JSON: codeベースで浸水・洪水・土砂を取得）────
+          # エリアコード(7桁=JIS5桁+"00") → 市町村名
+          AREA_NAMES = {
+              '4720100':'那覇市',    '4720300':'宜野湾市', '4720500':'石垣市',
+              '4720600':'浦添市',    '4720700':'名護市',   '4720800':'糸満市',
+              '4720900':'沖縄市',    '4721100':'豊見城市', '4721200':'うるま市',
+              '4721300':'宮古島市',  '4721400':'南城市',
+              '4730100':'国頭村',    '4730200':'大宜味村', '4730300':'東村',
+              '4730600':'今帰仁村',  '4730800':'本部町',   '4731100':'恩納村',
+              '4731300':'宜野座村',  '4731400':'金武町',   '4731500':'伊江村',
+              '4732400':'読谷村',    '4732500':'嘉手納町', '4732600':'北谷町',
+              '4732700':'北中城村',  '4732800':'中城村',   '4732900':'西原町',
+              '4734800':'与那原町',  '4734900':'南風原町', '4735000':'八重瀬町',
+              '4735300':'渡嘉敷村',  '4735400':'座間味村', '4735500':'粟国村',
+              '4735600':'渡名喜村',  '4735700':'南大東村', '4735800':'北大東村',
+              '4735900':'伊平屋村',  '4736000':'伊是名村', '4736100':'久米島町',
+              '4736200':'八重瀬町',  '4737500':'多良間村', '4738100':'竹富町',
+              '4738200':'与那国町',
+          }
+          # 警報コード → (カテゴリ, レベル)
+          # 土砂: 10=特警5, 12=特警5, 16=警報3, 38=警報3, 14=注意報2
+          # 浸水: 11=特警5, 12=特警5, 37=警報3, 38=警報3, 14=注意報2
+          # 洪水: 17=警報3, 15=注意報2
+          CODE_MAP = {
+              '10': [('dosa',5)],
+              '11': [('shinsu',5)],
+              '12': [('dosa',5),('shinsu',5)],
+              '14': [('dosa',2),('shinsu',2)],
+              '15': [('kouzui',2)],
+              '16': [('dosa',3)],
+              '17': [('kouzui',3)],
+              '37': [('shinsu',3)],
+              '38': [('dosa',3),('shinsu',3)],
+          }
           KIKI_LABELS = {0:'平常',1:'注意',2:'警戒',3:'危険',4:'非常に危険',5:'最大級'}
           try:
               w_url = 'https://www.jma.go.jp/bosai/warning/data/warning/471000.json'
@@ -127,42 +160,33 @@ jobs:
                   if len(areas) > len(best_areas):
                       best_areas = areas
               print(f"キキクル対象エリア数: {len(best_areas)}")
-              # 最初のエリアのキーを確認
-              if best_areas:
-                  print(f"エリアサンプルキー: {list(best_areas[0].keys())}")
-                  print(f"エリアサンプル内容: {best_areas[0]}")
-              count = 0
               for area in best_areas:
-                  # キー名を複数パターン試す
-                  name = str(area.get('name') or area.get('areaName') or area.get('area_name') or '').strip()
-                  if not name:
-                      print(f"名前なしエリア: {area}")
-                      continue
+                  code = str(area.get('code',''))
+                  name = AREA_NAMES.get(code, code)  # コードが不明なら数字をそのまま表示
                   shinsu = kouzui = dosa = 0
                   for w in (area.get('warnings') or []):
-                      wtype  = w.get('type','')
+                      wcode  = str(w.get('code',''))
                       status = w.get('status','')
-                      if status != '発表':
+                      if status not in ('発表','継続'):
                           continue
-                      lv = 3 if ('警報' in wtype and '注意報' not in wtype) else 2 if '注意報' in wtype else 1
-                      if '浸水' in wtype:
-                          shinsu = max(shinsu, lv)
-                      if '洪水' in wtype:
-                          kouzui = max(kouzui, lv)
-                      if '土砂' in wtype or '大雨' in wtype:
-                          dosa = max(dosa, lv)
+                      for cat, lv in CODE_MAP.get(wcode, []):
+                          if cat == 'shinsu': shinsu = max(shinsu, lv)
+                          elif cat == 'kouzui': kouzui = max(kouzui, lv)
+                          elif cat == 'dosa': dosa = max(dosa, lv)
                   max_lv = max(shinsu, kouzui, dosa)
                   result['kikukuru'].append({
-                      'area': name, 'shinsu': shinsu, 'kouzui': kouzui,
-                      'dosa': dosa, 'level': max_lv, 'label': KIKI_LABELS.get(max_lv,'平常'),
+                      'area':   name,
+                      'shinsu': shinsu,
+                      'kouzui': kouzui,
+                      'dosa':   dosa,
+                      'level':  max_lv,
+                      'label':  KIKI_LABELS.get(max_lv,'平常'),
                   })
-                  count += 1
               alert_count = sum(1 for k in result['kikukuru'] if k['level'] > 0)
-              print(f"キキクル取得: {count}市町村 (警戒以上: {alert_count}市町村)")
+              print(f"キキクル取得: {len(result['kikukuru'])}市町村 (警戒以上: {alert_count}市町村)")
           except Exception as e:
-              import traceback
+              import traceback; traceback.print_exc()
               print(f"キキクル NG: {type(e).__name__}: {e}")
-              traceback.print_exc()
           with open('dashboard.json', 'w', encoding='utf-8') as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"dashboard.json 生成完了 / AMeDAS:{len(result['amedas'])} 河川:{len(result['rivers'])} ダム:{len(result['dams'])} キキクル:{len(result['kikukuru'])}")
