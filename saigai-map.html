@@ -1758,48 +1758,53 @@ function exportShareHTML() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Meiryo','Noto Sans JP',sans-serif; background:#f0f2f5; color:#1a2433; }
+body { font-family:'Meiryo','Noto Sans JP',sans-serif; background:#f0f2f5; color:#1a2433; font-size:14px; line-height:1.6; }
 #header {
-  background:#fff; border-bottom:3px solid #0070cc;
-  padding:12px 20px; display:flex; align-items:center; gap:12px;
-  flex-wrap:wrap;
+  background:#fff; border-bottom:4px solid #0070cc;
+  padding:14px 20px; display:flex; align-items:center; gap:14px;
+  flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
-#header h1 { font-size:16px; color:#0070cc; font-weight:700; }
-#header .sub { font-size:11px; color:#6b7a8d; }
+#header h1 { font-size:20px; color:#0070cc; font-weight:700; }
+#header .sub { font-size:13px; color:#4a5568; margin-top:2px; }
 #header .badge {
-  margin-left:auto; background:#fff3cd; border:1px solid #ffc107;
-  color:#856404; font-size:11px; padding:4px 10px; border-radius:20px; font-weight:600;
+  margin-left:auto; background:#fff3cd; border:1px solid #f0ad00;
+  color:#7a5800; font-size:12px; padding:5px 14px; border-radius:20px; font-weight:700;
 }
 #stats {
   background:#fff; border-bottom:1px solid #d0d7e2;
-  padding:8px 20px; display:flex; gap:20px; flex-wrap:wrap;
+  padding:10px 20px; display:flex; gap:24px; flex-wrap:wrap;
+  align-items:center;
 }
-.stat-item { display:flex; align-items:center; gap:6px; font-size:13px; }
-.stat-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-#map { width:100%; height:60vh; }
+.stat-item { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#1a2433; }
+.stat-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+#map { width:100%; height:62vh; }
 #list { background:#fff; border-top:1px solid #d0d7e2; }
 .list-hdr {
-  padding:10px 16px; font-size:11px; font-weight:700; color:#6b7a8d;
-  letter-spacing:1px; border-bottom:1px solid #eef0f3; background:#f8f9fb;
+  padding:12px 20px; font-size:13px; font-weight:700; color:#4a5568;
+  letter-spacing:0.5px; border-bottom:1px solid #e2e8f0; background:#f8f9fb;
 }
 .inc-row {
-  display:flex; gap:10px; padding:10px 16px;
+  display:flex; gap:12px; padding:12px 20px;
   border-bottom:1px solid #eef0f3; cursor:pointer;
   transition:background 0.15s; align-items:flex-start;
 }
-.inc-row:hover { background:#f0f6ff; }
-.inc-dot2 { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; }
-.inc-cat2 { font-size:12px; font-weight:700; }
-.inc-addr { font-size:11px; color:#6b7a8d; margin-top:2px; }
-.inc-memo { font-size:11px; color:#1a2433; margin-top:2px; font-style:italic; }
-.inc-time2 { font-size:10px; color:#aaa; margin-left:auto; flex-shrink:0; }
-.leaflet-popup-content-wrapper { border-radius:6px !important; box-shadow:0 4px 16px rgba(0,0,0,0.15) !important; }
-.popup-img { width:100%; height:140px; object-fit:cover; border-radius:4px; margin-bottom:8px; }
-.popup-cat { font-size:12px; font-weight:700; margin-bottom:4px; }
-.popup-meta { font-size:11px; color:#6b7a8d; line-height:1.7; }
-.popup-memo { margin-top:6px; font-size:11px; background:#f4f6f9; padding:5px 8px; border-radius:4px; border-left:2px solid #d0d7e2; }
-#footer { padding:10px 16px; font-size:10px; color:#aaa; text-align:center; background:#f8f9fb; border-top:1px solid #eef0f3; }
-@media(max-width:700px){ #map{ height:55vh; } }
+.inc-row:hover { background:#ebf4ff; }
+.inc-dot2 { width:12px; height:12px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.inc-cat2 { font-size:14px; font-weight:700; }
+.inc-addr { font-size:13px; color:#4a5568; margin-top:3px; }
+.inc-memo { font-size:13px; color:#2d3748; margin-top:3px; font-style:italic; background:#f7fafc; padding:3px 8px; border-radius:4px; border-left:3px solid #cbd5e0; }
+.inc-time2 { font-size:12px; color:#718096; margin-left:auto; flex-shrink:0; white-space:nowrap; }
+.leaflet-popup-content-wrapper { border-radius:8px !important; box-shadow:0 4px 16px rgba(0,0,0,0.15) !important; }
+.popup-img { width:100%; height:150px; object-fit:cover; border-radius:6px; margin-bottom:10px; }
+.popup-cat { font-size:14px; font-weight:700; margin-bottom:6px; }
+.popup-meta { font-size:12px; color:#4a5568; line-height:1.8; }
+.popup-memo { margin-top:8px; font-size:12px; background:#f7fafc; padding:6px 10px; border-radius:4px; border-left:3px solid #cbd5e0; color:#2d3748; }
+#footer { padding:12px 20px; font-size:12px; color:#718096; text-align:center; background:#f8f9fb; border-top:1px solid #e2e8f0; }
+@media(max-width:700px){
+  #map{ height:55vh; }
+  #header h1 { font-size:16px; }
+  .inc-row { padding:10px 14px; }
+}
 </style>
 
 </head>
