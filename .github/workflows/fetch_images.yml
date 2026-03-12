@@ -121,16 +121,22 @@ jobs:
           try:
               w_url = 'https://www.jma.go.jp/bosai/warning/data/warning/471000.json'
               w_raw = json.loads(fetch(w_url))
-              # areaTypesの中で最も市町村数が多いレベルを選ぶ
               best_areas = []
               for at in (w_raw.get('areaTypes') or []):
                   areas = at.get('areas') or []
                   if len(areas) > len(best_areas):
                       best_areas = areas
               print(f"キキクル対象エリア数: {len(best_areas)}")
+              # 最初のエリアのキーを確認
+              if best_areas:
+                  print(f"エリアサンプルキー: {list(best_areas[0].keys())}")
+                  print(f"エリアサンプル内容: {best_areas[0]}")
+              count = 0
               for area in best_areas:
-                  name = (area.get('name') or '').strip()
+                  # キー名を複数パターン試す
+                  name = str(area.get('name') or area.get('areaName') or area.get('area_name') or '').strip()
                   if not name:
+                      print(f"名前なしエリア: {area}")
                       continue
                   shinsu = kouzui = dosa = 0
                   for w in (area.get('warnings') or []):
@@ -147,17 +153,16 @@ jobs:
                           dosa = max(dosa, lv)
                   max_lv = max(shinsu, kouzui, dosa)
                   result['kikukuru'].append({
-                      'area':   name,
-                      'shinsu': shinsu,
-                      'kouzui': kouzui,
-                      'dosa':   dosa,
-                      'level':  max_lv,
-                      'label':  KIKI_LABELS.get(max_lv,'平常'),
+                      'area': name, 'shinsu': shinsu, 'kouzui': kouzui,
+                      'dosa': dosa, 'level': max_lv, 'label': KIKI_LABELS.get(max_lv,'平常'),
                   })
+                  count += 1
               alert_count = sum(1 for k in result['kikukuru'] if k['level'] > 0)
-              print(f"キキクル取得: {len(result['kikukuru'])}市町村 (警戒以上: {alert_count}市町村)")
+              print(f"キキクル取得: {count}市町村 (警戒以上: {alert_count}市町村)")
           except Exception as e:
+              import traceback
               print(f"キキクル NG: {type(e).__name__}: {e}")
+              traceback.print_exc()
           with open('dashboard.json', 'w', encoding='utf-8') as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"dashboard.json 生成完了 / AMeDAS:{len(result['amedas'])} 河川:{len(result['rivers'])} ダム:{len(result['dams'])} キキクル:{len(result['kikukuru'])}")
