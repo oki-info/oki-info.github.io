@@ -1,7 +1,68 @@
 {
-  "fetched_jst": "2026-03-12 19:58:52",
+  "fetched_jst": "2026-03-12 20:11:27",
   "amedas": [],
   "rivers": [],
   "dams": [],
-  "kikukuru": []
+  "kikukuru": [
+    {
+      "area": "那覇市",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "宜野湾市",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "浦添市",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "名護市",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "糸満市",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "沖縄市",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "国頭村",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "大宜味村",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "東村",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "中城村",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "北中城村",
+      "level": 0,
+      "label": "平常"
+    },
+    {
+      "area": "石垣市",
+      "level": 0,
+      "label": "平常"
+    }
+  ]
 }

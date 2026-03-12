@@ -1,58 +1,58 @@
 {
-  "last_fetch_jst": "2026-03-12 19:58:58",
+  "last_fetch_jst": "2026-03-12 20:11:32",
   "camera_count": 42,
   "cameras": [
     {
       "pid": "01",
-      "size": 47311
+      "size": 51769
     },
     {
       "pid": "02",
-      "size": 51432
+      "size": 47939
     },
     {
       "pid": "03",
-      "size": 71069
+      "size": 62999
     },
     {
       "pid": "04",
-      "size": 54352
+      "size": 53823
     },
     {
       "pid": "05",
-      "size": 64414
+      "size": 64382
     },
     {
       "pid": "06",
-      "size": 40574
+      "size": 40477
     },
     {
       "pid": "07",
-      "size": 58562
+      "size": 56597
     },
     {
       "pid": "08",
-      "size": 44914
+      "size": 48801
     },
     {
       "pid": "09",
-      "size": 28114
+      "size": 28491
     },
     {
       "pid": "10",
-      "size": 41366
+      "size": 41733
     },
     {
       "pid": "11",
-      "size": 68321
+      "size": 78976
     },
     {
       "pid": "12",
-      "size": 52440
+      "size": 58914
     },
     {
       "pid": "13",
-      "size": 24469
+      "size": 24021
     },
     {
       "pid": "14",
@@ -60,7 +60,7 @@
     },
     {
       "pid": "15",
-      "size": 5463
+      "size": 43818
     },
     {
       "pid": "16",
@@ -68,19 +68,19 @@
     },
     {
       "pid": "17",
-      "size": 43524
+      "size": 46772
     },
     {
       "pid": "18",
-      "size": 35271
+      "size": 35133
     },
     {
       "pid": "19",
-      "size": 42481
+      "size": 42072
     },
     {
       "pid": "20",
-      "size": 52545
+      "size": 53945
     },
     {
       "pid": "21",
@@ -88,19 +88,19 @@
     },
     {
       "pid": "22",
-      "size": 54449
+      "size": 54568
     },
     {
       "pid": "23",
-      "size": 52440
+      "size": 52468
     },
     {
       "pid": "24",
-      "size": 37352
+      "size": 41324
     },
     {
       "pid": "25",
-      "size": 36729
+      "size": 37543
     },
     {
       "pid": "26",
@@ -120,11 +120,11 @@
     },
     {
       "pid": "41",
-      "size": 64444
+      "size": 62195
     },
     {
       "pid": "42",
-      "size": 46249
+      "size": 28510
     },
     {
       "pid": "43",
@@ -152,11 +152,11 @@
     },
     {
       "pid": "52",
-      "size": 40809
+      "size": 41272
     },
     {
       "pid": "53",
-      "size": 57108
+      "size": 58809
     },
     {
       "pid": "64",
@@ -176,19 +176,19 @@
       "key": "okinawa-city-hija",
       "name": "比謝川",
       "loc": "沖縄市（水位監視）",
-      "size": 40576
+      "size": 40227
     },
     {
       "key": "okinawa-city-awase1",
       "name": "泡瀬川①",
       "loc": "沖縄市（水位監視）",
-      "size": 23362
+      "size": 24165
     },
     {
       "key": "okinawa-city-awase2",
       "name": "泡瀬川②",
       "loc": "沖縄市（水位監視）",
-      "size": 24899
+      "size": 24339
     }
   ],
   "road_cameras": [
@@ -228,49 +228,49 @@
       "key": "higashi-takae-school",
       "name": "高江小学校",
       "loc": "東村",
-      "size": 40312
+      "size": 40465
     },
     {
       "key": "higashi-takae-school-seimon",
       "name": "高江小学校正門",
       "loc": "東村",
-      "size": 43531
+      "size": 46768
     },
     {
       "key": "higashi-higashi-port",
       "name": "東漁港",
       "loc": "東村",
-      "size": 41549
+      "size": 44504
     },
     {
       "key": "higashi-fkc-park",
       "name": "福地川海浜公園",
       "loc": "東村",
-      "size": 44558
+      "size": 42556
     },
     {
       "key": "higashi-center-pbh",
       "name": "中央公民館",
       "loc": "東村",
-      "size": 44987
+      "size": 44941
     },
     {
       "key": "higashi-hirugi",
       "name": "慶佐次ふれあいヒルギ公園",
       "loc": "東村",
-      "size": 40291
+      "size": 38236
     },
     {
       "key": "higashi-arime-school",
       "name": "有銘小学校グラウンド",
       "loc": "東村",
-      "size": 38119
+      "size": 42559
     },
     {
       "key": "higashi-higashi-school",
       "name": "東小中学校",
       "loc": "東村",
-      "size": 50013
+      "size": 45478
     }
   ],
   "ogimi_cameras": [
@@ -278,43 +278,43 @@
       "key": "ogimi-nousonic",
       "name": "農村環境改善センター",
       "loc": "大宜味村",
-      "size": 31944
+      "size": 32126
     },
     {
       "key": "ogimi-takazatocc",
       "name": "田嘉里公民館",
       "loc": "大宜味村",
-      "size": 32678
+      "size": 33329
     },
     {
       "key": "ogimi-ogimiej",
       "name": "大宜味小中学校",
       "loc": "大宜味村",
-      "size": 28431
+      "size": 27986
     },
     {
       "key": "ogimi-tuhacc",
       "name": "津波公民館",
       "loc": "大宜味村",
-      "size": 30752
+      "size": 30349
     },
     {
       "key": "ogimi-taihocc",
       "name": "大保公民館",
       "loc": "大宜味村",
-      "size": 28846
+      "size": 28522
     },
     {
       "key": "ogimi-shioya",
       "name": "旧塩屋小学校",
       "loc": "大宜味村",
-      "size": 28751
+      "size": 29188
     },
     {
       "key": "ogimi-ogimiejgrd",
       "name": "旧大宜味小学校グラウンド",
       "loc": "大宜味村",
-      "size": 33307
+      "size": 30136
     }
   ],
   "youtube_live": [
@@ -322,37 +322,37 @@
       "name": "那覇市古島",
       "loc": "那覇市古島",
       "channel_id": "UCsmhYj8SkM1cCcXekuaViAg",
-      "video_id": "Zc_MKQOeUIg"
+      "video_id": null
     },
     {
       "name": "石垣島730交差点",
       "loc": "石垣市美崎町",
       "channel_id": "UCQJE3qm7Sjc5-JXAYjAfkrw",
-      "video_id": "tLHAhSgY-ak"
+      "video_id": null
     },
     {
       "name": "恩納村マリブビーチ",
       "loc": "国頭郡恩納村",
-      "channel_id": "UC8bU0LyP49R7pL49LFwsPsg",
-      "video_id": "xARaicuHiuU"
+      "channel_id": null,
+      "video_id": null
     },
     {
       "name": "かりゆしビーチリゾート",
       "loc": "国頭郡恩納村",
       "channel_id": "UCiVxzgxfn4OhuDygv5o5-mg",
-      "video_id": "AhQErfreEOE"
+      "video_id": null
     },
     {
       "name": "石垣島ユーグレナ離島ターミナル",
       "loc": "石垣市美崎町",
       "channel_id": "UCMBkpkdFghMYW6TQp7X77wA",
-      "video_id": "LwDHAWszF3g"
+      "video_id": null
     },
     {
       "name": "北谷町砂辺",
       "loc": "中頭郡北谷町",
       "channel_id": "UCAtWb74mSuUVyOtN2DfPfKQ",
-      "video_id": "zzb8YRJAoyw"
+      "video_id": null
     },
     {
       "name": "豊見城市宜保",
@@ -370,31 +370,31 @@
       "name": "浦添市城間ライブ",
       "loc": "浦添市城間",
       "channel_id": "UCO_IpSnNx-4FsDbZKFczwoQ",
-      "video_id": "uYq6xkxSmCA"
+      "video_id": null
     },
     {
       "name": "島尻郡南風原町ライブ",
       "loc": "島尻郡南風原町",
       "channel_id": "UC6uNpKs7YlLxYIQCQbPRNnA",
-      "video_id": "UOUAGkcdj5Q"
+      "video_id": null
     },
     {
       "name": "沖縄県島尻郡ライブ",
       "loc": "島尻郡南風原町",
       "channel_id": "UCAYGbiu07S1Qeb15bNV0_6g",
-      "video_id": "kqP_icCsx50"
+      "video_id": null
     },
     {
       "name": "与那原ライブ",
       "loc": "島尻郡与那原町",
       "channel_id": "UCK7PK288TSvchouKhnTvcnA",
-      "video_id": "5Uqzgr8rIh0"
+      "video_id": null
     },
     {
       "name": "うるま市州崎ライブカメラ",
       "loc": "うるま市洲崎",
       "channel_id": "UCU2Q1oGMqU1TWF8nIuoY4gg",
-      "video_id": "hz5PhdwCpJU"
+      "video_id": null
     },
     {
       "name": "那覇空港（日テレNews）",
