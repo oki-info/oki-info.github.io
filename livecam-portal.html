@@ -330,14 +330,10 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   <div class="portal-body">
     <div style="display:grid;gap:16px;grid-template-columns:1fr 1fr;">
 
-      <!-- 気象警報・注意報 -->
+      <!-- 防災ダッシュボード -->
       <div style="grid-column:1/-1">
-        <div class="sec-title">気象警報・注意報 <span style="font-size:11px;font-weight:400;letter-spacing:0">（沖縄県 — 気象庁）</span>
-          <button class="tbtn" style="margin-left:auto" onclick="loadBousaiInfo()">↺ 更新</button>
-        </div>
-        <div id="warning-area" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
-        </div>
+        <div class="sec-title">防災情報ダッシュボード <span style="font-size:11px;font-weight:400;letter-spacing:0;color:var(--amber)">※ サンプルデータ表示中</span></div>
+        <div id="bousai-dashboard"></div>
       </div>
 
       <!-- 雨雲レーダー -->
@@ -350,7 +346,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
             <a class="tbtn" href="https://www.jma.go.jp/bosai/nowc/#zoom:7/lat:26.770780/lon:127.820435/colordepth:normal/elements:hrpns&slmcs&slmcs_fcst" target="_blank" style="text-decoration:none">↗ 全画面</a>
           </div>
         </div>
-        <div id="radar-map" style="width:100%;height:300px;border-radius:8px;overflow:hidden;background:#0a0f1e;position:relative;border:1px solid var(--edge)">
+        <div id="radar-map" style="width:100%;height:300px;border-radius:8px;overflow:hidden;background:#1a2535;position:relative;border:1px solid var(--edge)">
           <div id="radar-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:var(--mono);font-size:11px;z-index:10">読込中…</div>
         </div>
         <div style="margin-top:6px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
@@ -360,6 +356,16 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
           <div style="width:14px;height:10px;background:#ffff00;border-radius:1px;margin-left:4px"></div><span style="font-size:9px;color:var(--muted)">強</span>
           <div style="width:14px;height:10px;background:#ff6600;border-radius:1px;margin-left:4px"></div><span style="font-size:9px;color:var(--muted)">激しい</span>
           <div style="width:14px;height:10px;background:#ff0000;border-radius:1px;margin-left:4px"></div><span style="font-size:9px;color:var(--muted)">猛烈</span>
+        </div>
+      </div>
+
+      <!-- 気象警報・注意報 -->
+      <div style="grid-column:1/-1">
+        <div class="sec-title">気象警報・注意報 <span style="font-size:11px;font-weight:400;letter-spacing:0">（沖縄県 — 気象庁）</span>
+          <button class="tbtn" style="margin-left:auto" onclick="loadBousaiInfo()">↺ 更新</button>
+        </div>
+        <div id="warning-area" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
         </div>
       </div>
 
@@ -395,15 +401,11 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
         </div>
       </div>
 
-      <!-- 防災ダッシュボード -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">防災情報ダッシュボード <span style="font-size:11px;font-weight:400;letter-spacing:0;color:var(--amber)">※ サンプルデータ表示中</span></div>
-        <div id="bousai-dashboard"></div>
-      </div>
-
     </div>
   </div>
 </div>
+
+<div class="section" id="sec-youtube">
   <div class="portal-body">
     <div class="sec-title">YouTube ライブカメラ</div>
 
