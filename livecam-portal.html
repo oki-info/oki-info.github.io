@@ -332,7 +332,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 
       <!-- 防災ダッシュボード -->
       <div style="grid-column:1/-1">
-        <div class="sec-title">防災情報ダッシュボード <span style="font-size:11px;font-weight:400;letter-spacing:0;color:var(--amber)">※ サンプルデータ表示中</span></div>
+        <div class="sec-title">防災情報ダッシュボード</div>
         <div id="bousai-dashboard"></div>
       </div>
 
@@ -1106,33 +1106,9 @@ const DB_ALERT = {
   danger:   { label:'危険',     color:'#f87171', bg:'#1c0000', border:'#991b1b' },
   critical: { label:'氾濫危険', color:'#ffffff', bg:'#7f1d1d', border:'#dc2626' },
 };
-const DB_RIVERS=[
-  {id:1,name:'○○川（A地点）',level:3.24,limit:{watch:2.0,warning:2.8,danger:3.5,critical:4.2},trend:'up',change:'+0.12'},
-  {id:2,name:'△△川（B地点）',level:1.87,limit:{watch:1.5,warning:2.2,danger:3.0,critical:3.8},trend:'stable',change:'+0.01'},
-  {id:3,name:'□□川（C地点）',level:4.61,limit:{watch:2.5,warning:3.5,danger:4.2,critical:5.0},trend:'up',change:'+0.31'},
-  {id:4,name:'◇◇川（D地点）',level:0.95,limit:{watch:1.2,warning:1.8,danger:2.5,critical:3.2},trend:'down',change:'-0.05'},
-  {id:5,name:'××川（E地点）',level:5.12,limit:{watch:2.8,warning:3.8,danger:4.5,critical:5.5},trend:'up',change:'+0.44'},
-];
-const DB_AMEDAS=[
-  {id:1,name:'中央部',rainfall1h:42,rainfall24h:187,temp:18.3,wind:'北北西 8m/s'},
-  {id:2,name:'北部山間',rainfall1h:68,rainfall24h:312,temp:14.1,wind:'北 12m/s'},
-  {id:3,name:'南部沿岸',rainfall1h:28,rainfall24h:143,temp:20.5,wind:'南西 6m/s'},
-  {id:4,name:'東部丘陵',rainfall1h:55,rainfall24h:241,temp:16.8,wind:'北東 9m/s'},
-];
-const DB_DAMS=[
-  {id:1,name:'○○ダム',storageRate:78.4,inflow:245,outflow:180},
-  {id:2,name:'△△ダム',storageRate:45.2,inflow:89,outflow:95},
-  {id:3,name:'□□ダム',storageRate:91.7,inflow:412,outflow:280},
-];
-const DB_KIKI=[
-  {area:'北部山間地域',level:4,label:'非常に危険'},
-  {area:'中央市街地',  level:2,label:'やや危険'},
-  {area:'南部沿岸部',  level:3,label:'危険'},
-  {area:'東部丘陵地',  level:3,label:'危険'},
-  {area:'西部低地',    level:4,label:'非常に危険'},
-];
 
 function dbRiverLevel(r){
+  if(!r.limit)return'normal';
   if(r.level>=r.limit.critical)return'critical';
   if(r.level>=r.limit.danger)return'danger';
   if(r.level>=r.limit.warning)return'warning';
@@ -1147,170 +1123,86 @@ function dbBadge(k,small){
   return `<span style="display:inline-flex;align-items:center;gap:4px;padding:${p};border-radius:4px;background:${a.bg};border:1px solid ${a.border};color:${a.color};font-size:${fs}px;font-weight:700;letter-spacing:.05em">${k==='critical'?'<span style="font-size:8px;animation:blink 1s infinite">●</span>':''}${a.label}</span>`;
 }
 
-function renderDashboard(){
+async function renderDashboard(){
   const el=document.getElementById('bousai-dashboard');
   if(!el)return;
 
-  // 緊急バナー
-  const banner=`<div style="background:linear-gradient(90deg,#7f1d1d,#450a0a);border:1px solid #dc2626;border-radius:6px;padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px;animation:pulse-border 2s infinite">
-    <span style="font-size:18px;animation:blink 1s infinite">🚨</span>
-    <div style="flex:1;font-size:13px;font-weight:700;color:#fca5a5;font-family:var(--mono)">大雨警報・洪水警報・土砂災害警戒情報 発表中</div>
-  </div>`;
+  let data={amedas:[],rivers:[],dams:[],kikukuru:[],fetched_jst:''};
+  try{
+    const res=await fetch('dashboard.json?_='+Math.floor(Date.now()/300000));
+    if(res.ok) data=await res.json();
+  }catch(e){ console.warn('dashboard.json取得失敗',e); }
 
-  // 河川水位
-  const maxLevel=r=>r.limit.critical*1.2;
-  const riverCards=DB_RIVERS.map(r=>{
-    const k=dbRiverLevel(r),a=DB_ALERT[k],mx=maxLevel(r);
+  const rivers=data.rivers||[], amedas=data.amedas||[], dams=data.dams||[], kiki=data.kikukuru||[];
+  const fetched=data.fetched_jst||'';
+  const noData='<div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:12px">データ取得中…</div>';
+
+  const riverCards=rivers.length?rivers.map(r=>{
+    const k=dbRiverLevel(r),a=DB_ALERT[k],mx=(r.limit?.critical||5)*1.2;
     const pct=Math.min((r.level/mx)*100,100);
-    const marks=['watch','warning','danger','critical'].map((lk,i)=>{
-      const mc=['#facc15','#fb923c','#f87171','#dc2626'][i];
-      const lp=(r.limit[lk]/mx)*100;
-      return `<div style="position:absolute;left:${lp}%;top:-3px;width:2px;height:16px;background:${mc};opacity:.6"></div>`;
-    }).join('');
-    const tColor=r.trend==='up'?'#f87171':r.trend==='down'?'#4ade80':'#64748b';
-    const tMark=r.trend==='up'?'▲':r.trend==='down'?'▼':'─';
+    const marks=r.limit?['watch','warning','danger','critical'].map((lk,i)=>`<div style="position:absolute;left:${(r.limit[lk]/mx)*100}%;top:-3px;width:2px;height:16px;background:${ ['#facc15','#fb923c','#f87171','#dc2626'][i]};opacity:.6"></div>`).join(''):'';
+    const tCol=r.trend==='up'?'#f87171':r.trend==='down'?'#4ade80':'#64748b';
+    const tMk=r.trend==='up'?'▲':r.trend==='down'?'▼':'─';
     return `<div style="padding:10px 12px;background:#0a0f1e;border:1px solid ${a.border};border-radius:6px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="color:#94a3b8;font-size:12px">${r.name}</span>${dbBadge(k,true)}
-      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="color:#94a3b8;font-size:12px">${r.name}</span>${dbBadge(k,true)}</div>
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="position:relative;flex:1;height:10px;background:#1e293b;border-radius:5px;overflow:visible">
-          ${marks}
-          <div style="position:absolute;left:0;top:0;width:${pct}%;height:100%;background:${a.color};border-radius:5px;box-shadow:0 0 8px ${a.color}88"></div>
-        </div>
-        <div style="display:flex;align-items:baseline;gap:4px;min-width:80px;justify-content:flex-end">
-          <span style="color:${a.color};font-size:18px;font-weight:700;font-family:monospace">${r.level.toFixed(2)}</span>
-          <span style="color:#475569;font-size:11px">m</span>
-          <span style="color:${tColor};font-size:11px;font-family:monospace">${tMark}${r.change}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+        <div style="position:relative;flex:1;height:10px;background:#1e293b;border-radius:5px;overflow:visible">${marks}<div style="position:absolute;left:0;top:0;width:${pct}%;height:100%;background:${a.color};border-radius:5px;box-shadow:0 0 8px ${a.color}88"></div></div>
+        <div style="display:flex;align-items:baseline;gap:4px;min-width:80px;justify-content:flex-end"><span style="color:${a.color};font-size:18px;font-weight:700;font-family:monospace">${r.level.toFixed(2)}</span><span style="color:#475569;font-size:11px">m</span><span style="color:${tCol};font-size:11px;font-family:monospace">${tMk}${r.change}</span></div>
+      </div></div>`;
+  }).join(''):noData;
 
-  // アメダス
-  const amedasCards=DB_AMEDAS.map(s=>{
-    const k=dbRainLevel(s.rainfall1h),a=DB_ALERT[k];
-    const pct=Math.min((s.rainfall1h/100)*100,100);
+  const amedasCards=amedas.length?amedas.map(s=>{
+    const k=dbRainLevel(s.rainfall1h||0),a=DB_ALERT[k],pct=Math.min(((s.rainfall1h||0)/100)*100,100);
     return `<div style="padding:8px 12px;background:#0a0f1e;border:1px solid ${a.border};border-radius:6px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="color:#94a3b8;font-size:12px">${s.name}</span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="color:#64748b;font-size:10px">24h: <span style="color:#94a3b8">${s.rainfall24h}mm</span></span>
-          <span style="color:${a.color};font-size:16px;font-weight:700;font-family:monospace">${s.rainfall1h}</span>
-          <span style="color:#475569;font-size:10px">mm/h</span>
-        </div>
-      </div>
-      <div style="height:6px;background:#1e293b;border-radius:3px;margin:6px 0">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,${a.color});border-radius:3px;box-shadow:0 0 6px ${a.color}66"></div>
-      </div>
-      <div style="display:flex;gap:12px">
-        <span style="color:#475569;font-size:10px">🌡 ${s.temp}°C</span>
-        <span style="color:#475569;font-size:10px">💨 ${s.wind}</span>
-      </div>
-    </div>`;
-  }).join('');
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:#94a3b8;font-size:12px">${s.name}</span><div style="display:flex;gap:8px;align-items:center"><span style="color:#64748b;font-size:10px">24h:<span style="color:#94a3b8">${s.rainfall24h||0}mm</span></span><span style="color:${a.color};font-size:16px;font-weight:700;font-family:monospace">${s.rainfall1h||0}</span><span style="color:#475569;font-size:10px">mm/h</span></div></div>
+      <div style="height:6px;background:#1e293b;border-radius:3px;margin:6px 0"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,${a.color});border-radius:3px;box-shadow:0 0 6px ${a.color}66"></div></div>
+      <div style="display:flex;gap:12px"><span style="color:#475569;font-size:10px">🌡 ${s.temp!=null?s.temp+'°C':'–'}</span><span style="color:#475569;font-size:10px">💨 ${s.wind||'–'}</span></div></div>`;
+  }).join(''):noData;
 
-  // ダム
-  const damCards=DB_DAMS.map(d=>{
-    const k=dbDamLevel(d.storageRate),a=DB_ALERT[k];
-    const r=24,circ=2*Math.PI*r;
-    const offset=circ*(1-d.storageRate/100);
-    const diff=d.inflow-d.outflow;
+  const damCards=dams.length?dams.map(d=>{
+    const rate=d.storageRate??0,k=dbDamLevel(rate),a=DB_ALERT[k];
+    const r2=24,circ=2*Math.PI*r2,offset=circ*(1-rate/100),diff=(d.inflow??0)-(d.outflow??0);
     return `<div style="padding:10px 12px;background:#0a0f1e;border:1px solid ${a.border};border-radius:6px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span style="color:#94a3b8;font-size:13px;font-weight:600">${d.name}</span>${dbBadge(k,true)}
-      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="color:#94a3b8;font-size:13px;font-weight:600">${d.name}</span>${dbBadge(k,true)}</div>
       <div style="display:flex;align-items:center;gap:16px">
-        <div style="position:relative;width:60px;height:60px;flex-shrink:0">
-          <svg width="60" height="60" style="transform:rotate(-90deg)">
-            <circle cx="30" cy="30" r="${r}" fill="none" stroke="#1e293b" stroke-width="8"/>
-            <circle cx="30" cy="30" r="${r}" fill="none" stroke="${a.color}" stroke-width="8"
-              stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/>
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-            <span style="color:${a.color};font-size:11px;font-weight:700;font-family:monospace">${d.storageRate}%</span>
-          </div>
-        </div>
+        <div style="position:relative;width:60px;height:60px;flex-shrink:0"><svg width="60" height="60" style="transform:rotate(-90deg)"><circle cx="30" cy="30" r="${r2}" fill="none" stroke="#1e293b" stroke-width="8"/><circle cx="30" cy="30" r="${r2}" fill="none" stroke="${a.color}" stroke-width="8" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span style="color:${a.color};font-size:11px;font-weight:700;font-family:monospace">${rate.toFixed(1)}%</span></div></div>
         <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-          <div style="display:flex;justify-content:space-between">
-            <span style="color:#475569;font-size:11px">流入量</span>
-            <span style="color:#60a5fa;font-size:12px;font-family:monospace">${d.inflow} m³/s</span>
-          </div>
-          <div style="display:flex;justify-content:space-between">
-            <span style="color:#475569;font-size:11px">放流量</span>
-            <span style="color:#34d399;font-size:12px;font-family:monospace">${d.outflow} m³/s</span>
-          </div>
-          <div style="display:flex;justify-content:space-between">
-            <span style="color:#475569;font-size:11px">差分</span>
-            <span style="color:${diff>0?'#f87171':'#4ade80'};font-size:12px;font-family:monospace">${diff>0?'+':''}${diff} m³/s</span>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+          <div style="display:flex;justify-content:space-between"><span style="color:#475569;font-size:11px">流入量</span><span style="color:#60a5fa;font-size:12px;font-family:monospace">${d.inflow!=null?d.inflow+' m³/s':'–'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#475569;font-size:11px">放流量</span><span style="color:#34d399;font-size:12px;font-family:monospace">${d.outflow!=null?d.outflow+' m³/s':'–'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#475569;font-size:11px">差分</span><span style="color:${diff>0?'#f87171':'#4ade80'};font-size:12px;font-family:monospace">${diff>0?'+':''}${diff.toFixed(0)} m³/s</span></div>
+        </div></div></div>`;
+  }).join(''):noData;
 
-  // キキクル
-  const kikiColors={1:'#4ade80',2:'#facc15',3:'#fb923c',4:'#f87171',5:'#dc2626'};
-  const kikiRows=DB_KIKI.map(k=>{
-    const c=kikiColors[k.level];
+  const kikiColors={0:'#4ade80',1:'#4ade80',2:'#facc15',3:'#fb923c',4:'#f87171',5:'#dc2626'};
+  const kikiRows=kiki.length?kiki.map(k=>{
+    const c=kikiColors[k.level]||'#64748b';
     const bars=[1,2,3,4,5].map(i=>`<div style="width:10px;height:20px;border-radius:2px;background:${i<=k.level?c:'#1e293b'};box-shadow:${i<=k.level?`0 0 4px ${c}66`:'none'}"></div>`).join('');
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0f1e;border:1px solid ${c}33;border-radius:6px;margin-bottom:6px">
-      <div style="display:flex;gap:3px">${bars}</div>
-      <span style="flex:1;color:#94a3b8;font-size:12px">${k.area}</span>
-      <span style="color:${c};font-size:11px;font-weight:700">${k.label}</span>
-    </div>`;
-  }).join('');
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0f1e;border:1px solid ${c}33;border-radius:6px;margin-bottom:6px"><div style="display:flex;gap:3px">${bars}</div><span style="flex:1;color:#94a3b8;font-size:12px">${k.area}</span><span style="color:${c};font-size:11px;font-weight:700">${k.label}</span></div>`;
+  }).join(''):noData;
 
-  // サマリー統計
   const stats=[
-    {label:'危険以上の河川', value:DB_RIVERS.filter(r=>['danger','critical'].includes(dbRiverLevel(r))).length, unit:'地点', color:'#f87171'},
-    {label:'最大1時間雨量',  value:Math.max(...DB_AMEDAS.map(a=>a.rainfall1h)), unit:'mm/h', color:'#60a5fa'},
-    {label:'貯水率90%超ダム',value:DB_DAMS.filter(d=>d.storageRate>=90).length, unit:'箇所', color:'#fb923c'},
-    {label:'危険度4以上エリア',value:DB_KIKI.filter(k=>k.level>=4).length, unit:'地域', color:'#f87171'},
+    {label:'危険以上の河川',value:rivers.filter(r=>['danger','critical'].includes(dbRiverLevel(r))).length,unit:'地点',color:'#f87171'},
+    {label:'最大1時間雨量',value:amedas.length?Math.max(...amedas.map(a=>a.rainfall1h||0)):0,unit:'mm/h',color:'#60a5fa'},
+    {label:'貯水率90%超ダム',value:dams.filter(d=>(d.storageRate||0)>=90).length,unit:'箇所',color:'#fb923c'},
+    {label:'危険度4以上エリア',value:kiki.filter(k=>k.level>=4).length,unit:'地域',color:'#f87171'},
   ];
-  const statCards=stats.map(s=>`<div style="padding:12px 16px;background:#0a0f1e;border:1px solid #1e293b;border-radius:6px">
-    <div style="color:#475569;font-size:11px;margin-bottom:4px">${s.label}</div>
-    <div style="display:flex;align-items:baseline;gap:4px">
-      <span style="color:${s.color};font-size:26px;font-weight:700;font-family:monospace">${s.value}</span>
-      <span style="color:#64748b;font-size:12px">${s.unit}</span>
-    </div>
-  </div>`).join('');
+  const statCards=stats.map(s=>`<div style="padding:12px 16px;background:#0a0f1e;border:1px solid #1e293b;border-radius:6px"><div style="color:#475569;font-size:11px;margin-bottom:4px">${s.label}</div><div style="display:flex;align-items:baseline;gap:4px"><span style="color:${s.color};font-size:26px;font-weight:700;font-family:monospace">${s.value}</span><span style="color:#64748b;font-size:12px">${s.unit}</span></div></div>`).join('');
 
-  const panelStyle='background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:16px';
-  const titleStyle='color:#e2e8f0;font-size:13px;font-weight:700;letter-spacing:.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e293b';
+  const P='background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:16px';
+  const T='color:#e2e8f0;font-size:13px;font-weight:700;letter-spacing:.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e293b';
 
-  el.innerHTML=`
-    ${banner}
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
-      <div style="${panelStyle}">
-        <div style="${titleStyle}">🌊 河川水位</div>
-        ${riverCards}
-        <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap">
-          ${['watch','warning','danger','critical'].map(k=>`<div style="display:flex;align-items:center;gap:3px"><div style="width:2px;height:12px;background:${DB_ALERT[k].color};border-radius:1px"></div><span style="color:#475569;font-size:10px">${DB_ALERT[k].label}</span></div>`).join('')}
-        </div>
-      </div>
-      <div style="${panelStyle}">
-        <div style="${titleStyle}">🌧 アメダス（雨量観測）</div>
-        ${amedasCards}
-      </div>
-      <div style="${panelStyle}">
-        <div style="${titleStyle}">🏗 ダム貯水・放流状況</div>
-        ${damCards}
-      </div>
-      <div style="${panelStyle}">
-        <div style="${titleStyle}">🔴 キキクル（危険度分布）</div>
-        ${kikiRows}
-      </div>
-      <div style="${panelStyle};grid-column:span 2">
-        <div style="${titleStyle}">📊 状況サマリー</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">${statCards}</div>
-        <div style="margin-top:12px;padding-top:10px;border-top:1px solid #1e293b;color:#334155;font-size:10px;font-family:var(--mono)">
-          ※ 現在サンプルデータを表示しています。実データ連携は今後対応予定。
-        </div>
-      </div>
-    </div>`;
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+    <div style="${P}"><div style="${T}">🌊 河川水位</div>${riverCards}<div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap">${['watch','warning','danger','critical'].map(k=>`<div style="display:flex;align-items:center;gap:3px"><div style="width:2px;height:12px;background:${DB_ALERT[k].color};border-radius:1px"></div><span style="color:#475569;font-size:10px">${DB_ALERT[k].label}</span></div>`).join('')}</div></div>
+    <div style="${P}"><div style="${T}">🌧 アメダス（雨量観測）</div>${amedasCards}</div>
+    <div style="${P}"><div style="${T}">🏗 ダム貯水・放流状況</div>${damCards}</div>
+    <div style="${P}"><div style="${T}">🔴 キキクル（危険度分布）</div>${kikiRows}</div>
+    <div style="${P};grid-column:span 2"><div style="${T}">📊 状況サマリー</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">${statCards}</div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#334155;font-size:10px;font-family:var(--mono)">国土交通省 / 気象庁 リアルタイムデータ</span>
+        <span style="color:#334155;font-size:10px;font-family:var(--mono)">${fetched?'取得: '+fetched:''}</span>
+      </div></div>
+  </div>`;
 }
-
 setTimeout(()=>location.reload(),10*60*1000);
 nextAt=Date.now()+10*60*1000;
 loadCameras(); loadBousaiInfo(); renderDashboard(); loadRadar(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
