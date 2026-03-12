@@ -29,14 +29,20 @@
   --cat-human: #8b20cc;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  height: 100%;
+  background: #d0d5de;
+}
 body {
   font-family: 'Noto Sans JP', sans-serif;
-  background: var(--bg);
   color: var(--text);
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  max-width: 88vw;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba(0,0,0,0.18);
 }
 
 /* ── TOP BAR ── */
@@ -590,6 +596,9 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
 
   /* mapinfo非表示 */
   #mapinfo { display: none; }
+
+  /* モバイルは全幅 */
+  body { max-width: 100vw !important; box-shadow: none !important; }
 }
 </style>
 </head>
@@ -695,6 +704,19 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
     <div id="a2-guide" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;pointer-events:none">
       <div style="border-left:2px dashed rgba(255,0,0,0.5);height:100vh;position:absolute;left:50%;top:-50vh"></div>
     </div>
+
+    <!-- 沖縄中心に戻るボタン -->
+    <button id="homeBtn" onclick="resetMapView()" title="沖縄本島に戻る" style="
+      position:absolute; bottom:90px; right:10px; z-index:1000;
+      width:34px; height:34px; border-radius:4px;
+      background:#fff; border:2px solid rgba(0,0,0,0.25);
+      font-size:18px; cursor:pointer; display:flex;
+      align-items:center; justify-content:center;
+      box-shadow:0 1px 5px rgba(0,0,0,0.15);
+      transition:background 0.15s;
+    " onmouseover="this.style.background='#f4f4f4'" onmouseout="this.style.background='#fff'">
+      🏠
+    </button>
 
     <!-- manual pin overlay -->
     <div id="pinModeOverlay" onclick="onOverlayClick(event)">
@@ -874,6 +896,12 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 function pad(n) { return String(n).padStart(2,'0'); }
+
+// ── ホームビュー ──
+const HOME_LAT = 26.45, HOME_LNG = 127.93, HOME_ZOOM = 11;
+function resetMapView() {
+  map.flyTo([HOME_LAT, HOME_LNG], HOME_ZOOM, { duration: 0.8 });
+}
 
 // モバイルでサイドバー描画後に地図サイズを再計算
 window.addEventListener('resize', () => map.invalidateSize());
