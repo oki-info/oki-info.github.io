@@ -602,12 +602,12 @@ z-index: 99999;
   <div id="mapwrap">
     <div id="map"></div>
     <!-- manual pin overlay -->
-    <div id="pinModeOverlay">
+    <div id="pinModeOverlay" onclick="onOverlayClick(event)">
       <div id="pinModeMsg">
         📍 被害地点をクリックしてください
         <span>クリックした場所にピンが立てられます</span>
       </div>
-      <button class="btn danger-btn pinModeCancelBtn" id="pinModeCancelBtn" onclick="cancelManualPin()" style="position:absolute;top:12px;right:12px">✕ キャンセル</button>
+      <button class="btn danger-btn pinModeCancelBtn" id="pinModeCancelBtn" onclick="event.stopPropagation();cancelManualPin()" style="position:absolute;top:12px;right:12px">✕ キャンセル</button>
     </div>
     <div id="mapinfo">
       <div id="datetime"></div>
@@ -630,7 +630,7 @@ z-index: 99999;
     <img id="modal-img" src="" alt="">
     <div id="no-gps-msg" class="no-gps" style="display:none">
       ⚠ GPS情報が見つかりません。<br>
-      <button class="btn primary" style="margin-top:8px;width:100%;font-size:11px" onclick="startManualPin()">
+      <button style="margin-top:8px;width:100%;font-size:13px;padding:10px;background:#0070cc;color:#ffffff;border:none;border-radius:6px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:700;" onclick="startManualPin()">
         📍 地図をクリックして場所を指定する
       </button>
     </div>
@@ -642,7 +642,7 @@ z-index: 99999;
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">キャンセル</button>
       <button class="btn" id="skip-btn" style="display:none" onclick="skipQueue()">スキップ →</button>
-      <button class="btn primary" onclick="confirmAdd()">地図に追加</button>
+      <button style="padding:8px 20px;background:#0070cc;color:#ffffff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;" onclick="confirmAdd()">地図に追加</button>
     </div>
   </div>
 </div>
@@ -823,12 +823,25 @@ function cancelManualPin() {
   document.getElementById('skip-btn').style.display = 'none';
 }
 
-// map click handler for manual pin
+// map click handler for manual pin（オーバーレイ経由）
+function onOverlayClick(e) {
+  if (!manualPinMode) return;
+  // オーバーレイ上のピクセル座標 → Leaflet LatLng に変換
+  const rect = document.getElementById('map').getBoundingClientRect();
+  const point = L.point(e.clientX - rect.left, e.clientY - rect.top);
+  const latlng = map.containerPointToLatLng(point);
+  handleManualPin(latlng);
+}
+
+// 旧mapクリックハンドラは念のため残す（タブレット等の互換用）
 map.on('click', function(e) {
   if (!manualPinMode) return;
-  const coords = { lat: e.latlng.lat, lng: e.latlng.lng };
+  handleManualPin(e.latlng);
+});
 
-  // show temp pin
+function handleManualPin(latlng) {
+  const coords = { lat: latlng.lat, lng: latlng.lng };
+
   if (tempPinMarker) map.removeLayer(tempPinMarker);
   const tempIcon = L.divIcon({
     className: '',
@@ -837,7 +850,6 @@ map.on('click', function(e) {
   });
   tempPinMarker = L.marker([coords.lat, coords.lng], { icon: tempIcon }).addTo(map);
 
-  // exit pin mode and open modal
   manualPinMode = false;
   document.getElementById('pinModeOverlay').style.display = 'none';
   map.getContainer().style.cursor = '';
@@ -845,7 +857,7 @@ map.on('click', function(e) {
   const d = pendingModalData || {};
   openModal(d.imgUrl || null, coords, d.dt || '', d.filename || '手動追加');
   pendingModalData = null;
-});
+}
 
 
 
@@ -947,18 +959,49 @@ function addIncident(inc) {
 
 function createMarker(inc) {
   const col = CATS[inc.cat]?.color || '#888';
+  // 短縮ラベル
+  const shortLabel = {
+    '浸水・冠水': '浸水',
+    '土砂崩れ': '土砂',
+    '道路損壊・通行止め': '道路',
+    '建物被害': '建物',
+    '人的被害': '人的',
+  }[inc.cat] || inc.cat;
+
   const icon = L.divIcon({
     className: '',
-    html: `<div style="
-      width:20px;height:20px;
-      background:${col};
-      border:2px solid rgba(255,255,255,0.8);
-      border-radius:50%;
-      box-shadow:0 0 8px ${col}, 0 0 16px ${col}44;
-      transition:transform 0.15s;
-    "></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
+    html: `<div style="position:relative;display:inline-flex;flex-direction:column;align-items:center;">
+      <div style="
+        background:${col};
+        color:#fff;
+        font-size:11px;
+        font-family:'Noto Sans JP','Meiryo',sans-serif;
+        font-weight:700;
+        padding:3px 7px;
+        border-radius:10px;
+        white-space:nowrap;
+        box-shadow:0 2px 6px rgba(0,0,0,0.25);
+        border:1.5px solid rgba(255,255,255,0.8);
+        line-height:1.4;
+      ">${shortLabel}</div>
+      <div style="
+        width:0;height:0;
+        border-left:5px solid transparent;
+        border-right:5px solid transparent;
+        border-top:6px solid ${col};
+        margin-top:-1px;
+      "></div>
+      <div style="
+        width:8px;height:8px;
+        background:${col};
+        border:2px solid white;
+        border-radius:50%;
+        margin-top:-1px;
+        box-shadow:0 1px 4px rgba(0,0,0,0.3);
+      "></div>
+    </div>`,
+    iconSize: [60, 48],
+    iconAnchor: [30, 48],
   });
 
   const marker = L.marker([inc.lat, inc.lng], { icon }).addTo(map);
