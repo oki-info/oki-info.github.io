@@ -94,6 +94,120 @@ jobs:
               && echo "OK: 大宜味村 ${LABEL}" || echo "NG: 大宜味村 ${LABEL}"
           done
 
+      - name: キキクル危険度分布取得（タイル色解析）
+        run: pip install Pillow --break-system-packages -q
+      - name: キキクル危険度分布取得（タイル色解析）
+        shell: python3 {0}
+        run: |
+          import json, math, urllib.request, io
+          from datetime import datetime, timezone, timedelta
+          from PIL import Image
+
+          JST = timezone(timedelta(hours=9))
+
+          def fetch_tile(url):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Referer': 'https://www.jma.go.jp/bosai/risk/',
+              })
+              with urllib.request.urlopen(req, timeout=10) as r:
+                  return r.read()
+
+          def rgb_to_hsv(r, g, b):
+              r, g, b = r/255, g/255, b/255
+              mx, mn = max(r,g,b), min(r,g,b)
+              df = mx - mn
+              v = mx
+              if mx == 0: return 0, 0, 0
+              s = df / mx
+              if df == 0: return 0, s, v
+              if mx == r: h = (60 * ((g-b)/df)) % 360
+              elif mx == g: h = 60 * ((b-r)/df) + 120
+              else: h = 60 * ((r-g)/df) + 240
+              return h, s, v
+
+          def classify_pixel(r, g, b, a):
+              """0=平常 1=注意(黄) 2=警戒(赤) 3=危険(紫) 4=災害切迫(黒)"""
+              if a < 40: return 0
+              h, s, v = rgb_to_hsv(r, g, b)
+              if v < 0.25 and s < 0.4: return 4  # 黒=災害切迫
+              if 250 <= h <= 320 and s > 0.3 and v > 0.2: return 3  # 紫=危険
+              if ((h <= 25 or h >= 335) and s > 0.5 and v > 0.3): return 2  # 赤=警戒
+              if 40 <= h <= 85 and s > 0.4 and v > 0.4: return 1  # 黄=注意
+              return 0
+
+          def lat_lon_to_tile(lat, lon, zoom):
+              x = int((lon + 180) / 360 * (2**zoom))
+              lat_r = math.radians(lat)
+              y = int((1 - math.log(math.tan(lat_r) + 1/math.cos(lat_r)) / math.pi) / 2 * (2**zoom))
+              return x, y
+
+          ZOOM = 7
+          # 沖縄全域タイル範囲
+          X_MIN, X_MAX = 107, 110
+          Y_MIN, Y_MAX = 53, 55
+
+          ELEM_LABELS = {'inund': '浸水', 'land': '土砂', 'flood': '洪水'}
+          LEVEL_LABELS = {0: '平常', 1: '注意', 2: '警戒', 3: '危険', 4: '災害切迫'}
+
+          result = {
+              'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
+              'has_alert': False,
+              'max_level': 0,
+              'max_label': '平常',
+              'elements': {},
+          }
+
+          try:
+              tt = json.loads(fetch_tile('https://www.jma.go.jp/bosai/jmatile/data/risk/targetTimes.json'))
+              latest = tt[0]
+              bt = latest['basetime']
+              vt = latest['validtime']
+              mb = latest.get('member', 'none')
+              print(f"キキクル時刻: bt={bt} member={mb}")
+          except Exception as e:
+              print(f"targetTimes NG: {e}")
+              bt = vt = mb = None
+
+          if bt:
+              for elem, label in ELEM_LABELS.items():
+                  elem_max = 0
+                  tile_count = 0
+                  alert_tiles = 0
+                  for tx in range(X_MIN, X_MAX + 1):
+                      for ty in range(Y_MIN, Y_MAX + 1):
+                          url = f'https://www.jma.go.jp/bosai/jmatile/data/risk/{bt}/{vt}/{mb}/{elem}/surf/{ZOOM}/{tx}/{ty}.png'
+                          try:
+                              raw = fetch_tile(url)
+                              img = Image.open(io.BytesIO(raw)).convert('RGBA')
+                              pixels = list(img.getdata())
+                              tile_max = 0
+                              for px in pixels:
+                                  lv = classify_pixel(*px)
+                                  if lv > tile_max:
+                                      tile_max = lv
+                              if tile_max > 0:
+                                  alert_tiles += 1
+                              elem_max = max(elem_max, tile_max)
+                              tile_count += 1
+                          except Exception as e:
+                              pass  # 海など存在しないタイルは無視
+                  result['elements'][elem] = {
+                      'label_jp': label,
+                      'level': elem_max,
+                      'label': LEVEL_LABELS.get(elem_max, '平常'),
+                      'has_alert': elem_max > 0,
+                  }
+                  if elem_max > 0:
+                      result['has_alert'] = True
+                  result['max_level'] = max(result['max_level'], elem_max)
+                  print(f"キキクル{label}({elem}): 最大レベル={elem_max}({LEVEL_LABELS.get(elem_max,'平常')}) タイル={tile_count}枚 警戒以上={alert_tiles}枚")
+
+          result['max_label'] = LEVEL_LABELS.get(result['max_level'], '平常')
+          with open('kikukuru.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          print(f"kikukuru.json 生成完了: has_alert={result['has_alert']} max={result['max_label']}")
+
       - name: YouTube ライブID取得 + cameras.json + warning.json 生成
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -302,5 +416,5 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add img_cam/ cameras.json warning.json
+          git add img_cam/ cameras.json warning.json kikukuru.json
           git diff --staged --quiet || (git commit -m "🌊 カメラ更新 $(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M') JST" && git pull --rebase && git push)
