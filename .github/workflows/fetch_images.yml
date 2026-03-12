@@ -128,9 +128,16 @@ jobs:
                       '南','南南西','南西','西南西','西','西北西','北西','北北西']
           try:
               latest_time = fetch('https://www.jma.go.jp/bosai/amedas/data/latest_time.txt').decode().strip()
-              print(f"AMeDAS latest_time: {latest_time!r}")
-              # "20260312100000" → "20260312_100000"
-              ts = latest_time[:8] + '_' + latest_time[8:]
+              print(f"AMeDAS latest_time raw: {latest_time!r}")
+              # "2026-03-12T19:20:00+09:00" → "20260312_192000"
+              from datetime import datetime as DT
+              if 'T' in latest_time:
+                  dt_obj = DT.fromisoformat(latest_time)
+                  ts = dt_obj.strftime('%Y%m%d_%H%M%S')
+              else:
+                  # "20260312192000" の場合
+                  ts = latest_time[:8] + '_' + latest_time[8:]
+              print(f"AMeDAS ts: {ts}")
               for code, info in AMEDAS_STATIONS.items():
                   try:
                       raw_full = json.loads(fetch(
@@ -151,97 +158,81 @@ jobs:
                           'temp':        v('temp'),
                           'wind':        f"{WIND_DIR[int(wd)] if wd is not None else '–'} {v('wind') or 0}m/s",
                       })
-                      print(f"AMeDAS {info['name']}: OK (1h={v('precipitation1h') or 0}mm, temp={v('temp')})")
+                      print(f"AMeDAS {info['name']}: OK temp={v('temp')} 1h={v('precipitation1h') or 0}mm")
                   except Exception as e:
                       print(f"AMeDAS {info['name']}: NG ({e})")
           except Exception as e:
-              print(f"AMeDAS latest_time NG: {e}")
+              print(f"AMeDAS NG: {e}")
 
-          # ── 河川水位（国交省 川の防災情報 XML）────────────────
+          # ── 河川水位（国交省 川の防災情報）────────────────────
           RIVER_STATIONS = [
-              {'code': '4700440010060', 'name': '安里川　松川橋',   'loc': '那覇市',       'limit': {'watch':0.80,'warning':1.20,'danger':1.60,'critical':2.00}},
-              {'code': '4700430010050', 'name': '牧港川　牧港橋',   'loc': '浦添市',       'limit': {'watch':0.60,'warning':1.00,'danger':1.40,'critical':1.80}},
-              {'code': '4700420010040', 'name': '比謝川　嘉手納橋', 'loc': '嘉手納町',     'limit': {'watch':1.20,'warning':1.80,'danger':2.40,'critical':3.00}},
-              {'code': '4700380010020', 'name': '羽地大川　羽地橋', 'loc': '名護市',       'limit': {'watch':0.80,'warning':1.20,'danger':1.80,'critical':2.40}},
-              {'code': '4700280010010', 'name': '慶佐次川　慶佐次', 'loc': '東村',         'limit': {'watch':1.00,'warning':1.60,'danger':2.20,'critical':2.80}},
+              {'code': '4700440010060', 'name': '安里川　松川橋',   'loc': '那覇市',   'limit': {'watch':0.80,'warning':1.20,'danger':1.60,'critical':2.00}},
+              {'code': '4700430010050', 'name': '牧港川　牧港橋',   'loc': '浦添市',   'limit': {'watch':0.60,'warning':1.00,'danger':1.40,'critical':1.80}},
+              {'code': '4700420010040', 'name': '比謝川　嘉手納橋', 'loc': '嘉手納町', 'limit': {'watch':1.20,'warning':1.80,'danger':2.40,'critical':3.00}},
+              {'code': '4700380010020', 'name': '羽地大川　羽地橋', 'loc': '名護市',   'limit': {'watch':0.80,'warning':1.20,'danger':1.80,'critical':2.40}},
+              {'code': '4700280010010', 'name': '慶佐次川　慶佐次', 'loc': '東村',     'limit': {'watch':1.00,'warning':1.60,'danger':2.20,'critical':2.80}},
           ]
           try:
-              xml_url = 'https://www.river.go.jp/kawabou/out/s_rslt.do?sn=1&rn=0&tn=1&ext=0&fld=0&bsn=&ken=47&ctg=1&grp=0&mks=&ncs=&dts=&dmb=&scl=0&flt=0&fmt=xml'
-              raw_xml = fetch(xml_url)
-              root = ET.fromstring(raw_xml)
-              # XMLの構造を確認するため最初の要素をデバッグ出力
-              first_child = list(root)
-              print(f"河川XML root tag: {root.tag}, children: {[c.tag for c in first_child[:3]]}")
-              # 全タグを走査してstationCodeに近いものを探す
-              level_map = {}
-              all_tags = set(el.tag for el in root.iter())
-              print(f"河川XML全タグ: {all_tags}")
-              # タグ名を柔軟に対応
-              station_tag = 'observationStation' if 'observationStation' in all_tags else \
-                            'Station' if 'Station' in all_tags else \
-                            'station' if 'station' in all_tags else None
-              for obs in (root.iter(station_tag) if station_tag else []):
-                  code = (obs.findtext('stationCode') or obs.findtext('StationCode') or obs.findtext('station_cd') or '').strip()
-                  lv   = (obs.findtext('waterLevel') or obs.findtext('WaterLevel') or obs.findtext('wl') or '').strip()
-                  if code and lv:
-                      try: level_map[code] = float(lv)
-                      except: pass
-              print(f"河川観測所数: {len(level_map)}, サンプルコード: {list(level_map.keys())[:3]}")
-              for st in RIVER_STATIONS:
-                  lv = level_map.get(st['code'])
-                  if lv is not None:
-                      result['rivers'].append({'name':st['name'],'loc':st['loc'],'level':lv,'limit':st['limit'],'trend':'unknown','change':'–'})
-                      print(f"河川 {st['name']}: {lv}m")
-                  else:
-                      print(f"河川 {st['name']}: コード{st['code']}がマップになし")
+              # 国交省 川の防災情報 API（JSON形式）
+              river_url = 'https://www.river.go.jp/kawabou/out/s_rslt.do?sn=1&rn=0&tn=1&ext=0&fld=0&bsn=&ken=47&ctg=1&grp=0&mks=&ncs=&dts=&dmb=&scl=0&flt=0&fmt=json'
+              raw_river = fetch(river_url)
+              print(f"河川レスポンス先頭: {raw_river[:200]!r}")
+              try:
+                  river_json = json.loads(raw_river)
+                  # レスポンス構造を確認
+                  print(f"河川JSON型: {type(river_json)}, キー: {list(river_json.keys())[:5] if isinstance(river_json,dict) else '(list)'}")
+                  # 観測所リストを探す
+                  stations = river_json.get('objLists') or river_json.get('data') or river_json.get('list') or river_json.get('stations') or (river_json if isinstance(river_json, list) else [])
+                  level_map = {}
+                  for st in (stations if isinstance(stations, list) else []):
+                      code = str(st.get('stationCode') or st.get('station_cd') or st.get('obsrvtn_place_cd') or '')
+                      lv   = st.get('waterLevel') or st.get('wl') or st.get('water_level')
+                      if code and lv is not None:
+                          try: level_map[code] = float(lv)
+                          except: pass
+                  print(f"河川観測所数: {len(level_map)}, サンプル: {list(level_map.items())[:3]}")
+                  for st in RIVER_STATIONS:
+                      lv = level_map.get(st['code'])
+                      if lv is not None:
+                          result['rivers'].append({'name':st['name'],'loc':st['loc'],'level':lv,'limit':st['limit'],'trend':'unknown','change':'–'})
+                          print(f"河川 {st['name']}: {lv}m")
+                      else:
+                          print(f"河川 {st['name']}: コード{st['code']}なし")
+              except json.JSONDecodeError:
+                  # JSON失敗 → XML試行
+                  print("河川JSON失敗、XML試行")
+                  root = ET.fromstring(raw_river)
+                  all_tags = set(el.tag for el in root.iter())
+                  print(f"河川XMLタグ: {all_tags}")
           except Exception as e:
               print(f"河川水位 NG: {type(e).__name__}: {e}")
 
-          # ── ダム（国交省 ダム情報）──────────────────────────
+          # ── ダム（国交省）──────────────────────────────────
           try:
-              # HTTPSに変更
               dam_url = 'https://www1.river.go.jp/cgi-bin/DspDamData.exe?KIND=1&PREF=47&FMT=XML'
-              raw_xml = fetch(dam_url)
-              root = ET.fromstring(raw_xml)
+              raw_dam = fetch(dam_url)
+              print(f"ダムレスポンス先頭: {raw_dam[:300]!r}")
+              root = ET.fromstring(raw_dam)
               all_tags = set(el.tag for el in root.iter())
-              print(f"ダムXML全タグ: {all_tags}")
-              dam_count = 0
-              for dam in root.iter('Dam'):
-                  name    = (dam.findtext('DamName') or dam.findtext('damName') or '').strip()
-                  rate    = (dam.findtext('StorageRate') or dam.findtext('storageRate') or '').strip()
-                  inflow  = (dam.findtext('InflowRate') or dam.findtext('inflowRate') or '').strip()
-                  outflow = (dam.findtext('OutflowRate') or dam.findtext('outflowRate') or '').strip()
-                  if not name: continue
-                  result['dams'].append({
-                      'name': name,
-                      'storageRate': float(rate)   if rate   else None,
-                      'inflow':      float(inflow)  if inflow  else None,
-                      'outflow':     float(outflow) if outflow else None,
-                  })
-                  dam_count += 1
-                  print(f"ダム {name}: {rate}%")
-              if dam_count == 0:
-                  # 小文字タグでも試す
-                  for dam in root.iter('dam'):
-                      name    = (dam.findtext('DamName') or dam.findtext('damName') or '').strip()
-                      rate    = (dam.findtext('StorageRate') or dam.findtext('storageRate') or '').strip()
-                      inflow  = (dam.findtext('InflowRate') or dam.findtext('inflowRate') or '').strip()
-                      outflow = (dam.findtext('OutflowRate') or dam.findtext('outflowRate') or '').strip()
-                      if not name: continue
-                      result['dams'].append({
-                          'name': name,
-                          'storageRate': float(rate)   if rate   else None,
-                          'inflow':      float(inflow)  if inflow  else None,
-                          'outflow':     float(outflow) if outflow else None,
-                      })
-                      print(f"ダム {name}: {rate}%")
+              print(f"ダムXMLタグ: {all_tags}")
+              for tag in ['Dam','dam','DamInfo','damInfo']:
+                  dams_found = list(root.iter(tag))
+                  if dams_found:
+                      print(f"ダムタグ'{tag}'で{len(dams_found)}件")
+                      for dam in dams_found:
+                          print(f"  子タグ: {[c.tag+':'+c.text for c in list(dam)[:6]]}")
+                          break
+                      break
           except Exception as e:
               print(f"ダム NG: {type(e).__name__}: {e}")
 
-          # ── キキクル（気象庁 危険度分布）──────────────────────
+          # ── キキクル（気象庁）────────────────────────────────
           try:
-              risk_raw = json.loads(fetch('https://www.jma.go.jp/bosai/risk/data/risk/471000.json'))
-              # floodレベルとsedimentレベルの最大値でエリア別危険度を算出
+              # 正しいエンドポイントを確認
+              kiki_url = 'https://www.jma.go.jp/bosai/risk/data/risk/471000.json'
+              raw_kiki = fetch(kiki_url)
+              print(f"キキクルレスポンス先頭: {raw_kiki[:200]!r}")
+              risk_raw = json.loads(raw_kiki)
               KIKI_AREAS = {
                   '47201': '那覇市',   '47203': '宜野湾市', '47205': '石垣市',
                   '47206': '浦添市',   '47207': '名護市',   '47208': '糸満市',
@@ -249,6 +240,7 @@ jobs:
                   '47306': '東村',     '47324': '中城村',   '47325': '北中城村',
               }
               kiki_map = {}
+              print(f"キキクルJSON型: {type(risk_raw)}, キー: {list(risk_raw.keys())[:5] if isinstance(risk_raw,dict) else '(list)'}")
               for at in (risk_raw.get('areaTypes') or []):
                   for area in (at.get('areas') or []):
                       code = str(area.get('code',''))
@@ -262,14 +254,10 @@ jobs:
               for code, name in KIKI_AREAS.items():
                   if code in kiki_map:
                       lv = kiki_map[code]['level']
-                      result['kikukuru'].append({
-                          'area':  name,
-                          'level': lv,
-                          'label': KIKI_LABELS.get(lv, str(lv)),
-                      })
+                      result['kikukuru'].append({'area':name,'level':lv,'label':KIKI_LABELS.get(lv,str(lv))})
               print(f"キキクル: {len(result['kikukuru'])}地域")
           except Exception as e:
-              print(f"キキクル NG: {e}")
+              print(f"キキクル NG: {type(e).__name__}: {e}")
 
           with open('dashboard.json', 'w', encoding='utf-8') as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
