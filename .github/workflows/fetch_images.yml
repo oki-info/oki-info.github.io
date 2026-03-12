@@ -176,46 +176,83 @@ jobs:
           except Exception as e:
               print(f"警報取得 NG: {type(e).__name__}: {e}")
 
-          # ── キキクル 危険度分布（市区町村単位GeoJSON）────────────────
-          # element: surf=浸水, land=土砂, flood=洪水
+          # ── キキクル 危険度分布（市区町村単位GeoJSON・gzip対応）────────
+          import gzip as gz
           KIKI_COLORS = {0:'平常',1:'注意',2:'警戒',3:'危険',4:'非常に危険',5:'最大級'}
-          kiki_base = 'https://www.jma.go.jp/bosai/jmatile/data/map/none/none/none/{elem}/municipality_name/data.geojson?id=municipality_name'
 
-          def fetch_kiki(elem_code):
-              url = kiki_base.format(elem=elem_code)
-              raw = json.loads(fetch(url))
+          def fetch_kiki_gz(url):
+              import urllib.request as ur
+              req = ur.Request(url, headers={
+                  'Accept-Encoding': 'gzip, deflate',
+                  'User-Agent': 'Mozilla/5.0',
+                  'Referer': 'https://www.jma.go.jp/bosai/risk/',
+              })
+              with ur.urlopen(req, timeout=15) as r:
+                  raw = r.read()
+              if raw[:2] == b'\x1f\x8b':
+                  raw = gz.decompress(raw)
+              return json.loads(raw)
+
+          def parse_kiki_geojson(geojson, elem_name):
               mp = {}
-              for feature in (raw.get('features') or []):
+              features = geojson.get('features') or []
+              if features:
+                  # 最初のfeatureのpropertyキーを確認
+                  sample_props = features[0].get('properties') or {}
+                  print(f"キキクル{elem_name} propsキー: {list(sample_props.keys())[:8]}")
+              for feature in features:
                   props = feature.get('properties') or {}
                   code = str(props.get('code') or props.get('areaCode') or '')
                   if not code.startswith('47'):
                       continue
                   name = str(props.get('name') or props.get('areaName') or code)
-                  lv = props.get('level') or props.get('dangerLevel') or props.get('risk') or 0
+                  # levelキーを複数試す
+                  lv = (props.get('level') or props.get('dangerLevel') or
+                        props.get('risk') or props.get('rl') or
+                        props.get('inundLevel') or props.get('landLevel') or 0)
                   try: lv = int(lv)
                   except: lv = 0
                   if name not in mp or lv > mp[name]:
                       mp[name] = lv
               return mp
 
+          # targetTimesから最新時刻を取得してURLを組み立て
           shinsu_map = {}
           dosa_map   = {}
           kouzui_map = {}
           try:
-              shinsu_map = fetch_kiki('surf')
-              print(f"キキクル浸水: {len(shinsu_map)}市町村, サンプル: {list(shinsu_map.items())[:3]}")
+              tt = json.loads(fetch('https://www.jma.go.jp/bosai/jmatile/data/risk/targetTimes.json'))
+              if tt and isinstance(tt, list):
+                  l = tt[0]
+                  bt, vt, mb = l['basetime'], l['validtime'], l.get('member','none')
+                  # elementコード: targetTimesのelementsリストから確認済み
+                  # inund=浸水, land=土砂, flood=洪水
+                  ELEM_MAP = {'shinsu': 'inund', 'dosa': 'land', 'kouzui': 'flood'}
+                  for cat, elem in ELEM_MAP.items():
+                      url = f'https://www.jma.go.jp/bosai/jmatile/data/risk/{bt}/{vt}/{mb}/{elem}/surf/municipality_name/data.geojson?id=municipality_name'
+                      try:
+                          gj = fetch_kiki_gz(url)
+                          mp = parse_kiki_geojson(gj, cat)
+                          if cat == 'shinsu': shinsu_map = mp
+                          elif cat == 'dosa':   dosa_map   = mp
+                          elif cat == 'kouzui': kouzui_map = mp
+                          alert = sum(1 for v in mp.values() if v > 0)
+                          print(f"キキクル{cat}({elem}): {len(mp)}市町村 警戒以上:{alert}")
+                      except Exception as e:
+                          print(f"キキクル{cat}({elem}) NG: {e}")
+                          # fallback: none/none/none パターン
+                          url2 = f'https://www.jma.go.jp/bosai/jmatile/data/map/none/none/none/{elem}/municipality_name/data.geojson?id=municipality_name'
+                          try:
+                              gj2 = fetch_kiki_gz(url2)
+                              mp2 = parse_kiki_geojson(gj2, cat+' fallback')
+                              if cat == 'shinsu': shinsu_map = mp2
+                              elif cat == 'dosa':   dosa_map   = mp2
+                              elif cat == 'kouzui': kouzui_map = mp2
+                              print(f"キキクル{cat} fallback: {len(mp2)}市町村")
+                          except Exception as e2:
+                              print(f"キキクル{cat} fallback NG: {e2}")
           except Exception as e:
-              print(f"キキクル浸水NG: {e}")
-          try:
-              dosa_map = fetch_kiki('land')
-              print(f"キキクル土砂: {len(dosa_map)}市町村, サンプル: {list(dosa_map.items())[:3]}")
-          except Exception as e:
-              print(f"キキクル土砂NG: {e}")
-          try:
-              kouzui_map = fetch_kiki('flood')
-              print(f"キキクル洪水: {len(kouzui_map)}市町村, サンプル: {list(kouzui_map.items())[:3]}")
-          except Exception as e:
-              print(f"キキクル洪水NG: {e}")
+              print(f"キキクルtargetTimes NG: {e}")
 
           all_areas = set(shinsu_map) | set(dosa_map) | set(kouzui_map)
           if all_areas:
