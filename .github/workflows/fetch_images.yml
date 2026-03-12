@@ -117,66 +117,43 @@ jobs:
                   return r.read()
 
           # ── キキクル（気象庁 警報JSONから浸水・洪水・土砂の3種を取得）────
-          # 沖縄県全41市町村を動的に取得（ハードコードなし）
-          KIKI_LABELS = {0:'平常', 1:'注意', 2:'警戒', 3:'危険', 4:'非常に危険', 5:'最大級'}
-          # 警報の種別キーワード → 分類マッピング
-          TYPE_MAP = {
-              '浸水': ['浸水'],
-              '洪水': ['洪水'],
-              '土砂': ['土砂'],
-          }
-          # 警報 → レベル3、注意報 → レベル2
-          def warning_level(wtype, status):
-              if status != '発表':
-                  return 0
-              if '警報' in wtype and '注意報' not in wtype:
-                  return 3
-              if '注意報' in wtype:
-                  return 2
-              return 1
-
+          KIKI_LABELS = {0:'平常',1:'注意',2:'警戒',3:'危険',4:'非常に危険',5:'最大級'}
           try:
               w_url = 'https://www.jma.go.jp/bosai/warning/data/warning/471000.json'
               w_raw = json.loads(fetch(w_url))
-              area_data = {}  # {area_name: {'浸水':0, '洪水':0, '土砂':0}}
-
-              # areaTypes を市区町村レベルで走査（最も細かい粒度を使う）
-              # areaTypes[0]=一次細分区域, areaTypes[1]=市町村等, areaTypes[2]=市区町村等
+              # areaTypesの中で最も市町村数が多いレベルを選ぶ
               best_areas = []
-              for at in reversed(w_raw.get('areaTypes') or []):
+              for at in (w_raw.get('areaTypes') or []):
                   areas = at.get('areas') or []
                   if len(areas) > len(best_areas):
                       best_areas = areas
-                  if len(areas) >= 30:  # 市町村レベルなら十分
-                      break
-
               print(f"キキクル対象エリア数: {len(best_areas)}")
               for area in best_areas:
-                  name = area.get('name', '').strip()
+                  name = (area.get('name') or '').strip()
                   if not name:
                       continue
-                  levels = {'浸水': 0, '洪水': 0, '土砂': 0}
+                  shinsu = kouzui = dosa = 0
                   for w in (area.get('warnings') or []):
-                      wtype  = w.get('type', '')
-                      status = w.get('status', '')
-                      lv = warning_level(wtype, status)
-                      if lv == 0:
+                      wtype  = w.get('type','')
+                      status = w.get('status','')
+                      if status != '発表':
                           continue
-                      for cat, keywords in TYPE_MAP.items():
-                          if any(k in wtype for k in keywords):
-                              levels[cat] = max(levels[cat], lv)
-                  area_data[name] = levels
-
-              for name, levels in area_data.items():
+                      lv = 3 if ('警報' in wtype and '注意報' not in wtype) else 2 if '注意報' in wtype else 1
+                      if '浸水' in wtype:
+                          shinsu = max(shinsu, lv)
+                      if '洪水' in wtype:
+                          kouzui = max(kouzui, lv)
+                      if '土砂' in wtype or '大雨' in wtype:
+                          dosa = max(dosa, lv)
+                  max_lv = max(shinsu, kouzui, dosa)
                   result['kikukuru'].append({
-                      'area':    name,
-                      'shinsu':  levels['浸水'],
-                      'kouzui':  levels['洪水'],
-                      'dosa':    levels['土砂'],
-                      'level':   max(levels.values()),
-                      'label':   KIKI_LABELS.get(max(levels.values()), '平常'),
+                      'area':   name,
+                      'shinsu': shinsu,
+                      'kouzui': kouzui,
+                      'dosa':   dosa,
+                      'level':  max_lv,
+                      'label':  KIKI_LABELS.get(max_lv,'平常'),
                   })
-
               alert_count = sum(1 for k in result['kikukuru'] if k['level'] > 0)
               print(f"キキクル取得: {len(result['kikukuru'])}市町村 (警戒以上: {alert_count}市町村)")
           except Exception as e:
