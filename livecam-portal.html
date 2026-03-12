@@ -1106,118 +1106,85 @@ async function loadRadar(){
 setInterval(loadRadar, 5*60*1000);
 
 // ── 防災ダッシュボード ──
-const DB_ALERT = {
-  normal:   { label:'平常',     color:'#4ade80', bg:'#052e16', border:'#166534' },
-  watch:    { label:'注意',     color:'#facc15', bg:'#1c1600', border:'#854d0e' },
-  warning:  { label:'警戒',     color:'#fb923c', bg:'#1c0a00', border:'#9a3412' },
-  danger:   { label:'危険',     color:'#f87171', bg:'#1c0000', border:'#991b1b' },
-  critical: { label:'氾濫危険', color:'#ffffff', bg:'#7f1d1d', border:'#dc2626' },
-};
-
-function dbRiverLevel(r){
-  if(!r.limit)return'normal';
-  if(r.level>=r.limit.critical)return'critical';
-  if(r.level>=r.limit.danger)return'danger';
-  if(r.level>=r.limit.warning)return'warning';
-  if(r.level>=r.limit.watch)return'watch';
-  return'normal';
-}
-function dbRainLevel(v){if(v>=80)return'critical';if(v>=50)return'danger';if(v>=30)return'warning';if(v>=10)return'watch';return'normal';}
-function dbDamLevel(v){if(v>=90)return'critical';if(v>=80)return'danger';if(v>=60)return'warning';return'normal';}
-function dbBadge(k,small){
-  const a=DB_ALERT[k]||DB_ALERT.normal;
-  const p=small?'2px 6px':'3px 10px', fs=small?11:12;
-  return `<span style="display:inline-flex;align-items:center;gap:4px;padding:${p};border-radius:4px;background:${a.bg};border:1px solid ${a.border};color:${a.color};font-size:${fs}px;font-weight:700;letter-spacing:.05em">${k==='critical'?'<span style="font-size:8px;animation:blink 1s infinite">●</span>':''}${a.label}</span>`;
-}
-
 async function renderDashboard(){
   const el=document.getElementById('bousai-dashboard');
   if(!el)return;
 
-  let data={amedas:[],rivers:[],dams:[],kikukuru:[],fetched_jst:''};
+  let data={kikukuru:[],fetched_jst:''};
   try{
     const res=await fetch('dashboard.json?_='+Math.floor(Date.now()/300000));
     if(res.ok) data=await res.json();
   }catch(e){ console.warn('dashboard.json取得失敗',e); }
 
-  const rivers=data.rivers||[], amedas=data.amedas||[], dams=data.dams||[], kiki=data.kikukuru||[];
+  const kiki=data.kikukuru||[];
   const fetched=data.fetched_jst||'';
-  // JSONは取得できたがデータが空の場合はAPIエラーと判断
-  const noData=fetched
-    ? '<div style="color:#f87171;font-family:var(--mono);font-size:11px;padding:12px">⚠ API取得失敗（次回更新時に再試行）</div>'
-    : '<div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:12px">データ取得中…</div>';
 
-  const riverCards=rivers.length?rivers.map(r=>{
-    const k=dbRiverLevel(r),a=DB_ALERT[k],mx=(r.limit?.critical||5)*1.2;
-    const pct=Math.min((r.level/mx)*100,100);
-    const marks=r.limit?['watch','warning','danger','critical'].map((lk,i)=>`<div style="position:absolute;left:${(r.limit[lk]/mx)*100}%;top:-3px;width:2px;height:16px;background:${ ['#facc15','#fb923c','#f87171','#dc2626'][i]};opacity:.6"></div>`).join(''):'';
-    const tCol=r.trend==='up'?'#f87171':r.trend==='down'?'#4ade80':'#64748b';
-    const tMk=r.trend==='up'?'▲':r.trend==='down'?'▼':'─';
-    return `<div style="padding:10px 12px;background:#0a0f1e;border:1px solid ${a.border};border-radius:6px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="color:#94a3b8;font-size:12px">${r.name}</span>${dbBadge(k,true)}</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="position:relative;flex:1;height:10px;background:#1e293b;border-radius:5px;overflow:visible">${marks}<div style="position:absolute;left:0;top:0;width:${pct}%;height:100%;background:${a.color};border-radius:5px;box-shadow:0 0 8px ${a.color}88"></div></div>
-        <div style="display:flex;align-items:baseline;gap:4px;min-width:80px;justify-content:flex-end"><span style="color:${a.color};font-size:18px;font-weight:700;font-family:monospace">${r.level.toFixed(2)}</span><span style="color:#475569;font-size:11px">m</span><span style="color:${tCol};font-size:11px;font-family:monospace">${tMk}${r.change}</span></div>
-      </div></div>`;
-  }).join(''):noData;
+  // レベル → 色
+  const LC={0:'#4ade80',1:'#86efac',2:'#facc15',3:'#fb923c',4:'#f87171',5:'#dc2626'};
+  const LB={0:'#052e16',1:'#052e16',2:'#1c1600',3:'#1c0a00',4:'#1c0000',5:'#7f1d1d'};
 
-  const amedasCards=amedas.length?amedas.map(s=>{
-    const k=dbRainLevel(s.rainfall1h||0),a=DB_ALERT[k],pct=Math.min(((s.rainfall1h||0)/100)*100,100);
-    return `<div style="padding:8px 12px;background:#0a0f1e;border:1px solid ${a.border};border-radius:6px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:#94a3b8;font-size:12px">${s.name}</span><div style="display:flex;gap:8px;align-items:center"><span style="color:#64748b;font-size:10px">24h:<span style="color:#94a3b8">${s.rainfall24h||0}mm</span></span><span style="color:${a.color};font-size:16px;font-weight:700;font-family:monospace">${s.rainfall1h||0}</span><span style="color:#475569;font-size:10px">mm/h</span></div></div>
-      <div style="height:6px;background:#1e293b;border-radius:3px;margin:6px 0"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,${a.color});border-radius:3px;box-shadow:0 0 6px ${a.color}66"></div></div>
-      <div style="display:flex;gap:12px"><span style="color:#475569;font-size:10px">🌡 ${s.temp!=null?s.temp+'°C':'–'}</span><span style="color:#475569;font-size:10px">💨 ${s.wind||'–'}</span></div></div>`;
-  }).join(''):noData;
-
-  const damCards=dams.length?dams.map(d=>{
-    const rate=d.storageRate??0,k=dbDamLevel(rate),a=DB_ALERT[k];
-    const r2=24,circ=2*Math.PI*r2,offset=circ*(1-rate/100),diff=(d.inflow??0)-(d.outflow??0);
-    return `<div style="padding:10px 12px;background:#0a0f1e;border:1px solid ${a.border};border-radius:6px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="color:#94a3b8;font-size:13px;font-weight:600">${d.name}</span>${dbBadge(k,true)}</div>
-      <div style="display:flex;align-items:center;gap:16px">
-        <div style="position:relative;width:60px;height:60px;flex-shrink:0"><svg width="60" height="60" style="transform:rotate(-90deg)"><circle cx="30" cy="30" r="${r2}" fill="none" stroke="#1e293b" stroke-width="8"/><circle cx="30" cy="30" r="${r2}" fill="none" stroke="${a.color}" stroke-width="8" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span style="color:${a.color};font-size:11px;font-weight:700;font-family:monospace">${rate.toFixed(1)}%</span></div></div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-          <div style="display:flex;justify-content:space-between"><span style="color:#475569;font-size:11px">流入量</span><span style="color:#60a5fa;font-size:12px;font-family:monospace">${d.inflow!=null?d.inflow+' m³/s':'–'}</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="color:#475569;font-size:11px">放流量</span><span style="color:#34d399;font-size:12px;font-family:monospace">${d.outflow!=null?d.outflow+' m³/s':'–'}</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="color:#475569;font-size:11px">差分</span><span style="color:${diff>0?'#f87171':'#4ade80'};font-size:12px;font-family:monospace">${diff>0?'+':''}${diff.toFixed(0)} m³/s</span></div>
-        </div></div></div>`;
-  }).join(''):noData;
-
-  const kikiColors={0:'#4ade80',1:'#4ade80',2:'#facc15',3:'#fb923c',4:'#f87171',5:'#dc2626'};
-  const kikiRows=kiki.length?kiki.map(k=>{
-    const c=kikiColors[k.level]||'#64748b';
-    const bars=[1,2,3,4,5].map(i=>`<div style="width:10px;height:20px;border-radius:2px;background:${i<=k.level?c:'#1e293b'};box-shadow:${i<=k.level?`0 0 4px ${c}66`:'none'}"></div>`).join('');
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0f1e;border:1px solid ${c}33;border-radius:6px;margin-bottom:6px"><div style="display:flex;gap:3px">${bars}</div><span style="flex:1;color:#94a3b8;font-size:12px">${k.area}</span><span style="color:${c};font-size:11px;font-weight:700">${k.label}</span></div>`;
-  }).join(''):noData;
-
-  const stats=[
-    {label:'危険以上の河川',value:rivers.filter(r=>['danger','critical'].includes(dbRiverLevel(r))).length,unit:'地点',color:'#f87171'},
-    {label:'最大1時間雨量',value:amedas.length?Math.max(...amedas.map(a=>a.rainfall1h||0)):0,unit:'mm/h',color:'#60a5fa'},
-    {label:'貯水率90%超ダム',value:dams.filter(d=>(d.storageRate||0)>=90).length,unit:'箇所',color:'#fb923c'},
-    {label:'危険度4以上エリア',value:kiki.filter(k=>k.level>=4).length,unit:'地域',color:'#f87171'},
-  ];
-  const statCards=stats.map(s=>`<div style="padding:12px 16px;background:#0a0f1e;border:1px solid #1e293b;border-radius:6px"><div style="color:#475569;font-size:11px;margin-bottom:4px">${s.label}</div><div style="display:flex;align-items:baseline;gap:4px"><span style="color:${s.color};font-size:26px;font-weight:700;font-family:monospace">${s.value}</span><span style="color:#64748b;font-size:12px">${s.unit}</span></div></div>`).join('');
+  function kikiCell(lv){
+    const c=LC[lv]||'#4ade80', bg=LB[lv]||'#052e16';
+    const label={0:'平常',1:'注意',2:'警戒',3:'危険',4:'非常に危険',5:'最大級'}[lv]||'平常';
+    return `<td style="padding:4px 8px;text-align:center;background:${bg};color:${c};font-size:11px;font-weight:${lv>0?700:400};border:1px solid #1e293b;white-space:nowrap">${label}</td>`;
+  }
 
   const P='background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:16px';
   const T='color:#e2e8f0;font-size:13px;font-weight:700;letter-spacing:.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e293b';
 
-  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
-    <div style="${P}">
-      <div style="${T}">🌊 河川水位</div>${riverCards}
-      <a href="https://www.river.go.jp/kawabou/out/s_rslt.do?ken=47" target="_blank" style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:#60a5fa;text-decoration:none">↗ 川の防災情報（国交省）</a>
+  // キキクル表
+  const alertAreas = kiki.filter(k=>k.level>0);
+  const normalAreas= kiki.filter(k=>k.level===0);
+  // 警戒以上を上に表示、残りはグレーアウト
+  const sorted=[...alertAreas,...normalAreas];
+
+  const tableRows = sorted.map(k=>`<tr>
+    <td style="padding:4px 10px;color:${k.level>0?'#e2e8f0':'#475569'};font-size:12px;border:1px solid #1e293b;white-space:nowrap">${k.area}</td>
+    ${kikiCell(k.shinsu||0)}
+    ${kikiCell(k.kouzui||0)}
+    ${kikiCell(k.dosa||0)}
+  </tr>`).join('');
+
+  const kikiPanel = kiki.length
+    ? `<div style="${P}">
+        <div style="${T}">🔴 キキクル（危険度分布）<span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px">気象庁 警報・注意報より算出</span></div>
+        ${alertAreas.length>0?`<div style="background:#450a0a;border:1px solid #dc2626;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#fca5a5;font-family:var(--mono)">⚠ ${alertAreas.map(k=>k.area).join('・')} で警戒情報あり</div>`:''}
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-family:var(--mono)">
+            <thead><tr>
+              <th style="padding:6px 10px;text-align:left;color:#64748b;font-size:11px;border:1px solid #1e293b;background:#0a0f1e">市区町村</th>
+              <th style="padding:6px 8px;text-align:center;color:#60a5fa;font-size:11px;border:1px solid #1e293b;background:#0a0f1e">🌊 浸水害</th>
+              <th style="padding:6px 8px;text-align:center;color:#34d399;font-size:11px;border:1px solid #1e293b;background:#0a0f1e">🏞 洪水</th>
+              <th style="padding:6px 8px;text-align:center;color:#fb923c;font-size:11px;border:1px solid #1e293b;background:#0a0f1e">⛰ 土砂</th>
+            </tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
+          ${[{l:2,t:'警戒'},{l:3,t:'危険（警報）'}].map(x=>`<div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:2px;background:${LC[x.l]}"></div><span style="color:#475569;font-size:10px">${x.t}</span></div>`).join('')}
+        </div>
+      </div>`
+    : `<div style="${P};color:var(--muted);font-family:var(--mono);font-size:11px">キキクル読込中…</div>`;
+
+  // リンクパネル
+  const linkPanel = `<div style="${P}">
+    <div style="${T}">🔗 防災関連リンク</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <a href="https://www.jma.go.jp/bosai/risk/" target="_blank" class="ext-link" style="font-size:12px"><span class="ext-link-name">🔴 キキクル（気象庁）</span><span class="ext-link-arr">↗</span></a>
+      <a href="https://www.river.go.jp/kawabou/out/s_rslt.do?ken=47" target="_blank" class="ext-link" style="font-size:12px"><span class="ext-link-name">🌊 川の防災情報・水位（国交省）</span><span class="ext-link-arr">↗</span></a>
+      <a href="https://www.river.go.jp/kawabou/out/dam_rslt.do?pref=47" target="_blank" class="ext-link" style="font-size:12px"><span class="ext-link-name">🏗 ダム情報（国交省）</span><span class="ext-link-arr">↗</span></a>
+      <a href="https://www.jma.go.jp/bosai/amedas/" target="_blank" class="ext-link" style="font-size:12px"><span class="ext-link-name">🌧 アメダス雨量・気温（気象庁）</span><span class="ext-link-arr">↗</span></a>
+      <a href="https://www.jma.go.jp/bosai/map.html#contents=flood_warning" target="_blank" class="ext-link" style="font-size:12px"><span class="ext-link-name">🗺 洪水警報・浸水危険度マップ（気象庁）</span><span class="ext-link-arr">↗</span></a>
     </div>
-    <div style="${P}"><div style="${T}">🌧 アメダス（雨量観測）</div>${amedasCards}</div>
-    <div style="${P}">
-      <div style="${T}">🏗 ダム貯水・放流状況</div>${damCards}
-      <div style="color:#334155;font-family:var(--mono);font-size:10px;padding:6px 0">直接取得不可のため外部サイトで確認</div>
-      <a href="https://www.river.go.jp/kawabou/out/dam_rslt.do?pref=47" target="_blank" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#60a5fa;text-decoration:none">↗ ダム情報（国交省）</a>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:#334155;font-size:10px;font-family:var(--mono)">気象庁 リアルタイムデータ</span>
+      <span style="color:#334155;font-size:10px;font-family:var(--mono)">${fetched?'取得: '+fetched:''}</span>
     </div>
-    <div style="${P}"><div style="${T}">🔴 キキクル（危険度分布）</div>${kikiRows}</div>
-    <div style="${P};grid-column:span 2"><div style="${T}">📊 状況サマリー</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">${statCards}</div>
-      <div style="margin-top:12px;padding-top:10px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center">
-        <span style="color:#334155;font-size:10px;font-family:var(--mono)">国土交通省 / 気象庁 リアルタイムデータ</span>
-        <span style="color:#334155;font-size:10px;font-family:var(--mono)">${fetched?'取得: '+fetched:''}</span>
-      </div></div>
+  </div>`;
+
+  el.innerHTML=`<div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;align-items:start">
+    ${kikiPanel}
+    ${linkPanel}
   </div>`;
 }
 setTimeout(()=>location.reload(),10*60*1000);
