@@ -1,58 +1,58 @@
 {
-  "last_fetch_jst": "2026-03-14 07:02:05",
+  "last_fetch_jst": "2026-03-14 08:00:04",
   "camera_count": 42,
   "cameras": [
     {
       "pid": "01",
-      "size": 61001
+      "size": 64654
     },
     {
       "pid": "02",
-      "size": 74915
+      "size": 89978
     },
     {
       "pid": "03",
-      "size": 98833
+      "size": 99496
     },
     {
       "pid": "04",
-      "size": 98545
+      "size": 100532
     },
     {
       "pid": "05",
-      "size": 81057
+      "size": 84322
     },
     {
       "pid": "06",
-      "size": 86674
+      "size": 92155
     },
     {
       "pid": "07",
-      "size": 95145
+      "size": 93467
     },
     {
       "pid": "08",
-      "size": 86687
+      "size": 86911
     },
     {
       "pid": "09",
-      "size": 85465
+      "size": 95330
     },
     {
       "pid": "10",
-      "size": 51789
+      "size": 59177
     },
     {
       "pid": "11",
-      "size": 85278
+      "size": 88184
     },
     {
       "pid": "12",
-      "size": 51961
+      "size": 40640
     },
     {
       "pid": "13",
-      "size": 55579
+      "size": 56576
     },
     {
       "pid": "14",
@@ -60,7 +60,7 @@
     },
     {
       "pid": "15",
-      "size": 87536
+      "size": 5463
     },
     {
       "pid": "16",
@@ -68,19 +68,19 @@
     },
     {
       "pid": "17",
-      "size": 95616
+      "size": 96178
     },
     {
       "pid": "18",
-      "size": 92736
+      "size": 104231
     },
     {
       "pid": "19",
-      "size": 94051
+      "size": 90214
     },
     {
       "pid": "20",
-      "size": 57556
+      "size": 46199
     },
     {
       "pid": "21",
@@ -88,19 +88,19 @@
     },
     {
       "pid": "22",
-      "size": 107626
+      "size": 91050
     },
     {
       "pid": "23",
-      "size": 104026
+      "size": 104587
     },
     {
       "pid": "24",
-      "size": 113904
+      "size": 115022
     },
     {
       "pid": "25",
-      "size": 98167
+      "size": 94869
     },
     {
       "pid": "26",
@@ -120,11 +120,11 @@
     },
     {
       "pid": "41",
-      "size": 93518
+      "size": 97067
     },
     {
       "pid": "42",
-      "size": 75450
+      "size": 90620
     },
     {
       "pid": "43",
@@ -152,11 +152,11 @@
     },
     {
       "pid": "52",
-      "size": 103461
+      "size": 109474
     },
     {
       "pid": "53",
-      "size": 106840
+      "size": 104995
     },
     {
       "pid": "64",
@@ -176,19 +176,19 @@
       "key": "okinawa-city-hija",
       "name": "比謝川",
       "loc": "沖縄市（水位監視）",
-      "size": 43567
+      "size": 40354
     },
     {
       "key": "okinawa-city-awase1",
       "name": "泡瀬川①",
       "loc": "沖縄市（水位監視）",
-      "size": 24722
+      "size": 24215
     },
     {
       "key": "okinawa-city-awase2",
       "name": "泡瀬川②",
       "loc": "沖縄市（水位監視）",
-      "size": 24012
+      "size": 24487
     }
   ],
   "road_cameras": [
@@ -234,7 +234,7 @@
       "key": "higashi-takae-school-seimon",
       "name": "高江小学校正門",
       "loc": "東村",
-      "size": 39637
+      "size": 39026
     },
     {
       "key": "higashi-higashi-port",
@@ -278,43 +278,43 @@
       "key": "ogimi-nousonic",
       "name": "農村環境改善センター",
       "loc": "大宜味村",
-      "size": 33891
+      "size": 34456
     },
     {
       "key": "ogimi-takazatocc",
       "name": "田嘉里公民館",
       "loc": "大宜味村",
-      "size": 27263
+      "size": 32238
     },
     {
       "key": "ogimi-ogimiej",
       "name": "大宜味小中学校",
       "loc": "大宜味村",
-      "size": 29247
+      "size": 33946
     },
     {
       "key": "ogimi-tuhacc",
       "name": "津波公民館",
       "loc": "大宜味村",
-      "size": 32055
+      "size": 28556
     },
     {
       "key": "ogimi-taihocc",
       "name": "大保公民館",
       "loc": "大宜味村",
-      "size": 27102
+      "size": 30938
     },
     {
       "key": "ogimi-shioya",
       "name": "旧塩屋小学校",
       "loc": "大宜味村",
-      "size": 29444
+      "size": 31547
     },
     {
       "key": "ogimi-ogimiejgrd",
       "name": "旧大宜味小学校グラウンド",
       "loc": "大宜味村",
-      "size": 29876
+      "size": 31701
     }
   ],
   "youtube_live": [
@@ -345,7 +345,7 @@
     {
       "name": "石垣島ユーグレナ離島ターミナル",
       "loc": "石垣市美崎町",
-      "channel_id": "UCMBkpkdFghMYW6TQp7X77wA",
+      "channel_id": null,
       "video_id": null
     },
     {
