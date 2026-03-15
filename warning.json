@@ -1,5 +1,5 @@
 {
-  "fetched_jst": "2026-03-16 02:59:11",
+  "fetched_jst": "2026-03-16 04:20:40",
   "warnings": [
     {
       "area_name": "",
@@ -31,10 +31,6 @@
       "area_name": "",
       "warnings": [
         {
-          "code": "16",
-          "status": "解除"
-        },
-        {
           "code": "21",
           "status": "継続"
         }
@@ -455,10 +451,6 @@
     {
       "area_name": "",
       "warnings": [
-        {
-          "code": "16",
-          "status": "解除"
-        },
         {
           "code": "21",
           "status": "継続"
