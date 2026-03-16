@@ -7,6 +7,8 @@
 <title>沖縄県 被害状況マップ</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -514,7 +516,57 @@ transition: transform 0.3s;
 z-index: 99999;
 }
 
-/* print option buttons */
+/* ── DRAWING TOOLS ── */
+#drawPanel { padding: 0 12px 10px; flex-shrink: 0; border-bottom: 1px solid var(–border); }
+.draw-tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 6px; }
+.draw-btn {
+background: #f0f2f5; border: 1.5px solid var(–border); border-radius: 4px;
+padding: 6px 4px; font-size: 11px; cursor: pointer; text-align: center;
+color: var(–text); transition: all 0.15s; line-height: 1.4;
+}
+.draw-btn:hover { border-color: var(–accent); color: var(–accent); background: #e8f0fb; }
+.draw-btn.active { border-color: var(–accent); background: var(–accent); color: #fff; }
+.draw-options { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+.draw-options label { font-size: 10px; color: var(–dim); letter-spacing: 1px; }
+#colorPalette { display: flex; gap: 5px; margin-top: 3px; }
+.color-swatch {
+width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+border: 2px solid transparent; transition: transform 0.15s;
+}
+.color-swatch:hover { transform: scale(1.2); }
+.color-swatch.active { border-color: var(–text); transform: scale(1.15); }
+#drawLabelInput {
+width: 100%; font-size: 11px; padding: 4px 7px;
+border: 1px solid var(–border); border-radius: 3px;
+background: #f8f9fb; color: var(–text); margin-top: 3px;
+}
+#drawHint {
+margin-top: 6px; padding: 5px 8px; background: rgba(0,112,204,0.08);
+border-left: 3px solid var(–accent); border-radius: 2px;
+font-size: 10px; color: var(–accent); display: none;
+}
+#drawCancelBtn {
+margin-top: 5px; width: 100%; font-size: 10px; padding: 4px;
+background: none; border: 1px solid var(–danger);
+color: var(–danger); border-radius: 3px; cursor: pointer; display: none;
+}
+/* テキスト注釈 */
+.text-annotation {
+background: rgba(255,255,255,0.92); border: 2px solid;
+border-radius: 4px; padding: 3px 8px; font-size: 12px; font-weight: 700;
+white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+cursor: pointer;
+}
+.text-annotation:hover { opacity: 0.8; }
+/* 描画ラベルtooltip */
+.draw-label-tooltip {
+background: rgba(255,255,255,0.9) !important; border: none !important;
+box-shadow: 0 1px 6px rgba(0,0,0,0.2) !important;
+font-size: 11px !important; font-weight: 700 !important;
+color: #1a2433 !important; padding: 2px 7px !important;
+}
+.draw-label-tooltip::before { display: none !important; }
+
 .print-opt-btn {
 display: flex;
 align-items: center;
@@ -660,7 +712,37 @@ body { max-width: 100vw !important; box-shadow: none !important; }
     </div>
 
 ```
-<!-- LEGEND -->
+<!-- DRAWING TOOLS -->
+<div id="drawPanel">
+  <div class="section-hdr">▸ DRAWING TOOLS</div>
+  <div class="draw-tools-grid">
+    <button class="draw-btn" id="dt-text"    onclick="activateDraw('text')">💬 テキスト</button>
+    <button class="draw-btn" id="dt-line"    onclick="activateDraw('line')">📏 線・ルート</button>
+    <button class="draw-btn" id="dt-circle"  onclick="activateDraw('circle')">⭕ 円・範囲</button>
+    <button class="draw-btn" id="dt-polygon" onclick="activateDraw('polygon')">⬡ 多角形・区域</button>
+  </div>
+  <div class="draw-options">
+    <div>
+      <label>COLOR</label>
+      <div id="colorPalette">
+        <div class="color-swatch active" data-color="#e53935" style="background:#e53935" title="赤（緊急・通行止め）"></div>
+        <div class="color-swatch" data-color="#ff9800" style="background:#ff9800" title="橙（注意）"></div>
+        <div class="color-swatch" data-color="#1976d2" style="background:#1976d2" title="青（避難ルート）"></div>
+        <div class="color-swatch" data-color="#2e7d32" style="background:#2e7d32" title="緑（安全・避難所）"></div>
+        <div class="color-swatch" data-color="#212121" style="background:#212121" title="黒（封鎖）"></div>
+        <div class="color-swatch" data-color="#7b1fa2" style="background:#7b1fa2" title="紫（その他）"></div>
+      </div>
+    </div>
+    <div>
+      <label>LABEL（任意）</label>
+      <input id="drawLabelInput" type="text" placeholder="例：避難ルート A、浸水想定区域…">
+    </div>
+  </div>
+  <div id="drawHint"></div>
+  <button id="drawCancelBtn" onclick="deactivateDraw()">✕ 描画キャンセル</button>
+</div>
+
+
 <div id="legend">
   <div class="legend-title">▸ DAMAGE CATEGORY</div>
   <div class="cat-row active" data-cat="all" onclick="filterCat('all',this)">
@@ -927,6 +1009,9 @@ gsiTile.on('tileerror', () => {
   }
 });
 
+// 描画レイヤー初期化（タイルより上に重ねる）
+initDrawingLayer();
+
 // ── CLOCK ──
 function updateClock() {
   const now = new Date();
@@ -936,6 +1021,144 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 function pad(n) { return String(n).padStart(2,'0'); }
+
+// ── DRAWING TOOLS ──
+let drawings = [];
+let drawingLayer = null; // mapの初期化後に設定
+let activeDrawHandler = null;
+let currentDrawType = null;
+let drawColor = '#e53935';
+
+function initDrawingLayer() {
+  drawingLayer = L.featureGroup().addTo(map);
+}
+
+// カラーパレット
+document.querySelectorAll('.color-swatch').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    drawColor = el.dataset.color;
+  });
+});
+
+function activateDraw(type) {
+  deactivateDraw();
+  currentDrawType = type;
+  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
+  const btnId = type === 'polygon' ? 'dt-polygon' : `dt-${type}`;
+  document.getElementById(btnId)?.classList.add('active');
+  const hint = document.getElementById('drawHint');
+  const cancelBtn = document.getElementById('drawCancelBtn');
+  hint.style.display = 'block';
+  cancelBtn.style.display = 'block';
+
+  if (type === 'text') {
+    hint.textContent = '📍 テキストを置く場所をクリック';
+    map.once('click', function(e) {
+      const text = document.getElementById('drawLabelInput').value.trim() || 'テキスト注釈';
+      addTextAnnotation(e.latlng, text, drawColor);
+      deactivateDraw();
+    });
+  } else if (type === 'line') {
+    hint.textContent = 'クリックで点を追加 → ダブルクリックで確定';
+    activeDrawHandler = new L.Draw.Polyline(map, {
+      shapeOptions: { color: drawColor, weight: 4, opacity: 0.9 },
+    });
+    activeDrawHandler.enable();
+  } else if (type === 'circle') {
+    hint.textContent = 'クリックで中心を指定 → ドラッグで半径を設定';
+    activeDrawHandler = new L.Draw.Circle(map, {
+      shapeOptions: { color: drawColor, fillColor: drawColor, fillOpacity: 0.2, weight: 2 },
+    });
+    activeDrawHandler.enable();
+  } else if (type === 'polygon') {
+    hint.textContent = 'クリックで頂点を追加 → 最初の点をクリックして閉じる';
+    activeDrawHandler = new L.Draw.Polygon(map, {
+      shapeOptions: { color: drawColor, fillColor: drawColor, fillOpacity: 0.2, weight: 2 },
+      allowIntersection: false,
+    });
+    activeDrawHandler.enable();
+  }
+}
+
+function deactivateDraw() {
+  if (activeDrawHandler) { activeDrawHandler.disable(); activeDrawHandler = null; }
+  if (currentDrawType === 'text') { map.off('click'); }
+  currentDrawType = null;
+  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('drawHint').style.display = 'none';
+  document.getElementById('drawCancelBtn').style.display = 'none';
+}
+
+// Leaflet.Draw 完了イベント
+map.on(L.Draw.Event.CREATED, function(e) {
+  const layer = e.layer;
+  const type = e.layerType;
+  const label = document.getElementById('drawLabelInput').value.trim();
+  const id = 'drw_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  let d = { id, type, color: drawColor, label };
+  if (type === 'polyline') {
+    d.latlngs = layer.getLatLngs().map(ll => [ll.lat, ll.lng]);
+  } else if (type === 'circle') {
+    d.latlng = [layer.getLatLng().lat, layer.getLatLng().lng];
+    d.radius = layer.getRadius();
+  } else if (type === 'polygon') {
+    d.latlngs = layer.getLatLngs()[0].map(ll => [ll.lat, ll.lng]);
+  }
+  drawings.push(d);
+  renderOneDrawing(d);
+  deactivateDraw();
+});
+
+function addTextAnnotation(latlng, text, color) {
+  const id = 'drw_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const d = { id, type: 'text', latlng: [latlng.lat, latlng.lng], label: text, color };
+  drawings.push(d);
+  renderOneDrawing(d);
+}
+
+function renderOneDrawing(d) {
+  if (!drawingLayer) return;
+  let layer;
+  const col = d.color || '#e53935';
+  if (d.type === 'polyline') {
+    layer = L.polyline(d.latlngs, { color: col, weight: 4, opacity: 0.9 });
+    if (d.label) layer.bindTooltip(d.label, { permanent: true, className: 'draw-label-tooltip', direction: 'center', sticky: false });
+  } else if (d.type === 'circle') {
+    layer = L.circle(d.latlng, { radius: d.radius, color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
+    if (d.label) layer.bindTooltip(d.label, { permanent: true, className: 'draw-label-tooltip', direction: 'center' });
+  } else if (d.type === 'polygon') {
+    layer = L.polygon(d.latlngs, { color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
+    if (d.label) layer.bindTooltip(d.label, { permanent: true, className: 'draw-label-tooltip', direction: 'center' });
+  } else if (d.type === 'text') {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="text-annotation" style="color:${col};border-color:${col}" title="クリックで削除">${d.label}</div>`,
+      iconAnchor: [0, 12],
+    });
+    layer = L.marker(d.latlng, { icon });
+  }
+  if (!layer) return;
+  layer._drawingId = d.id;
+  layer.on('click', (ev) => {
+    L.DomEvent.stopPropagation(ev);
+    const typeLabel = { polyline:'線', circle:'円', polygon:'多角形', text:'テキスト' }[d.type] || d.type;
+    if (confirm(`「${d.label || typeLabel}」を削除しますか？`)) deleteDrawing(d.id);
+  });
+  drawingLayer.addLayer(layer);
+}
+
+function deleteDrawing(id) {
+  drawings = drawings.filter(d => d.id !== id);
+  drawingLayer.eachLayer(l => { if (l._drawingId === id) drawingLayer.removeLayer(l); });
+}
+
+function renderAllDrawings() {
+  if (!drawingLayer) return;
+  drawingLayer.clearLayers();
+  drawings.forEach(d => renderOneDrawing(d));
+}
 
 // ── ホームビュー ──
 const HOME_LAT = 26.45, HOME_LNG = 127.93, HOME_ZOOM = 11;
@@ -1816,13 +2039,14 @@ function printAs(size) {
 
 
 function exportShareHTML() {
-  if (incidents.length === 0) { alert('データがありません。'); return; }
+  if (incidents.length === 0 && drawings.length === 0) { alert('データがありません。'); return; }
 
   const dateStr = new Date().toLocaleString('ja-JP');
   const incJSON = JSON.stringify(incidents.map(i => ({
     id: i.id, lat: i.lat, lng: i.lng, cat: i.cat,
     memo: i.memo, time: i.time, address: i.address || null, imgUrl: i.imgUrl || null,
   })));
+  const drawJSON = JSON.stringify(drawings);
 
   const CATS_JSON = JSON.stringify({
     '浸水・冠水':        { color: '#1a7fd4' },
@@ -1911,6 +2135,7 @@ body { font-family:'Meiryo','Noto Sans JP',sans-serif; background:#f0f2f5; color
 <script>
 const INCIDENTS = ${incJSON};
 const CATS = ${CATS_JSON};
+const DRAWINGS = ${drawJSON};
 
 // 統計
 const statsEl = document.getElementById(‘stats’);
@@ -2015,18 +2240,16 @@ a.click();
 }
 
 function exportJSON() {
-if (incidents.length === 0) { alert(‘データがありません。’); return; }
+if (incidents.length === 0 && drawings.length === 0) { alert(‘データがありません。’); return; }
 const data = incidents.map(i => ({
-id: i.id,
-lat: i.lat,
-lng: i.lng,
-cat: i.cat,
-memo: i.memo,
-time: i.time,
-address: i.address || null,
-imgUrl: i.imgUrl,
+id: i.id, lat: i.lat, lng: i.lng, cat: i.cat,
+memo: i.memo, time: i.time, address: i.address || null, imgUrl: i.imgUrl,
 }));
-const blob = new Blob([JSON.stringify({ version: 1, exported: new Date().toISOString(), incidents: data }, null, 2)], { type: ‘application/json’ });
+const blob = new Blob([JSON.stringify({
+version: 2, exported: new Date().toISOString(),
+incidents: data,
+drawings: drawings,
+}, null, 2)], { type: ‘application/json’ });
 const a = document.createElement(‘a’);
 a.href = URL.createObjectURL(blob);
 a.download = `saigai-map_${new Date().toISOString().slice(0,10)}.json`;
@@ -2044,12 +2267,11 @@ r.onload = ev => {
 try {
 const data = JSON.parse(ev.target.result);
 if (!data.incidents) throw new Error(‘invalid’);
-if (!confirm(`${data.incidents.length}件のデータを読み込みます。現在のデータは保持されます。`)) return;
+if (!confirm(`インシデント${data.incidents.length}件、描画${(data.drawings||[]).length}件を読み込みます。現在のデータは保持されます。`)) return;
 data.incidents.forEach(inc => {
 if (!incidents.find(i => i.id === inc.id)) {
 incidents.push(inc);
 markers[inc.id] = createMarker(inc);
-// 住所がなければ再取得
 if (!inc.address) {
 fetchAddress(inc.lat, inc.lng).then(addr => {
 inc.address = addr;
@@ -2059,6 +2281,15 @@ renderList();
 }
 }
 });
+// 描画データも読み込む
+if (data.drawings) {
+data.drawings.forEach(d => {
+if (!drawings.find(x => x.id === d.id)) {
+drawings.push(d);
+renderOneDrawing(d);
+}
+});
+}
 updateUI();
 if (data.incidents.length > 0) {
 const last = data.incidents[data.incidents.length - 1];
@@ -2071,11 +2302,13 @@ this.value = ‘’;
 });
 
 function clearAll() {
-if (incidents.length === 0) return;
-if (!confirm(`全${incidents.length}件のデータを削除しますか？`)) return;
+if (incidents.length === 0 && drawings.length === 0) return;
+if (!confirm(`全データ（インシデント${incidents.length}件・描画${drawings.length}件）を削除しますか？`)) return;
 incidents = [];
 Object.values(markers).forEach(m => map.removeLayer(m));
 markers = {};
+drawings = [];
+if (drawingLayer) drawingLayer.clearLayers();
 updateUI();
 }
 
