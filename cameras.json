@@ -1,58 +1,58 @@
 {
-  "last_fetch_jst": "2026-03-17 00:47:35",
+  "last_fetch_jst": "2026-03-17 03:44:05",
   "camera_count": 42,
   "cameras": [
     {
       "pid": "01",
-      "size": 70958
+      "size": 70648
     },
     {
       "pid": "02",
-      "size": 52754
+      "size": 46622
     },
     {
       "pid": "03",
-      "size": 54664
+      "size": 60665
     },
     {
       "pid": "04",
-      "size": 44689
+      "size": 43458
     },
     {
       "pid": "05",
-      "size": 63603
+      "size": 64631
     },
     {
       "pid": "06",
-      "size": 35692
+      "size": 36372
     },
     {
       "pid": "07",
-      "size": 54376
+      "size": 53998
     },
     {
       "pid": "08",
-      "size": 47053
+      "size": 48065
     },
     {
       "pid": "09",
-      "size": 24671
+      "size": 24637
     },
     {
       "pid": "10",
-      "size": 44840
+      "size": 44163
     },
     {
       "pid": "11",
-      "size": 88805
+      "size": 87806
     },
     {
       "pid": "12",
-      "size": 64830
+      "size": 61399
     },
     {
       "pid": "13",
-      "size": 21304
+      "size": 22948
     },
     {
       "pid": "14",
@@ -60,27 +60,27 @@
     },
     {
       "pid": "15",
-      "size": 45412
+      "size": 41617
     },
     {
       "pid": "16",
-      "size": 74058
+      "size": 70978
     },
     {
       "pid": "17",
-      "size": 52956
+      "size": 52689
     },
     {
       "pid": "18",
-      "size": 27367
+      "size": 30115
     },
     {
       "pid": "19",
-      "size": 43124
+      "size": 41875
     },
     {
       "pid": "20",
-      "size": 61097
+      "size": 60709
     },
     {
       "pid": "21",
@@ -88,19 +88,19 @@
     },
     {
       "pid": "22",
-      "size": 56124
+      "size": 53111
     },
     {
       "pid": "23",
-      "size": 44031
+      "size": 43566
     },
     {
       "pid": "24",
-      "size": 41278
+      "size": 42031
     },
     {
       "pid": "25",
-      "size": 42478
+      "size": 42209
     },
     {
       "pid": "26",
@@ -120,11 +120,11 @@
     },
     {
       "pid": "41",
-      "size": 73060
+      "size": 69996
     },
     {
       "pid": "42",
-      "size": 48786
+      "size": 49463
     },
     {
       "pid": "43",
@@ -152,11 +152,11 @@
     },
     {
       "pid": "52",
-      "size": 42717
+      "size": 42757
     },
     {
       "pid": "53",
-      "size": 67352
+      "size": 65372
     },
     {
       "pid": "64",
@@ -176,19 +176,19 @@
       "key": "okinawa-city-hija",
       "name": "比謝川",
       "loc": "沖縄市（水位監視）",
-      "size": 40859
+      "size": 41585
     },
     {
       "key": "okinawa-city-awase1",
       "name": "泡瀬川①",
       "loc": "沖縄市（水位監視）",
-      "size": 24658
+      "size": 24003
     },
     {
       "key": "okinawa-city-awase2",
       "name": "泡瀬川②",
       "loc": "沖縄市（水位監視）",
-      "size": 24146
+      "size": 25033
     }
   ],
   "road_cameras": [
@@ -278,43 +278,43 @@
       "key": "ogimi-nousonic",
       "name": "農村環境改善センター",
       "loc": "大宜味村",
-      "size": 29704
+      "size": 30495
     },
     {
       "key": "ogimi-takazatocc",
       "name": "田嘉里公民館",
       "loc": "大宜味村",
-      "size": 27393
+      "size": 27752
     },
     {
       "key": "ogimi-ogimiej",
       "name": "大宜味小中学校",
       "loc": "大宜味村",
-      "size": 30791
+      "size": 31901
     },
     {
       "key": "ogimi-tuhacc",
       "name": "津波公民館",
       "loc": "大宜味村",
-      "size": 29676
+      "size": 29621
     },
     {
       "key": "ogimi-taihocc",
       "name": "大保公民館",
       "loc": "大宜味村",
-      "size": 31903
+      "size": 31252
     },
     {
       "key": "ogimi-shioya",
       "name": "旧塩屋小学校",
       "loc": "大宜味村",
-      "size": 26638
+      "size": 29478
     },
     {
       "key": "ogimi-ogimiejgrd",
       "name": "旧大宜味小学校グラウンド",
       "loc": "大宜味村",
-      "size": 30839
+      "size": 29619
     }
   ],
   "youtube_live": [
@@ -364,7 +364,7 @@
       "name": "比地川（国頭村）",
       "loc": "国頭郡国頭村",
       "channel_id": "UChKW7CTANsvd92g5AevqitQ",
-      "video_id": "srKUlAVENhg"
+      "video_id": "iTdr76bnCSg"
     },
     {
       "name": "浦添市城間ライブ",
