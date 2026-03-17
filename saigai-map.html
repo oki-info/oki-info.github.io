@@ -4,700 +4,368 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>沖縄県 被害状況マップ</title>
-<!-- 必須：Leaflet（地図本体）複数CDNフォールバック -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
-  onerror="this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'">
-<!-- Leaflet CSSが全CDNブロックされた場合の最低限インラインCSS -->
-<style id="leaflet-fallback-css">
-.leaflet-container{position:relative;overflow:hidden;outline:0;cursor:grab}
-.leaflet-map-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,
-.leaflet-tile-pane,.leaflet-overlay-pane,.leaflet-shadow-pane,.leaflet-marker-pane,
-.leaflet-tooltip-pane,.leaflet-popup-pane,.leaflet-zoom-box,.leaflet-image-layer,
-.leaflet-layer{position:absolute;left:0;top:0}
-.leaflet-container .leaflet-overlay-pane svg{position:relative}
-.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,
-.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer,
-.leaflet-container .leaflet-tile{max-width:none!important;max-height:none!important}
-.leaflet-tile{filter:inherit;visibility:hidden}
-.leaflet-tile-loaded{visibility:inherit}
-.leaflet-zoom-box{width:0;height:0;box-sizing:border-box;z-index:800}
-.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}
-.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}
-.leaflet-popup-pane{z-index:700}.leaflet-tile-pane{z-index:200}
-.leaflet-control-container{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
-.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:visiblePainted;pointer-events:auto}
-.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
-.leaflet-control{float:left;clear:both;pointer-events:auto}
-.leaflet-right .leaflet-control{float:right}
-.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}
-.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}
-.leaflet-control-zoom a{display:block;text-align:center;text-decoration:none;background:#fff;
-  color:#444;width:26px;height:26px;line-height:26px;font-size:16px;font-weight:bold}
-.leaflet-control-zoom{border:2px solid rgba(0,0,0,0.2);border-radius:4px}
-.leaflet-control-attribution{background:rgba(255,255,255,0.8);font-size:11px;padding:2px 5px}
-.leaflet-popup-content-wrapper{background:#fff;border-radius:6px;padding:1px;box-shadow:0 3px 14px rgba(0,0,0,0.4)}
-.leaflet-popup-content{margin:13px 19px;line-height:1.4}
-.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden}
-.leaflet-popup-tip{background:#fff;width:17px;height:17px;padding:1px;margin:-10px auto 0;transform:rotate(45deg)}
-.leaflet-popup-close-button{position:absolute;top:0;right:0;padding:4px 4px 0 0;color:#c3c3c3;font-size:16px;line-height:14px;text-decoration:none;font-weight:bold}
-.leaflet-div-icon{background:#fff;border:1px solid #666}
-.leaflet-tooltip{position:absolute;background:#fff;border:1px solid #fff;border-radius:3px;
-  color:#222;white-space:nowrap;user-select:none;pointer-events:none;padding:6px;box-shadow:0 1px 3px rgba(0,0,0,0.4)}
-</style>
-<script>
-// Leaflet JS：複数CDNフォールバック
-(function(){
-  var cdns = [
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js'
-  ];
-  function tryLoad(i) {
-    if (i >= cdns.length) {
-      document.getElementById('map-error').style.display = 'flex';
-      return;
-    }
-    var s = document.createElement('script');
-    s.src = cdns[i];
-    s.onload = function() {
-      // CSSが読めてるか確認、なければフォールバックCSSを保持
-      if (typeof L !== 'undefined') {
-        document.getElementById('leaflet-fallback-css').disabled = false;
-      }
-    };
-    s.onerror = function() { tryLoad(i + 1); };
-    document.head.appendChild(s);
-  }
-  tryLoad(0);
-})();
-</script>
-<!-- 必須：EXIF（GPS読み取り） -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"
-  onerror="var EXIF={getData:function(i,cb){cb.call(i);},getTag:function(){return null;}}"></script>
-<!-- オプション：Leaflet.draw（描画ツール）→ 遅延読み込み -->
-<!-- オプション：html2canvas, jspdf, pptxgenjs, xlsx → 使用時に動的読み込み -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* ── 変数 ── */
 :root {
-  --bg: #f0f2f5;
-  --panel: #ffffff;
-  --border: #d0d7e2;
-  --accent: #0070cc;
-  --danger: #d93025;
-  --text: #1a2433;
-  --dim: #6b7a8d;
-  --cat-flood: #1a7fd4;
-  --cat-landslide: #a05c10;
-  --cat-road: #c47d00;
-  --cat-building: #d42020;
-  --cat-human: #8b20cc;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { height: 100%; background: #b0b8c8; }
-body {
-  font-family: 'Noto Sans JP', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  width: 95%;
-  margin: 0 auto;
-  box-shadow: 0 0 50px rgba(0,0,0,0.22);
+  --bg:      #f0f2f5;
+  --panel:   #ffffff;
+  --border:  #d0d7e2;
+  --accent:  #0070cc;
+  --danger:  #d93025;
+  --text:    #1a2433;
+  --dim:     #6b7a8d;
 }
 
-/* ── TOP BAR ── */
+/* ── リセット ── */
+* { margin:0; padding:0; box-sizing:border-box; }
+html { height:100%; background:#b0b8c8; }
+body {
+  font-family:'Noto Sans JP',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  width:95%;
+  margin:0 auto;
+  box-shadow:0 0 50px rgba(0,0,0,0.2);
+}
+
+/* ── トップバー ── */
 #topbar {
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
-  position: relative;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-shrink:0;
+  position:relative;
 }
 #topbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
-  opacity: 0.3;
+  content:'';
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:2px;
+  background:linear-gradient(90deg,var(--accent) 0%,transparent 60%);
+  opacity:0.4;
 }
-.title-block { display: flex; align-items: center; gap: 10px; }
+.title-block { display:flex; align-items:center; gap:10px; }
 .title-icon {
-  width: 32px; height: 32px;
-  background: var(--danger);
-  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-  display: flex; align-items: center; justify-content: center;
-  animation: pulse 2s infinite;
+  width:32px; height:32px;
+  background:var(--danger);
+  clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);
+  display:flex; align-items:center; justify-content:center;
+  animation:pulse 2s infinite;
 }
-@keyframes pulse {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
 h1 {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 14px;
-  letter-spacing: 2px;
-  color: var(--accent);
-  text-transform: uppercase;
+  font-family:'Share Tech Mono',monospace;
+  font-size:14px; letter-spacing:2px;
+  color:var(--accent); text-transform:uppercase;
 }
-h1 span { color: var(--text); font-size: 11px; display: block; letter-spacing: 1px; }
+h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; }
 
-#stats { display: flex; gap: 16px; margin-left: auto; }
-.stat {
-  text-align: center;
-  font-family: 'Share Tech Mono', monospace;
-}
-.stat .num {
-  font-size: 22px;
-  color: var(--accent);
-  display: block;
-  line-height: 1;
-}
-.stat .lbl { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+#stats { display:flex; gap:14px; margin-left:auto; }
+.stat { text-align:center; font-family:'Share Tech Mono',monospace; }
+.stat .num { font-size:20px; color:var(--accent); display:block; line-height:1; }
+.stat .lbl { font-size:9px; color:var(--dim); letter-spacing:1px; }
 
-.top-btns { display: flex; gap: 8px; }
+.top-btns { display:flex; gap:6px; }
 .btn {
-  background: #f0f2f5;
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 6px 14px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: all 0.15s;
-  border-radius: 4px;
+  background:#f0f2f5; border:1px solid var(--border);
+  color:var(--text); padding:6px 12px;
+  font-family:'Share Tech Mono',monospace; font-size:11px;
+  cursor:pointer; letter-spacing:1px;
+  transition:all 0.15s; border-radius:4px;
 }
-.btn:hover { border-color: var(--accent); color: var(--accent); background: #e8f0fb; }
-.btn.primary { border-color: var(--accent); color: #fff; background: var(--accent); }
-.btn.primary:hover { background: #005bb0; border-color: #005bb0; }
-.btn.danger-btn { border-color: var(--danger); color: var(--danger); background: #fff0f0; }
-.btn.danger-btn:hover { background: #ffe0e0; }
+.btn:hover { border-color:var(--accent); color:var(--accent); background:#e8f0fb; }
+.btn.primary { border-color:var(--accent); color:#fff; background:var(--accent); }
+.btn.primary:hover { background:#005bb0; }
+.btn.danger { border-color:var(--danger); color:var(--danger); background:#fff0f0; }
+.btn.danger:hover { background:#ffe0e0; }
 
-/* ── MAIN LAYOUT ── */
-#main { display: flex; flex: 1; overflow: hidden; }
+/* ── メインレイアウト ── */
+#main { display:flex; flex:1; overflow:hidden; }
 
-/* ── SIDEBAR ── */
+/* ── サイドバー ── */
 #sidebar {
-  width: 300px;
-  background: var(--panel);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow: hidden;
+  width:280px; background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  flex-shrink:0; overflow:hidden;
+}
+.sec-hdr {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; color:var(--dim);
+  padding:8px 12px; flex-shrink:0;
 }
 
-/* ── DROP ZONE ── */
+/* ── ドロップゾーン ── */
 #dropzone {
-  margin: 12px;
-  border: 1.5px dashed var(--border);
-  border-radius: 4px;
-  padding: 20px 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
-#dropzone::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(0,212,255,0.03) 0%, transparent 60%);
+  margin:12px; border:1.5px dashed var(--border);
+  border-radius:4px; padding:18px 12px;
+  text-align:center; cursor:pointer;
+  transition:all 0.2s; flex-shrink:0;
+  position:relative;
 }
 #dropzone:hover, #dropzone.drag-over {
-  border-color: var(--accent);
-  background: rgba(0,212,255,0.05);
+  border-color:var(--accent); background:rgba(0,112,204,0.04);
 }
-#dropzone .dz-icon { font-size: 28px; display: block; margin-bottom: 8px; }
-#dropzone .dz-main { font-size: 12px; color: var(--text); margin-bottom: 4px; }
-#dropzone .dz-sub { font-size: 10px; color: var(--dim); }
-#fileInput { display: none; }
+#dropzone .dz-icon { font-size:26px; display:block; margin-bottom:6px; }
+#dropzone .dz-main { font-size:12px; color:var(--text); font-weight:600; }
+#dropzone .dz-sub  { font-size:10px; color:var(--dim); margin-top:3px; }
+#fileInput {
+  position:absolute; inset:0; width:100%; height:100%;
+  opacity:0; cursor:pointer; z-index:2;
+}
 
-/* ── LEGEND ── */
-#legend {
-  margin: 0 12px 12px;
-  flex-shrink: 0;
+/* ── 手動追加ボタン ── */
+#manualAddBtn {
+  margin:0 12px 10px; padding:7px;
+  background:#f8f9fb; border:1px solid var(--border);
+  border-radius:4px; font-size:11px; cursor:pointer;
+  color:var(--dim); transition:all 0.15s; text-align:center;
 }
+#manualAddBtn:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── 凡例 ── */
+#legend { margin:0 12px 8px; flex-shrink:0; }
 .legend-title {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--dim);
-  margin-bottom: 6px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; color:var(--dim); margin-bottom:4px;
 }
 .cat-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 6px;
-  margin-bottom: 2px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background 0.15s;
-  font-size: 11px;
-  border: 1px solid transparent;
+  display:flex; align-items:center; gap:8px;
+  padding:4px 6px; margin-bottom:2px;
+  border-radius:3px; cursor:pointer;
+  font-size:11px; transition:background 0.1s;
+  border:1px solid transparent;
 }
-.cat-row:hover { background: rgba(255,255,255,0.04); }
-.cat-row.active { background: rgba(255,255,255,0.06); border-color: var(--border); }
-.cat-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
+.cat-row:hover { background:rgba(0,112,204,0.06); }
+.cat-row.active { background:rgba(0,112,204,0.08); border-color:rgba(0,112,204,0.2); }
+.cat-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .cat-count {
-  margin-left: auto;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: var(--dim);
+  margin-left:auto; font-family:'Share Tech Mono',monospace;
+  font-size:10px; color:var(--dim);
 }
 
-/* ── INCIDENT LIST ── */
-#incidentSection {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid var(--border);
+/* ── インシデントリスト ── */
+#incidentSection { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+#incidentList { flex:1; overflow-y:auto; scrollbar-width:thin; }
+.inc-item {
+  padding:8px 12px; border-bottom:1px solid rgba(208,215,226,0.5);
+  cursor:pointer; transition:background 0.15s;
+  display:flex; gap:8px; align-items:flex-start;
 }
-.section-hdr {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--dim);
-  padding: 8px 12px;
-  flex-shrink: 0;
-}
-#incidentList {
-  flex: 1;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-.incident-item {
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(30,48,72,0.5);
-  cursor: pointer;
-  transition: background 0.15s;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-.incident-item:hover { background: rgba(0,212,255,0.04); }
-.incident-item.selected { background: rgba(0,212,255,0.08); }
-.inc-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-.inc-info { flex: 1; min-width: 0; }
-.inc-cat { font-size: 10px; font-weight: 600; }
+.inc-item:hover { background:rgba(0,112,204,0.04); }
+.inc-item.selected { background:rgba(0,112,204,0.08); }
+.inc-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+.inc-info { flex:1; min-width:0; }
+.inc-cat { font-size:10px; font-weight:600; }
 .inc-loc {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  color: var(--dim);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-family:'Share Tech Mono',monospace; font-size:9px;
+  color:var(--dim); margin-top:2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.inc-time { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--dim); flex-shrink: 0; }
+.inc-memo-preview { font-size:9px; color:var(--dim); margin-top:1px; font-style:italic;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inc-time { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--dim); flex-shrink:0; }
 .inc-del {
-  background: none;
-  border: none;
-  color: var(--dim);
-  cursor: pointer;
-  font-size: 12px;
-  padding: 2px 4px;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.15s;
+  background:none; border:none; color:var(--dim); cursor:pointer;
+  font-size:12px; padding:2px 4px; flex-shrink:0;
+  opacity:0; transition:opacity 0.15s;
 }
-.incident-item:hover .inc-del { opacity: 1; }
-.inc-del:hover { color: var(--danger); }
+.inc-item:hover .inc-del { opacity:1; }
+.inc-del:hover { color:var(--danger); }
 
-/* ── MAP ── */
-#mapwrap {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+/* ── 地図エリア ── */
+#mapwrap { flex:1; position:relative; overflow:hidden; }
+#map { width:100%; height:100%; }
+
+/* ── ピンモードオーバーレイ ── */
+#pinOverlay {
+  display:none; position:absolute; inset:0; z-index:500;
+  background:rgba(0,112,204,0.08); cursor:crosshair;
 }
-#map { width: 100%; height: 100%; }
-
-/* Leaflet overrides */
-.leaflet-container { background: #e8ecf0; }
-.leaflet-tile { filter: none; }
-.leaflet-control-zoom a {
-  background: var(--panel) !important;
-  color: var(--text) !important;
-  border-color: var(--border) !important;
+#pinMsg {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:var(--panel); border:2px solid var(--accent);
+  border-radius:8px; padding:16px 24px;
+  text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.15);
+  pointer-events:none;
+}
+#pinMsg .pin-title { font-size:14px; font-weight:700; color:var(--accent); }
+#pinMsg .pin-sub   { font-size:11px; color:var(--dim); margin-top:4px; }
+#pinCancelBtn {
+  position:absolute; top:12px; right:12px;
+  background:none; border:1px solid var(--danger);
+  color:var(--danger); border-radius:4px;
+  padding:5px 10px; font-size:11px; cursor:pointer;
+  pointer-events:all;
 }
 
-/* Custom popup */
+/* ── ポップアップ ── */
 .leaflet-popup-content-wrapper {
-  background: var(--panel) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 6px !important;
-  color: var(--text) !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+  background:var(--panel) !important;
+  border:1px solid var(--border) !important;
+  border-radius:6px !important;
+  box-shadow:0 4px 20px rgba(0,0,0,0.12) !important;
 }
-.leaflet-popup-tip { background: var(--panel) !important; }
-.leaflet-popup-close-button { color: var(--dim) !important; }
-
-.popup-inner { min-width: 220px; }
-.popup-img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 2px;
-  margin-bottom: 8px;
-  border: 1px solid var(--border);
-}
-.popup-cat {
-  font-size: 11px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  letter-spacing: 0.5px;
-}
-.popup-meta {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: var(--dim);
-  line-height: 1.6;
-}
+.leaflet-popup-tip { background:var(--panel) !important; }
+.popup-inner { min-width:200px; max-width:260px; }
+.popup-img { width:100%; height:140px; object-fit:cover; border-radius:4px; margin-bottom:8px; }
+.popup-cat { font-size:12px; font-weight:700; margin-bottom:5px; }
+.popup-meta { font-size:11px; color:var(--dim); line-height:1.8; }
 .popup-memo {
-  margin-top: 6px;
-  font-size: 11px;
-  color: var(--text);
-  background: #f4f6f9;
-  padding: 4px 6px;
-  border-radius: 2px;
-  border-left: 2px solid var(--border);
+  margin-top:7px; font-size:11px; background:#f7fafc;
+  padding:5px 8px; border-radius:4px;
+  border-left:3px solid var(--border); color:var(--text);
 }
+.popup-actions { display:flex; gap:6px; margin-top:10px; }
+.popup-actions button {
+  flex:1; padding:5px 0; font-size:11px; font-weight:700;
+  cursor:pointer; border:none; border-radius:4px;
+}
+.popup-btn-edit     { background:var(--accent); color:#fff; }
+.popup-btn-relocate { background:#f5a623; color:#fff; }
 
-/* ── MAP OVERLAY INFO ── */
-#mapinfo {
-  position: absolute;
-  top: 10px; right: 10px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid var(--border);
-  padding: 8px 12px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  color: var(--dim);
-  pointer-events: none;
-  z-index: 1000;
-  letter-spacing: 1px;
-  line-height: 1.8;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+/* ── ホームボタン ── */
+#homeBtn {
+  position:absolute; bottom:90px; right:10px; z-index:1000;
+  width:34px; height:34px; border-radius:4px;
+  background:#fff; border:2px solid rgba(0,0,0,0.25);
+  font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 1px 5px rgba(0,0,0,0.15); transition:background 0.15s;
 }
-#datetime { color: var(--accent); font-size: 10px; }
+#homeBtn:hover { background:#f4f4f4; }
 
-/* ── MODAL ── */
-#modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(30,50,80,0.45);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(3px);
-}
-#modal.open { display: flex; }
-#modal-box {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  width: 440px;
-  max-width: 95vw;
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-}
-#modal-box h2 {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: var(--accent);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-}
-#modal-box img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  margin-bottom: 14px;
-}
-.modal-label { font-size: 11px; color: var(--dim); margin-bottom: 6px; font-weight: 600; }
-.modal-cats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.modal-cat-btn {
-  border: 1.5px solid var(--border);
-  background: #f4f6f9;
-  color: var(--text);
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.15s;
-  font-family: 'Noto Sans JP', sans-serif;
-}
-.modal-cat-btn:hover { background: #e8edf4; }
-.modal-cat-btn.selected { color: white; }
-textarea#memo {
-  width: 100%;
-  background: #f8f9fb;
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 8px;
-  font-size: 12px;
-  font-family: 'Noto Sans JP', sans-serif;
-  resize: vertical;
-  min-height: 64px;
-  border-radius: 4px;
-  margin-bottom: 14px;
-}
-textarea#memo:focus { outline: none; border-color: var(--accent); }
-.modal-coords {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: var(--text);
-  background: #f0f4f8;
-  padding: 6px 10px;
-  border-radius: 4px;
-  margin-bottom: 14px;
-}
-.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-
-/* no gps error */
-.no-gps {
-  background: #fff3f3;
-  border: 1px solid #f5b8b8;
-  color: #b00020;
-  padding: 8px 10px;
-  font-size: 11px;
-  border-radius: 4px;
-  margin-bottom: 14px;
-}
-
-/* empty state */
+/* ── 空状態 ── */
 #emptyState {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.92);
-  border: 1px solid var(--border);
-  padding: 10px 18px;
-  font-size: 11px;
-  color: var(--dim);
-  font-family: 'Share Tech Mono', monospace;
-  letter-spacing: 1px;
-  pointer-events: none;
-  z-index: 1000;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position:absolute; bottom:20px; left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,0.9); border:1px solid var(--border);
+  border-radius:20px; padding:8px 16px;
+  font-size:11px; color:var(--dim);
+  pointer-events:none; white-space:nowrap;
 }
 
-/* scan line effect - light mode では無効 */
-
-/* manual pin mode */
-#pinModeOverlay {
-  display: none;
-  position: absolute;
-  inset: 0;
-  z-index: 2000;
-  cursor: crosshair;
-  background: rgba(0,212,255,0.04);
-  border: 2px solid var(--accent);
-}
-#pinModeMsg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255,255,255,0.95);
-  border: 2px solid var(--accent);
-  color: var(--accent);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  letter-spacing: 1px;
-  padding: 14px 24px;
-  text-align: center;
-  pointer-events: none;
-  white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-#pinModeMsg span { display:block; font-size:10px; color:var(--dim); margin-top:4px; }
-#pinModeCancelBtn {
-  position: absolute;
-  top: 12px; right: 12px;
-  pointer-events: all;
-}
-/* temp pin while in manual mode */
-.temp-pin {
-  width: 24px; height: 24px;
-  background: var(--accent);
-  border: 2px solid white;
-  border-radius: 50%;
-  box-shadow: 0 0 12px var(--accent);
-  animation: pinBounce 0.3s ease-out;
-}
-@keyframes pinBounce {
-  0%   { transform: scale(0.5); opacity: 0; }
-  70%  { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
-}
-#progress {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s;
-  z-index: 99999;
+/* ── 時計 ── */
+#mapinfo {
+  position:absolute; top:10px; left:10px; z-index:1000;
+  font-family:'Share Tech Mono',monospace; font-size:10px;
+  color:#fff; background:rgba(26,36,51,0.7);
+  padding:4px 8px; border-radius:3px; line-height:1.6;
 }
 
-/* ── DRAWING TOOLS ── */
-#drawPanel { padding: 0 12px 10px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
-.draw-tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 6px; }
-.draw-btn {
-  background: #f0f2f5; border: 1.5px solid var(--border); border-radius: 4px;
-  padding: 6px 4px; font-size: 11px; cursor: pointer; text-align: center;
-  color: var(--text); transition: all 0.15s; line-height: 1.4;
+/* ── モーダル（共通） ── */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(30,50,80,0.45); z-index:9000;
+  align-items:center; justify-content:center;
+  backdrop-filter:blur(3px);
 }
-.draw-btn:hover { border-color: var(--accent); color: var(--accent); background: #e8f0fb; }
-.draw-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
-.draw-options { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
-.draw-options label { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
-#colorPalette { display: flex; gap: 5px; margin-top: 3px; }
-.color-swatch {
-  width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
-  border: 2px solid transparent; transition: transform 0.15s;
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:#fff; border-radius:10px; padding:24px;
+  width:400px; max-width:95vw; max-height:90vh;
+  overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.18);
 }
-.color-swatch:hover { transform: scale(1.2); }
-.color-swatch.active { border-color: var(--text); transform: scale(1.15); }
-#drawLabelInput {
-  width: 100%; font-size: 11px; padding: 4px 7px;
-  border: 1px solid var(--border); border-radius: 3px;
-  background: #f8f9fb; color: var(--text); margin-top: 3px;
+.modal-title {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:16px;
 }
-#drawHint {
-  margin-top: 6px; padding: 5px 8px; background: rgba(0,112,204,0.08);
-  border-left: 3px solid var(--accent); border-radius: 2px;
-  font-size: 10px; color: var(--accent); display: none;
+.modal-title h2 { font-size:15px; font-weight:700; }
+.modal-close {
+  background:none; border:none; font-size:20px;
+  cursor:pointer; color:var(--dim); line-height:1;
 }
-#drawCancelBtn {
-  margin-top: 5px; width: 100%; font-size: 10px; padding: 4px;
-  background: none; border: 1px solid var(--danger);
-  color: var(--danger); border-radius: 3px; cursor: pointer; display: none;
+.modal-label {
+  font-size:10px; font-weight:700; color:var(--dim);
+  letter-spacing:1px; margin:12px 0 5px;
 }
-/* テキスト注釈 */
-.text-annotation {
-  background: rgba(255,255,255,0.92); border: 2px solid;
-  border-radius: 4px; padding: 3px 8px; font-size: 12px; font-weight: 700;
-  white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  cursor: pointer;
-}
-.text-annotation:hover { opacity: 0.8; }
-/* 描画ラベルtooltip */
-.draw-label-tooltip {
-  background: rgba(255,255,255,0.9) !important; border: none !important;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.2) !important;
-  font-size: 11px !important; font-weight: 700 !important;
-  color: #1a2433 !important; padding: 2px 7px !important;
-}
-.draw-label-tooltip::before { display: none !important; }
+.modal-label:first-of-type { margin-top:0; }
 
+/* モーダル内写真プレビュー */
+.modal-img { width:100%; height:150px; object-fit:cover; border-radius:6px; margin-bottom:8px; display:none; }
+.photo-add-btn {
+  width:100%; padding:9px; font-size:12px;
+  border:1.5px dashed var(--border); border-radius:4px;
+  background:#f8f9fb; color:var(--dim); cursor:pointer;
+  transition:all 0.15s; margin-bottom:8px;
+}
+.photo-add-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-/* メモツールチップ */
-.memo-tooltip {
-  background: rgba(30,40,60,0.88) !important;
-  border: none !important; color: #fff !important;
-  font-size: 11px !important; padding: 4px 10px !important;
-  border-radius: 4px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
-  max-width: 200px !important; white-space: normal !important;
+/* 種別ボタン */
+.cat-btns { display:flex; flex-wrap:wrap; gap:5px; }
+.cat-btn {
+  padding:5px 10px; font-size:11px; font-weight:600;
+  border-radius:4px; cursor:pointer;
+  background:#f0f2f5; border:1.5px solid var(--border); color:var(--text);
+  transition:all 0.15s;
 }
-.memo-tooltip::before { display: none !important; }
+.cat-btn.selected { color:#fff; }
 
-/* 編集モーダル */
-#editModal {
-  display: none; position: fixed; inset: 0;
-  background: rgba(30,50,80,0.45); z-index: 9999;
-  align-items: center; justify-content: center;
-  backdrop-filter: blur(3px);
+/* メモ */
+.modal-textarea {
+  width:100%; min-height:70px; padding:8px 10px; font-size:13px;
+  border:1px solid var(--border); border-radius:4px; resize:vertical;
+  font-family:'Noto Sans JP',sans-serif; color:var(--text);
 }
-#editModal.open { display: flex; }
-#edit-box {
-  background: #fff; border-radius: 10px; padding: 24px;
-  width: 420px; max-width: 95vw; max-height: 90vh;
-  overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+.modal-coords {
+  font-size:11px; color:var(--dim); padding:5px 8px;
+  background:#f8f9fb; border-radius:4px;
 }
-#edit-box h2 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
-.edit-label { font-size: 10px; font-weight: 700; color: var(--dim); letter-spacing: 1px; margin: 12px 0 5px; }
-.edit-cat-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-.edit-cat-btn {
-  padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 4px;
-  cursor: pointer; background: #f0f2f5; border: 1.5px solid var(--border); color: var(--text);
-  transition: all 0.15s;
-}
-.edit-cat-btn.selected { color: #fff; }
-#edit-memo {
-  width: 100%; min-height: 70px; padding: 8px 10px; font-size: 13px;
-  border: 1px solid var(--border); border-radius: 4px; resize: vertical;
-  font-family: 'Noto Sans JP', sans-serif; color: var(--text);
-}
-#edit-img-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: none; }
 
-.print-opt-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 16px;
-  background: #f8f9fb;
-  border: 1.5px solid #d0d7e2;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-  width: 100%;
+/* モーダルアクション */
+.modal-actions { display:flex; gap:8px; margin-top:16px; }
+.modal-actions .btn-cancel {
+  flex:1; padding:9px; font-size:13px;
+  border:1px solid var(--border); border-radius:4px;
+  background:#f0f2f5; color:var(--text); cursor:pointer;
 }
-.print-opt-btn:hover { background: #eef3fb; transform: translateX(2px); }
-.print-opt-icon { font-size: 26px; flex-shrink: 0; }
-.print-opt-title { font-size: 14px; font-weight: 700; color: #1a2433; margin-bottom: 2px; }
-.print-opt-sub { font-size: 11px; color: #6b7a8d; }
+.modal-actions .btn-save {
+  flex:2; padding:9px; font-size:13px; font-weight:700;
+  border:none; border-radius:4px;
+  background:var(--accent); color:#fff; cursor:pointer;
+}
+.modal-actions .btn-save:hover { background:#005bb0; }
 
-/* 印刷用スタイル */
+/* 場所修正ボタン */
+.btn-relocate {
+  width:100%; padding:8px; font-size:12px; font-weight:700;
+  border:1.5px solid #f5a623; border-radius:4px;
+  background:#fff8e1; color:#b36000; cursor:pointer;
+  margin-top:8px;
+}
+
+/* ── 印刷 ── */
 @media print {
-  #topbar, #sidebar, #pinModeOverlay, #mapinfo, #emptyState, #modal, #printModal { display: none !important; }
-  body { height: auto !important; overflow: visible !important; background: white !important; }
-  #main { display: block !important; height: auto !important; overflow: visible !important; }
-  #mapwrap { width: 100% !important; height: 100vh !important; position: relative !important; }
-  #map { width: 100% !important; height: 100% !important; }
+  #topbar, #sidebar, #pinOverlay, #mapinfo, #emptyState { display:none !important; }
+  body { width:100% !important; box-shadow:none !important; }
+  #mapwrap { width:100% !important; height:100vh !important; }
+}
+
+/* Leafletコントロール */
+.leaflet-control-zoom a {
+  background:var(--panel) !important; color:var(--text) !important;
+  border-color:var(--border) !important;
 }
 </style>
 </head>
 <body>
 
-<div id="progress"></div>
+<!-- ── プログレスバー ── -->
+<div id="progress" style="position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:9999;transition:width 0.3s"></div>
 
-<!-- TOP BAR -->
+<!-- ── トップバー ── -->
 <div id="topbar">
   <div class="title-block">
     <div class="title-icon">⚠</div>
@@ -705,101 +373,68 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
   </div>
 
   <div id="stats">
-    <div class="stat"><span class="num" id="totalCount">0</span><span class="lbl">TOTAL</span></div>
-    <div class="stat"><span class="num" id="floodCount" style="color:var(--cat-flood)">0</span><span class="lbl">浸水</span></div>
-    <div class="stat"><span class="num" id="landCount" style="color:var(--cat-landslide)">0</span><span class="lbl">土砂</span></div>
-    <div class="stat"><span class="num" id="roadCount" style="color:var(--cat-road)">0</span><span class="lbl">道路</span></div>
-    <div class="stat"><span class="num" id="bldCount" style="color:var(--cat-building)">0</span><span class="lbl">建物</span></div>
-    <div class="stat"><span class="num" id="humCount" style="color:var(--cat-human)">0</span><span class="lbl">人的</span></div>
-    <div class="stat"><span class="num" id="otherCount" style="color:#6b7a8d">0</span><span class="lbl">その他</span></div>
+    <div class="stat"><span class="num" id="cntTotal">0</span><span class="lbl">TOTAL</span></div>
+    <div class="stat"><span class="num" id="cntFlood"  style="color:#3b9eff">0</span><span class="lbl">浸水</span></div>
+    <div class="stat"><span class="num" id="cntLand"   style="color:#c47c2a">0</span><span class="lbl">土砂</span></div>
+    <div class="stat"><span class="num" id="cntRoad"   style="color:#f5a623">0</span><span class="lbl">道路</span></div>
+    <div class="stat"><span class="num" id="cntBld"    style="color:#ff4455">0</span><span class="lbl">建物</span></div>
+    <div class="stat"><span class="num" id="cntHum"    style="color:#cc44ff">0</span><span class="lbl">人的</span></div>
+    <div class="stat"><span class="num" id="cntOther"  style="color:#6b7a8d">0</span><span class="lbl">その他</span></div>
   </div>
 
   <div class="top-btns">
     <button class="btn primary" onclick="exportShareHTML()">📤 共有用HTML</button>
-    <button class="btn" onclick="openPrintModal()">🖨️ 印刷・保存</button>
-    <button class="btn" onclick="exportJSON()">EXPORT JSON</button>
-    <button class="btn" onclick="importJSON()">IMPORT JSON</button>
-    <button class="btn danger-btn" onclick="clearAll()">CLEAR ALL</button>
+    <button class="btn"         onclick="exportJSON()">EXPORT JSON</button>
+    <button class="btn"         onclick="importJSON()">IMPORT JSON</button>
+    <button class="btn danger"  onclick="clearAll()">CLEAR ALL</button>
   </div>
 </div>
 
-<!-- MAIN -->
+<!-- ── メイン ── -->
 <div id="main">
 
-  <!-- SIDEBAR -->
+  <!-- ── サイドバー ── -->
   <div id="sidebar">
-    <!-- DROPZONE -->
-    <div id="dropzone" onclick="triggerFileInput()" style="position:relative;">
+
+    <!-- ドロップゾーン -->
+    <div id="dropzone">
       <input type="file" id="fileInput"
-        accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*"
-        multiple
-        style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;">
+        accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*" multiple>
       <span class="dz-icon">📷</span>
       <div class="dz-main">写真をタップして選択</div>
       <div class="dz-sub">または ここにドロップ</div>
-      <div class="dz-sub" style="margin-top:4px">GPS情報が自動で読み取られます</div>
-    </div>
-    <div style="margin: 0 12px 10px; display:flex; gap:6px;">
-      <button class="btn" style="flex:1;font-size:10px;padding:6px 4px" onclick="startManualPinNoPhoto()">
-        📍 地図から手動追加
-      </button>
+      <div class="dz-sub">GPS情報が自動で読み取られます</div>
     </div>
 
-    <!-- DRAWING TOOLS -->
-    <div id="drawPanel">
-      <div class="section-hdr">▸ DRAWING TOOLS</div>
-      <div class="draw-tools-grid">
-        <button class="draw-btn" id="dt-text"    onclick="activateDraw('text')">💬 テキスト</button>
-        <button class="draw-btn" id="dt-line"    onclick="activateDraw('line')">📏 線・ルート</button>
-        <button class="draw-btn" id="dt-circle"  onclick="activateDraw('circle')">⭕ 円・範囲</button>
-        <button class="draw-btn" id="dt-polygon" onclick="activateDraw('polygon')">⬡ 多角形・区域</button>
-      </div>
-      <div class="draw-options">
-        <div>
-          <label>COLOR</label>
-          <div id="colorPalette">
-            <div class="color-swatch active" data-color="#e53935" style="background:#e53935" title="赤（緊急・通行止め）"></div>
-            <div class="color-swatch" data-color="#ff9800" style="background:#ff9800" title="橙（注意）"></div>
-            <div class="color-swatch" data-color="#1976d2" style="background:#1976d2" title="青（避難ルート）"></div>
-            <div class="color-swatch" data-color="#2e7d32" style="background:#2e7d32" title="緑（安全・避難所）"></div>
-            <div class="color-swatch" data-color="#212121" style="background:#212121" title="黒（封鎖）"></div>
-            <div class="color-swatch" data-color="#7b1fa2" style="background:#7b1fa2" title="紫（その他）"></div>
-          </div>
-        </div>
-        <div>
-          <label>LABEL（任意）</label>
-          <input id="drawLabelInput" type="text" placeholder="例：避難ルート A、浸水想定区域…">
-        </div>
-      </div>
-      <div id="drawHint"></div>
-      <button id="drawCancelBtn" onclick="deactivateDraw()">✕ 描画キャンセル</button>
-    </div>
+    <!-- 手動追加 -->
+    <div id="manualAddBtn" onclick="startManualPin(null)">📍 地図から手動追加</div>
 
-
+    <!-- 凡例 -->
     <div id="legend">
       <div class="legend-title">▸ DAMAGE CATEGORY</div>
       <div class="cat-row active" data-cat="all" onclick="filterCat('all',this)">
-        <span style="font-size:10px">◉</span> <span style="font-size:11px">全て表示</span>
+        <span style="font-size:9px">◉</span>
+        <span style="font-size:11px">全て表示</span>
         <span class="cat-count" id="leg-all">0</span>
       </div>
       <div class="cat-row" data-cat="浸水・冠水" onclick="filterCat('浸水・冠水',this)">
-        <span class="cat-dot" style="background:var(--cat-flood)"></span> 浸水・冠水
+        <span class="cat-dot" style="background:#3b9eff"></span> 浸水・冠水
         <span class="cat-count" id="leg-flood">0</span>
       </div>
       <div class="cat-row" data-cat="土砂崩れ" onclick="filterCat('土砂崩れ',this)">
-        <span class="cat-dot" style="background:var(--cat-landslide)"></span> 土砂崩れ
+        <span class="cat-dot" style="background:#c47c2a"></span> 土砂崩れ
         <span class="cat-count" id="leg-land">0</span>
       </div>
       <div class="cat-row" data-cat="道路損壊・通行止め" onclick="filterCat('道路損壊・通行止め',this)">
-        <span class="cat-dot" style="background:var(--cat-road)"></span> 道路損壊・通行止め
+        <span class="cat-dot" style="background:#f5a623"></span> 道路損壊・通行止め
         <span class="cat-count" id="leg-road">0</span>
       </div>
       <div class="cat-row" data-cat="建物被害" onclick="filterCat('建物被害',this)">
-        <span class="cat-dot" style="background:var(--cat-building)"></span> 建物被害
+        <span class="cat-dot" style="background:#ff4455"></span> 建物被害
         <span class="cat-count" id="leg-bld">0</span>
       </div>
       <div class="cat-row" data-cat="人的被害" onclick="filterCat('人的被害',this)">
-        <span class="cat-dot" style="background:var(--cat-human)"></span> 人的被害
+        <span class="cat-dot" style="background:#cc44ff"></span> 人的被害
         <span class="cat-count" id="leg-hum">0</span>
       </div>
       <div class="cat-row" data-cat="その他" onclick="filterCat('その他',this)">
@@ -808,263 +443,120 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
       </div>
     </div>
 
-    <!-- INCIDENT LIST -->
+    <!-- インシデントリスト -->
     <div id="incidentSection">
-      <div class="section-hdr">▸ INCIDENT LOG</div>
-      <div id="incidentList"></div>
+      <div class="sec-hdr">▸ INCIDENT LOG</div>
+      <div id="incidentList">
+        <div id="emptyMsg" style="padding:12px;font-size:10px;color:var(--dim);font-family:'Share Tech Mono',monospace">NO INCIDENTS</div>
+      </div>
     </div>
-  </div>
 
-  <!-- MAP -->
+  </div><!-- /sidebar -->
+
+  <!-- ── 地図 ── -->
   <div id="mapwrap">
     <div id="map"></div>
-    <!-- 地図ライブラリ読み込み失敗時のメッセージ -->
-    <div id="map-error" style="display:none;position:absolute;inset:0;background:#f0f2f5;
-      align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;text-align:center;padding:20px;">
-      <div style="font-size:40px">🗺️</div>
-      <div style="font-size:15px;font-weight:700;color:#1a2433">地図ライブラリを読み込めませんでした</div>
-      <div style="font-size:12px;color:#6b7a8d;line-height:1.7">
-        ネットワーク環境により外部CDNへのアクセスが制限されている可能性があります。<br>
-        写真のアップロードやデータ入力は引き続き使用できます。<br>
-        JSON書き出し → 別の端末でインポートして地図表示が可能です。
-      </div>
-    </div>
 
-    <!-- 印刷時のみ表示するヘッダー -->
-    <div id="print-header" style="display:none;position:absolute;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,0.95);border-bottom:2px solid #0070cc;padding:6px 14px;display:none;flex-wrap:wrap;align-items:center;gap:12px">
-      <span style="font-size:18px">⚠️</span>
-      <span style="font-weight:700;font-size:13px;color:#0070cc">沖縄県 被害状況マップ</span>
-      <span id="print-datetime" style="font-size:11px;color:#6b7a8d"></span>
-      <span id="print-counts" style="font-size:11px;color:#1a2433;margin-left:auto"></span>
-    </div>
-
-    <!-- A2貼り合わせガイド（A2印刷時のみ） -->
-    <div id="a2-guide" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;pointer-events:none">
-      <div style="border-left:2px dashed rgba(255,0,0,0.5);height:100vh;position:absolute;left:50%;top:-50vh"></div>
-    </div>
-
-    <!-- 沖縄中心に戻るボタン -->
-    <button id="homeBtn" onclick="resetMapView()" title="沖縄本島に戻る" style="
-      position:absolute; bottom:90px; right:10px; z-index:1000;
-      width:34px; height:34px; border-radius:4px;
-      background:#fff; border:2px solid rgba(0,0,0,0.25);
-      font-size:18px; cursor:pointer; display:flex;
-      align-items:center; justify-content:center;
-      box-shadow:0 1px 5px rgba(0,0,0,0.15);
-      transition:background 0.15s;
-    " onmouseover="this.style.background='#f4f4f4'" onmouseout="this.style.background='#fff'">
-      🏠
-    </button>
-
-    <!-- manual pin overlay -->
-    <div id="pinModeOverlay" onclick="onOverlayClick(event)">
-      <div id="pinModeMsg">
-        📍 被害地点をクリックしてください
-        <span>クリックした場所にピンが立てられます</span>
-      </div>
-      <button class="btn danger-btn pinModeCancelBtn" id="pinModeCancelBtn" onclick="event.stopPropagation();cancelManualPin()" style="position:absolute;top:12px;right:12px">✕ キャンセル</button>
-    </div>
+    <!-- 時計 -->
     <div id="mapinfo">
-      <div id="datetime"></div>
-      沖縄県 被害状況マップ<br>
-      ● GPS付写真をアップロードして<br>
-      　 被害地点をプロット
+      <div id="clock"></div>
+      沖縄県 被害状況マップ
     </div>
+
+    <!-- 空状態 -->
     <div id="emptyState">📷 写真をサイドバーにドロップしてください</div>
-  </div>
-</div>
 
-<!-- MODAL: タグ付け -->
-<div id="modal">
-  <div id="modal-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h2 style="margin-bottom:0">▸ 被害情報を登録</h2>
-      <span id="queue-badge" style="display:none;font-family:'Share Tech Mono','Courier New',monospace;font-size:11px;color:var(--accent);background:rgba(0,212,255,0.1);border:1px solid var(--accent);padding:3px 10px;border-radius:2px"></span>
+    <!-- ホームボタン -->
+    <button id="homeBtn" onclick="resetView()" title="沖縄本島に戻る">🏠</button>
+
+    <!-- ピンモードオーバーレイ -->
+    <div id="pinOverlay" onclick="onPinOverlayClick(event)">
+      <div id="pinMsg">
+        <div class="pin-title" id="pinMsgTitle">📍 被害地点をクリック</div>
+        <div class="pin-sub"   id="pinMsgSub">クリックした場所にピンが立てられます</div>
+      </div>
+      <button id="pinCancelBtn" onclick="event.stopPropagation();cancelPin()">✕ キャンセル</button>
     </div>
-    <img id="modal-img" src="" alt="">
+  </div><!-- /mapwrap -->
 
-    <!-- 手動追加時の写真追加エリア -->
-    <div id="modal-photo-add" style="display:none;margin-bottom:10px;">
-      <input type="file" id="modalPhotoInput" accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*" style="display:none">
-      <button type="button" onclick="document.getElementById('modalPhotoInput').click()" style="
-        width:100%;padding:10px;border:1.5px dashed var(--border);border-radius:6px;
-        background:#f8f9fb;color:var(--dim);font-size:12px;cursor:pointer;
-        display:flex;align-items:center;justify-content:center;gap:8px;
-        transition:all 0.15s;
-      " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
-         onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">
+</div><!-- /main -->
+
+<!-- ── モーダル：登録 ── -->
+<div id="modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">
+      <h2>▸ 被害情報を登録</h2>
+      <span id="queueBadge" style="display:none;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);background:rgba(0,112,204,0.1);border:1px solid var(--accent);padding:2px 8px;border-radius:2px"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <!-- 写真プレビュー -->
+    <img id="modalImg" class="modal-img">
+    <!-- 手動追加時の写真追加ボタン -->
+    <div id="modalPhotoArea" style="display:none">
+      <input type="file" id="modalPhotoInput"
+        accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*" style="display:none">
+      <button type="button" class="photo-add-btn" onclick="document.getElementById('modalPhotoInput').click()">
         📷 写真を追加する（任意）
       </button>
     </div>
-    <div id="no-gps-msg" class="no-gps" style="display:none">
-      ⚠ GPS情報が見つかりません。<br>
-      <button style="margin-top:8px;width:100%;font-size:13px;padding:10px;background:#0070cc;color:#ffffff;border:none;border-radius:6px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:700;" onclick="startManualPin()">
+
+    <!-- GPS無し警告 -->
+    <div id="noGpsMsg" style="display:none;margin-bottom:10px;padding:8px;background:#fff8e1;border:1px solid #ffc107;border-radius:4px;font-size:11px;color:#856404">
+      ⚠ GPS情報が見つかりません。
+      <button style="display:block;width:100%;margin-top:6px;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;" onclick="startManualPin('fromModal')">
         📍 地図をクリックして場所を指定する
       </button>
     </div>
-    <div class="modal-coords" id="modal-coords"></div>
-    <div class="modal-label">被害種別を選択 *</div>
-    <div class="modal-cats" id="modal-cats"></div>
+
+    <div id="modalCoords" class="modal-coords" style="margin-bottom:10px"></div>
+
+    <div class="modal-label">被害種別 *</div>
+    <div class="cat-btns" id="modalCats"></div>
+
     <div class="modal-label">メモ（任意）</div>
-    <textarea id="memo" placeholder="状況の詳細、優先度など…"></textarea>
+    <textarea class="modal-textarea" id="modalMemo" placeholder="状況の詳細、優先度など…"></textarea>
+
     <div class="modal-actions">
-      <button class="btn" onclick="closeModal()">キャンセル</button>
-      <button class="btn" id="skip-btn" style="display:none" onclick="skipQueue()">スキップ →</button>
-      <button style="padding:8px 20px;background:#0070cc;color:#ffffff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;" onclick="confirmAdd()">地図に追加</button>
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn" id="skipBtn" style="display:none;padding:9px 12px;font-size:13px;" onclick="skipQueue()">スキップ →</button>
+      <button class="btn-save" onclick="confirmAdd()">地図に追加</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: 印刷・保存 -->
-<div id="printModal" style="display:none;position:fixed;inset:0;background:rgba(30,50,80,0.45);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(3px);overflow-y:auto;padding:16px 0;">
-  <div style="background:#fff;border-radius:10px;padding:24px;width:460px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-      <h2 style="font-size:15px;font-weight:700;color:#1a2433">🖨️ 印刷・ファイル出力</h2>
-      <button onclick="closePrintModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7a8d;line-height:1">✕</button>
-    </div>
-
-    <!-- ─ ファイル出力 ─ -->
-    <div style="font-size:10px;font-weight:700;color:#6b7a8d;letter-spacing:1px;margin-bottom:8px">▸ ファイル出力</div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
-
-      <button onclick="savePdf()" class="print-opt-btn" style="border-color:#e53935">
-        <span class="print-opt-icon">📕</span>
-        <div>
-          <div class="print-opt-title">PDF出力</div>
-          <div class="print-opt-sub">地図をA4横PDFファイルとして保存</div>
-        </div>
-      </button>
-
-      <button onclick="savePptx()" class="print-opt-btn" style="border-color:#d04a02">
-        <span class="print-opt-icon">📊</span>
-        <div>
-          <div class="print-opt-title">PowerPoint出力（.pptx）</div>
-          <div class="print-opt-sub">地図スライド＋インシデント一覧スライドを生成</div>
-        </div>
-      </button>
-
-      <button onclick="saveExcel()" class="print-opt-btn" style="border-color:#1d6f42">
-        <span class="print-opt-icon">📗</span>
-        <div>
-          <div class="print-opt-title">Excel出力（.xlsx）</div>
-          <div class="print-opt-sub">インシデント一覧を表形式で出力</div>
-        </div>
-      </button>
-
-      <button onclick="saveJpeg()" class="print-opt-btn" style="border-color:#0070cc">
-        <span class="print-opt-icon">🖼️</span>
-        <div>
-          <div class="print-opt-title">画像保存（JPEG）</div>
-          <div class="print-opt-sub">地図全体をJPEGファイルとして保存</div>
-        </div>
-      </button>
-
-    </div>
-
-    <!-- ─ 印刷 ─ -->
-    <div style="font-size:10px;font-weight:700;color:#6b7a8d;letter-spacing:1px;margin-bottom:8px">▸ 印刷</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-
-      <button onclick="printAs('A4')" class="print-opt-btn" style="border-color:#28a745">
-        <span class="print-opt-icon">📄</span>
-        <div>
-          <div class="print-opt-title">A4横</div>
-          <div class="print-opt-sub">297 × 210mm・1枚</div>
-        </div>
-      </button>
-
-      <button onclick="printAs('A3')" class="print-opt-btn" style="border-color:#fd7e14">
-        <span class="print-opt-icon">📋</span>
-        <div>
-          <div class="print-opt-title">A3横</div>
-          <div class="print-opt-sub">420 × 297mm・1枚</div>
-        </div>
-      </button>
-
-      <button onclick="printAs('A2')" class="print-opt-btn" style="border-color:#dc3545">
-        <span class="print-opt-icon">🗺️</span>
-        <div>
-          <div class="print-opt-title">A2サイズ（A3横 × 2枚）</div>
-          <div class="print-opt-sub">左右2分割 → 貼り合わせてA2</div>
-        </div>
-      </button>
-
-      <button onclick="printAs('A1')" class="print-opt-btn" style="border-color:#6f42c1">
-        <span class="print-opt-icon">🗾</span>
-        <div>
-          <div class="print-opt-title">A1サイズ（A3横 × 4枚）</div>
-          <div class="print-opt-sub">2×2分割 → 貼り合わせてA1</div>
-        </div>
-      </button>
-
-      <button onclick="printAs('A0')" class="print-opt-btn" style="border-color:#e83e8c">
-        <span class="print-opt-icon">🌏</span>
-        <div>
-          <div class="print-opt-title">A0サイズ（A3横 × 8枚）</div>
-          <div class="print-opt-sub">4×2分割 → 貼り合わせてA0</div>
-        </div>
-      </button>
-
-    </div>
-
-    <div id="printMsg" style="display:none;margin-top:14px;padding:10px;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;font-size:12px;color:#856404"></div>
-  </div>
-</div>
-
-<!-- MODAL: 編集 -->
-<div id="editModal">
-  <div id="edit-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+<!-- ── モーダル：編集 ── -->
+<div id="editModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">
       <h2>✏️ 被害情報を編集</h2>
-      <button onclick="closeEditModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7a8d;line-height:1">✕</button>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
     </div>
 
-    <!-- 写真プレビュー＋変更 -->
-    <img id="edit-img-preview" src="">
-    <div style="display:flex;gap:6px;margin-bottom:4px">
-      <button type="button" id="edit-photo-btn" onclick="document.getElementById('editPhotoInput').click()" style="
-        flex:1;padding:7px;font-size:11px;border:1.5px dashed var(--border);border-radius:4px;
-        background:#f8f9fb;color:var(--dim);cursor:pointer;">
-        📷 写真を変更する
-      </button>
-      <button type="button" id="edit-photo-del" onclick="clearEditPhoto()" style="
-        display:none;padding:7px 10px;font-size:11px;border:1.5px solid #ffcdd2;border-radius:4px;
-        background:#fff5f5;color:#d32f2f;cursor:pointer;">
-        🗑️ 削除
-      </button>
+    <img id="editImg" class="modal-img">
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <input type="file" id="editPhotoInput"
+        accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*" style="display:none">
+      <button type="button" class="photo-add-btn" style="flex:1;margin-bottom:0"
+        onclick="document.getElementById('editPhotoInput').click()">📷 写真を変更する</button>
+      <button type="button" id="editPhotoDelBtn" onclick="clearEditPhoto()" style="
+        display:none;padding:9px 10px;font-size:11px;border:1.5px solid #ffcdd2;
+        border-radius:4px;background:#fff5f5;color:#d32f2f;cursor:pointer;">🗑️</button>
     </div>
-    <input type="file" id="editPhotoInput" accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*" style="display:none">
 
-    <!-- 被害種別 -->
-    <div class="edit-label">被害種別 *</div>
-    <div class="edit-cat-grid" id="edit-cats"></div>
+    <div class="modal-label">被害種別 *</div>
+    <div class="cat-btns" id="editCats"></div>
 
-    <!-- メモ -->
-    <div class="edit-label">メモ</div>
-    <textarea id="edit-memo" placeholder="状況の詳細、優先度など…"></textarea>
+    <div class="modal-label">メモ</div>
+    <textarea class="modal-textarea" id="editMemo" placeholder="状況の詳細…"></textarea>
 
-    <!-- 座標表示 -->
-    <div class="edit-label">現在地点</div>
-    <div id="edit-coords" style="font-size:12px;color:var(--dim);padding:6px 8px;background:#f8f9fb;border-radius:4px;margin-bottom:4px"></div>
-    <button type="button" onclick="startRelocateFromEdit()" style="
-      width:100%;padding:8px;font-size:12px;font-weight:700;
-      border:1.5px solid #f5a623;border-radius:4px;background:#fff8e1;
-      color:#b36000;cursor:pointer;margin-bottom:12px;">
-      📍 地図上で場所を修正する
-    </button>
+    <div class="modal-label">現在地点</div>
+    <div id="editCoords" class="modal-coords"></div>
+    <button type="button" class="btn-relocate" onclick="startRelocate()">📍 地図上で場所を修正する</button>
 
-    <!-- 操作ボタン -->
-    <div style="display:flex;gap:8px">
-      <button onclick="closeEditModal()" style="
-        flex:1;padding:9px;font-size:13px;border:1px solid var(--border);
-        border-radius:4px;background:#f0f2f5;color:var(--text);cursor:pointer;">
-        キャンセル
-      </button>
-      <button onclick="saveEdit()" style="
-        flex:2;padding:9px;font-size:13px;font-weight:700;
-        border:none;border-radius:4px;background:#0070cc;color:#fff;cursor:pointer;">
-        ✅ 保存する
-      </button>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEditModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveEdit()">✅ 保存する</button>
     </div>
   </div>
 </div>
@@ -1072,336 +564,98 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
 <input type="file" id="importInput" accept=".json" style="display:none">
 
 <script>
-// ── DATA ──
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// データ定義
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const CATS = {
-  '浸水・冠水':     { color: '#3b9eff', leg: 'leg-flood', stat: 'floodCount' },
-  '土砂崩れ':       { color: '#c47c2a', leg: 'leg-land',  stat: 'landCount'  },
-  '道路損壊・通行止め': { color: '#f5a623', leg: 'leg-road',  stat: 'roadCount'  },
-  '建物被害':       { color: '#ff4455', leg: 'leg-bld',   stat: 'bldCount'   },
-  '人的被害':       { color: '#cc44ff', leg: 'leg-hum',   stat: 'humCount'   },
-  'その他':         { color: '#6b7a8d', leg: 'leg-other', stat: 'otherCount' },
+  '浸水・冠水':        { color:'#3b9eff', short:'💧 浸水',  stat:'cntFlood', leg:'leg-flood' },
+  '土砂崩れ':          { color:'#c47c2a', short:'⛰️ 土砂',  stat:'cntLand',  leg:'leg-land'  },
+  '道路損壊・通行止め': { color:'#f5a623', short:'🚧 道路',  stat:'cntRoad',  leg:'leg-road'  },
+  '建物被害':          { color:'#ff4455', short:'🏠 建物',  stat:'cntBld',   leg:'leg-bld'   },
+  '人的被害':          { color:'#cc44ff', short:'👤 人的',  stat:'cntHum',   leg:'leg-hum'   },
+  'その他':            { color:'#6b7a8d', short:'📌 その他', stat:'cntOther', leg:'leg-other' },
 };
 
-let incidents = [];
-let markers = {};
-let currentFilter = 'all';
-let pendingData = null;
+let incidents   = [];
+let markers     = {};
+let curFilter   = 'all';
 
-// ── MAP ──
-// Leafletが読み込まれていない場合は地図初期化をスキップ
-if (typeof L === 'undefined') {
-  document.getElementById('map-error').style.display = 'flex';
-  // ダミーのmapオブジェクト（エラー防止）
-  window.map = { on:()=>{}, off:()=>{}, addLayer:()=>{}, removeLayer:()=>{},
-    flyTo:()=>{}, fitBounds:()=>{}, getZoom:()=>11, closePopup:()=>{},
-    getContainer:()=>({style:{}}), containerPointToLatLng:()=>({lat:0,lng:0}),
-    invalidateSize:()=>{}, hasLayer:()=>false, once:()=>{} };
-} else {
-const map = L.map('map', {
-  center: [26.45, 127.93],
-  zoom: 11,
-  zoomControl: true,
-});
-// 国土地理院タイル（標準地図）をメインに使用
-// 職場ネットワーク等でOSMがブロックされる場合も日本政府サーバーなので通りやすい
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 地図初期化
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const map = L.map('map', { center:[26.45,127.93], zoom:11 });
+
+// 国土地理院（主）→ OSM（フォールバック）
 const gsiTile = L.tileLayer(
   'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
-  {
-    attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a>',
-    maxZoom: 18,
-  }
+  { attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>', maxZoom:18 }
 );
 const osmTile = L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19,
-  }
+  { attribution:'© OpenStreetMap contributors', maxZoom:19 }
 );
-
-// 国土地理院を優先、読み込み失敗時はOSMに切り替え
 gsiTile.addTo(map);
 gsiTile.on('tileerror', () => {
-  if (map.hasLayer(gsiTile)) {
-    map.removeLayer(gsiTile);
-    osmTile.addTo(map);
-  }
+  if (map.hasLayer(gsiTile)) { map.removeLayer(gsiTile); osmTile.addTo(map); }
 });
 
-// 描画レイヤー初期化（タイルより上に重ねる）
-initDrawingLayer();
-
-// ── CLOCK ──
-function updateClock() {
-  const now = new Date();
-  const s = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  document.getElementById('datetime').textContent = s;
-}
-setInterval(updateClock, 1000);
-updateClock();
-function pad(n) { return String(n).padStart(2,'0'); }
-
-// ── 動的ライブラリ読み込みユーティリティ ──
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
-    const s = document.createElement('script');
-    s.src = src;
-    s.onload = resolve;
-    s.onerror = () => reject(new Error('読み込み失敗: ' + src));
-    document.head.appendChild(s);
-  });
-}
-function loadCSS(href) {
-  if (document.querySelector(`link[href="${href}"]`)) return;
-  const l = document.createElement('link');
-  l.rel = 'stylesheet'; l.href = href;
-  document.head.appendChild(l);
-}
-
-// ── DRAWING TOOLS ──
-let drawings = [];
-var drawingLayer = null;
-let activeDrawHandler = null;
-let currentDrawType = null;
-let drawColor = '#e53935';
-let leafletDrawLoaded = false;
-
-function initDrawingLayer() {
-  drawingLayer = L.featureGroup().addTo(map);
-}
-
-// カラーパレット
-document.querySelectorAll('.color-swatch').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-    el.classList.add('active');
-    drawColor = el.dataset.color;
-  });
-});
-
-async function activateDraw(type) {
-  deactivateDraw();
-  currentDrawType = type;
-  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`dt-${type}`)?.classList.add('active');
-  const hint = document.getElementById('drawHint');
-  const cancelBtn = document.getElementById('drawCancelBtn');
-  hint.style.display = 'block';
-  cancelBtn.style.display = 'block';
-
-  if (type === 'text') {
-    hint.textContent = '📍 テキストを置く場所をクリック';
-    map.once('click', function(e) {
-      const text = document.getElementById('drawLabelInput').value.trim() || 'テキスト注釈';
-      addTextAnnotation(e.latlng, text, drawColor);
-      deactivateDraw();
-    });
-    return;
-  }
-
-  // 線・円・多角形はLeaflet.drawが必要 → 遅延読み込み
-  if (!leafletDrawLoaded) {
-    hint.textContent = '⏳ 描画ツールを読み込み中…';
-    try {
-      loadCSS('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css');
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js');
-      leafletDrawLoaded = true;
-      // CREATED イベントを一度だけ登録
-      map.on(L.Draw.Event.CREATED, onDrawCreated);
-    } catch(e) {
-      hint.textContent = '⚠️ 描画ツールの読み込みに失敗しました（ネットワーク制限の可能性）';
-      cancelBtn.style.display = 'block';
-      return;
-    }
-  }
-
-  if (type === 'line') {
-    hint.textContent = 'クリックで点を追加 → ダブルクリックで確定';
-    activeDrawHandler = new L.Draw.Polyline(map, {
-      shapeOptions: { color: drawColor, weight: 4, opacity: 0.9 },
-    });
-    activeDrawHandler.enable();
-  } else if (type === 'circle') {
-    hint.textContent = 'クリックで中心を指定 → ドラッグで半径を設定';
-    activeDrawHandler = new L.Draw.Circle(map, {
-      shapeOptions: { color: drawColor, fillColor: drawColor, fillOpacity: 0.2, weight: 2 },
-    });
-    activeDrawHandler.enable();
-  } else if (type === 'polygon') {
-    hint.textContent = 'クリックで頂点を追加 → 最初の点をクリックして閉じる';
-    activeDrawHandler = new L.Draw.Polygon(map, {
-      shapeOptions: { color: drawColor, fillColor: drawColor, fillOpacity: 0.2, weight: 2 },
-      allowIntersection: false,
-    });
-    activeDrawHandler.enable();
-  }
-}
-
-function onDrawCreated(e) {
-  const layer = e.layer;
-  const type = e.layerType;
-  const label = document.getElementById('drawLabelInput').value.trim();
-  const id = 'drw_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-  let d = { id, type, color: drawColor, label };
-  if (type === 'polyline') {
-    d.latlngs = layer.getLatLngs().map(ll => [ll.lat, ll.lng]);
-  } else if (type === 'circle') {
-    d.latlng = [layer.getLatLng().lat, layer.getLatLng().lng];
-    d.radius = layer.getRadius();
-  } else if (type === 'polygon') {
-    d.latlngs = layer.getLatLngs()[0].map(ll => [ll.lat, ll.lng]);
-  }
-  drawings.push(d);
-  renderOneDrawing(d);
-  deactivateDraw();
-}
-
-function deactivateDraw() {
-  if (activeDrawHandler) { activeDrawHandler.disable(); activeDrawHandler = null; }
-  if (currentDrawType === 'text') { map.off('click'); }
-  currentDrawType = null;
-  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('drawHint').style.display = 'none';
-  document.getElementById('drawCancelBtn').style.display = 'none';
-}
-
-function addTextAnnotation(latlng, text, color) {
-  const id = 'drw_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-  const d = { id, type: 'text', latlng: [latlng.lat, latlng.lng], label: text, color };
-  drawings.push(d);
-  renderOneDrawing(d);
-}
-
-function renderOneDrawing(d) {
-  if (!drawingLayer) return;
-  let layer;
-  const col = d.color || '#e53935';
-  if (d.type === 'polyline') {
-    layer = L.polyline(d.latlngs, { color: col, weight: 4, opacity: 0.9 });
-    if (d.label) layer.bindTooltip(d.label, { permanent: true, className: 'draw-label-tooltip', direction: 'center', sticky: false });
-  } else if (d.type === 'circle') {
-    layer = L.circle(d.latlng, { radius: d.radius, color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
-    if (d.label) layer.bindTooltip(d.label, { permanent: true, className: 'draw-label-tooltip', direction: 'center' });
-  } else if (d.type === 'polygon') {
-    layer = L.polygon(d.latlngs, { color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
-    if (d.label) layer.bindTooltip(d.label, { permanent: true, className: 'draw-label-tooltip', direction: 'center' });
-  } else if (d.type === 'text') {
-    const icon = L.divIcon({
-      className: '',
-      html: `<div class="text-annotation" style="color:${col};border-color:${col}" title="クリックで削除">${d.label}</div>`,
-      iconAnchor: [0, 12],
-    });
-    layer = L.marker(d.latlng, { icon });
-  }
-  if (!layer) return;
-  layer._drawingId = d.id;
-  layer.on('click', (ev) => {
-    L.DomEvent.stopPropagation(ev);
-    const typeLabel = { polyline:'線', circle:'円', polygon:'多角形', text:'テキスト' }[d.type] || d.type;
-    if (confirm(`「${d.label || typeLabel}」を削除しますか？`)) deleteDrawing(d.id);
-  });
-  drawingLayer.addLayer(layer);
-}
-
-function deleteDrawing(id) {
-  drawings = drawings.filter(d => d.id !== id);
-  drawingLayer.eachLayer(l => { if (l._drawingId === id) drawingLayer.removeLayer(l); });
-}
-
-function renderAllDrawings() {
-  if (!drawingLayer) return;
-  drawingLayer.clearLayers();
-  drawings.forEach(d => renderOneDrawing(d));
-}
-
-// ── ホームビュー ──
-const HOME_LAT = 26.45, HOME_LNG = 127.93, HOME_ZOOM = 11;
-function resetMapView() {
-  map.flyTo([HOME_LAT, HOME_LNG], HOME_ZOOM, { duration: 0.8 });
-}
-
-// サイドバー描画後に地図サイズを再計算
 window.addEventListener('resize', () => map.invalidateSize());
-setTimeout(() => map.invalidateSize(), 400);
+setTimeout(() => map.invalidateSize(), 300);
 
-} // end if (typeof L !== 'undefined')
-
-// 印刷前後のヘッダー表示制御
-window.addEventListener('beforeprint', () => {
-  const hdr = document.getElementById('print-header');
-  hdr.style.display = 'flex';
-  document.getElementById('print-datetime').textContent =
-    '出力日時：' + new Date().toLocaleString('ja-JP');
-  document.getElementById('print-counts').textContent =
-    `総件数：${incidents.length}件　` +
-    Object.entries(CATS).map(([cat, v]) => {
-      const n = incidents.filter(i => i.cat === cat).length;
-      return n > 0 ? `${cat}：${n}` : '';
-    }).filter(Boolean).join('　');
-});
-window.addEventListener('afterprint', () => {
-  document.getElementById('print-header').style.display = 'none';
-  document.getElementById('a2-guide').style.display = 'none';
-});
-
-
-
-// ── DRAG & DROP ──
-// iOSフォールバック：inputが直接タップされなかった場合にJS経由で開く
-function triggerFileInput() {
-  // inputがposition:absoluteで全面に重なっているので通常はinput直タップで動く
-  // このonclickはdropzone枠外クリック時の念のための保険
-  document.getElementById('fileInput').click();
+function resetView() {
+  map.flyTo([26.45,127.93], 11, { duration:0.8 });
 }
+
+// 時計
+function tick() {
+  const n = new Date();
+  const p = v => String(v).padStart(2,'0');
+  document.getElementById('clock').textContent =
+    `${n.getFullYear()}-${p(n.getMonth()+1)}-${p(n.getDate())} ${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+}
+setInterval(tick, 1000); tick();
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ファイルキュー管理
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let fileQueue  = [];
+let queueTotal = 0;
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  handleFiles(e.target.files);
+  e.target.value = '';
+});
 
 const dz = document.getElementById('dropzone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
 dz.addEventListener('drop', e => {
-  e.preventDefault();
-  dz.classList.remove('drag-over');
+  e.preventDefault(); dz.classList.remove('drag-over');
   handleFiles(e.dataTransfer.files);
 });
-document.getElementById('fileInput').addEventListener('change', e => {
-  if (e.target.files.length > 0) handleFiles(e.target.files);
-});
-
-// ── FILE QUEUE ──
-let fileQueue = [];    // 未処理ファイルのキュー
-let queueTotal = 0;   // 今回バッチの総数
 
 function handleFiles(files) {
   const imgs = [...files].filter(f => f.type.startsWith('image/'));
-  if (imgs.length === 0) return;
+  if (!imgs.length) return;
   fileQueue.push(...imgs);
   queueTotal += imgs.length;
-  document.getElementById('fileInput').value = '';
-  // モーダルが開いていなければ次を処理
-  if (!document.getElementById('modal').classList.contains('open')) {
-    processNextQueue();
-  }
+  if (!document.getElementById('modal').classList.contains('open')) processQueue();
 }
 
-function processNextQueue() {
-  if (fileQueue.length === 0) {
-    queueTotal = 0;
-    return;
-  }
-  const file = fileQueue.shift();
-  readExif(file);
+function processQueue() {
+  if (!fileQueue.length) { queueTotal = 0; return; }
+  readExif(fileQueue.shift());
 }
 
 function updateQueueBadge() {
-  const badge = document.getElementById('queue-badge');
-  const skipBtn = document.getElementById('skip-btn');
-  const remaining = fileQueue.length; // まだキューに残っている数
-  const done = queueTotal - remaining - 1; // 今処理中が1枚
+  const badge   = document.getElementById('queueBadge');
+  const skipBtn = document.getElementById('skipBtn');
+  const done    = queueTotal - fileQueue.length - 1;
   const current = done + 1;
-  if (queueTotal > 1) {
+  if (queueTotal > 1 && fileQueue.length >= 0 && current <= queueTotal) {
     badge.textContent = `${current} / ${queueTotal}`;
     badge.style.display = 'inline';
-    skipBtn.style.display = 'inline-block';
+    skipBtn.style.display = fileQueue.length > 0 ? 'inline-block' : 'none';
   } else {
     badge.style.display = 'none';
     skipBtn.style.display = 'none';
@@ -1409,604 +663,298 @@ function updateQueueBadge() {
 }
 
 function skipQueue() {
-  if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
-  _hideModal();
-  processNextQueue();
+  closeModal();
+  if (fileQueue.length) processQueue();
 }
 
-// ── EXIF ──
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// EXIF 読み取り
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function readExif(file) {
   const reader = new FileReader();
-  reader.onerror = () => {
-    // 読み込みエラー時はGPSなしとして続行
-    openModal(null, null, '', file.name);
-  };
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-
-    // HEIC/HEIFはCanvasで描画できないためEXIFのみArrayBufferから取得を試みる
-    const isHeic = file.type === 'image/heic' || file.type === 'image/heif'
-      || file.name.toLowerCase().endsWith('.heic')
-      || file.name.toLowerCase().endsWith('.heif');
-
-    if (isHeic) {
-      // HEICはプレビュー表示できないがEXIFは試みる
-      // ブラウザによっては表示可能なのでそのまま試す
-      tryExtractExif(dataUrl, file.name, true);
-      return;
-    }
-
-    tryExtractExif(dataUrl, file.name, false);
-  };
-  reader.readAsDataURL(file);
-}
-
-function tryExtractExif(dataUrl, filename, isHeic) {
-  const img = new Image();
-  img.onerror = () => {
-    // 画像として読めない場合（HEICなど）はGPSなしで続行
-    openModal(isHeic ? null : dataUrl, null, '', filename);
-  };
-  img.onload = function() {
-    try {
-      EXIF.getData(img, function() {
-        const lat = EXIF.getTag(this, 'GPSLatitude');
-        const latRef = EXIF.getTag(this, 'GPSLatitudeRef');
-        const lng = EXIF.getTag(this, 'GPSLongitude');
-        const lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
-        const dt = EXIF.getTag(this, 'DateTimeOriginal') || '';
-
-        let coords = null;
-        if (lat && lng) {
-          const latD = dmsToDecimal(lat, latRef);
-          const lngD = dmsToDecimal(lng, lngRef);
-          if (latD && lngD) coords = { lat: latD, lng: lngD };
-        }
-        openModal(dataUrl, coords, dt, filename);
-      });
-    } catch(err) {
-      openModal(dataUrl, null, '', filename);
-    }
-  };
-  img.src = dataUrl;
-}
-
-function dmsToDecimal(dms, ref) {
-  if (!dms || dms.length < 3) return null;
-  const d = dms[0].numerator / dms[0].denominator;
-  const m = dms[1].numerator / dms[1].denominator;
-  const s = dms[2].numerator / dms[2].denominator;
-  let dec = d + m / 60 + s / 3600;
-  if (ref === 'S' || ref === 'W') dec = -dec;
-  return dec;
-}
-
-// モーダル内の写真追加
-document.getElementById('modalPhotoInput').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
+  reader.onerror = () => openModal(null, null, '', file.name);
+  reader.onload  = ev => {
     const dataUrl = ev.target.result;
-    modalImgUrl = dataUrl;
-    const imgEl = document.getElementById('modal-img');
-    imgEl.src = dataUrl;
-    imgEl.style.display = 'block';
-    // ボタンを「写真を変更する」に切り替え
-    const btn = document.querySelector('#modal-photo-add button');
-    if (btn) btn.innerHTML = '📷 写真を変更する';
+    const img = new Image();
+    img.onerror = () => openModal(dataUrl, null, '', file.name);
+    img.onload  = () => {
+      try {
+        EXIF.getData(img, function() {
+          const lat    = EXIF.getTag(this,'GPSLatitude');
+          const latRef = EXIF.getTag(this,'GPSLatitudeRef');
+          const lng    = EXIF.getTag(this,'GPSLongitude');
+          const lngRef = EXIF.getTag(this,'GPSLongitudeRef');
+          const dt     = EXIF.getTag(this,'DateTimeOriginal') || '';
+          let coords   = null;
+          if (lat && lng) {
+            const la = dms(lat, latRef), lo = dms(lng, lngRef);
+            if (la && lo) coords = { lat:la, lng:lo };
+          }
+          openModal(dataUrl, coords, dt, file.name);
+        });
+      } catch(e) { openModal(dataUrl, null, '', file.name); }
+    };
+    img.src = dataUrl;
   };
   reader.readAsDataURL(file);
-});
-
-
-let manualPinMode = false;
-let pendingModalData = null; // { imgUrl, dt, filename } for GPS-less photos
-let tempPinMarker = null;
-
-function startManualPin() {
-  // GPS なし写真からピンモードへ移行（キューは維持する）
-  pendingModalData = {
-    imgUrl: modalImgUrl,
-    dt: '',
-    filename: '',
-    fromModal: true,
-  };
-  _hideModal();  // ← closeModal() ではなく _hideModal() を使う
-  enterPinMode();
 }
 
-function startManualPinNoPhoto() {
-  // called from sidebar button (no photo at all)
-  pendingModalData = { imgUrl: null, dt: '', filename: '手動追加', fromModal: false };
-  enterPinMode();
+function dms([d,m,s], ref) {
+  if (!d||!m||!s) return null;
+  let v = d.numerator/d.denominator + m.numerator/m.denominator/60 + s.numerator/s.denominator/3600;
+  if (ref==='S'||ref==='W') v = -v;
+  return v;
 }
 
-function enterPinMode() {
-  manualPinMode = true;
-  document.getElementById('pinModeOverlay').style.display = 'block';
-  map.getContainer().style.cursor = 'crosshair';
-}
-
-function cancelManualPin() {
-  manualPinMode = false;
-  relocatingId = null;
-  document.getElementById('pinModeOverlay').style.display = 'none';
-  map.getContainer().style.cursor = '';
-  map.off('click'); // relocate用の一時clickも解除
-  if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
-  pendingModalData = null;
-  // ピンモードキャンセル＝残りキューも破棄
-  fileQueue = [];
-  queueTotal = 0;
-  document.getElementById('queue-badge').style.display = 'none';
-  document.getElementById('skip-btn').style.display = 'none';
-  // メッセージを元に戻す
-  document.getElementById('pinModeMsg').innerHTML =
-    `📍 被害地点をクリックしてください<span>クリックした場所にピンが立てられます</span>`;
-}
-
-// map click handler for manual pin（オーバーレイ経由）
-function onOverlayClick(e) {
-  const rect = document.getElementById('map').getBoundingClientRect();
-  const point = L.point(e.clientX - rect.left, e.clientY - rect.top);
-  const latlng = map.containerPointToLatLng(point);
-
-  // 場所修正モード
-  if (relocatingId != null) {
-    _finishRelocate(latlng);
-    return;
-  }
-  // 通常の手動ピンモード
-  if (!manualPinMode) return;
-  handleManualPin(latlng);
-}
-
-// 旧mapクリックハンドラは念のため残す（タブレット等の互換用）
-map.on('click', function(e) {
-  if (relocatingId != null) { _finishRelocate(e.latlng); return; }
-  if (!manualPinMode) return;
-  handleManualPin(e.latlng);
-});
-
-function handleManualPin(latlng) {
-  const coords = { lat: latlng.lat, lng: latlng.lng };
-
-  if (tempPinMarker) map.removeLayer(tempPinMarker);
-  const tempIcon = L.divIcon({
-    className: '',
-    html: '<div class="temp-pin"></div>',
-    iconSize: [24,24], iconAnchor: [12,12],
-  });
-  tempPinMarker = L.marker([coords.lat, coords.lng], { icon: tempIcon }).addTo(map);
-
-  manualPinMode = false;
-  document.getElementById('pinModeOverlay').style.display = 'none';
-  map.getContainer().style.cursor = '';
-
-  const d = pendingModalData || {};
-  openModal(d.imgUrl || null, coords, d.dt || '', d.filename || '手動追加');
-  pendingModalData = null;
-}
-
-
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 登録モーダル
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let modalCoords  = null;
+let modalImgUrl  = null;
+let pendingModal = null; // ピンモード移行時に保持
 
 function openModal(imgUrl, coords, dt, filename) {
   modalCoords = coords;
   modalImgUrl = imgUrl;
 
-  const imgEl = document.getElementById('modal-img');
-  const photoAddEl = document.getElementById('modal-photo-add');
+  // 写真
+  const imgEl = document.getElementById('modalImg');
+  if (imgUrl) { imgEl.src = imgUrl; imgEl.style.display = 'block'; }
+  else        { imgEl.src = '';     imgEl.style.display = 'none';  }
 
-  if (imgUrl) {
-    imgEl.src = imgUrl;
-    imgEl.style.display = 'block';
-    photoAddEl.style.display = 'none';
-  } else {
-    imgEl.src = '';
-    imgEl.style.display = 'none';
-    // 写真なし（手動追加）のときだけ写真追加ボタンを表示
-    photoAddEl.style.display = coords ? 'block' : 'none';
-  }
-
-  // modalPhotoInputをリセット
+  // 手動追加の写真ボタン
+  const photoArea = document.getElementById('modalPhotoArea');
+  photoArea.style.display = (!imgUrl && coords) ? 'block' : 'none';
   document.getElementById('modalPhotoInput').value = '';
+  const photoBtn = photoArea.querySelector('.photo-add-btn');
+  if (photoBtn) photoBtn.textContent = '📷 写真を追加する（任意）';
 
-  const noGps = document.getElementById('no-gps-msg');
-  const coordsEl = document.getElementById('modal-coords');
-
+  // GPS
+  const noGpsEl  = document.getElementById('noGpsMsg');
+  const coordsEl = document.getElementById('modalCoords');
   if (coords) {
-    noGps.style.display = 'none';
-    coordsEl.textContent = `📍 ${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}　　📅 ${dt || filename}`;
+    noGpsEl.style.display  = 'none';
+    coordsEl.textContent   = `📍 ${coords.lat.toFixed(6)},  ${coords.lng.toFixed(6)}　📅 ${dt||filename}`;
   } else {
-    noGps.style.display = 'block';
-    coordsEl.textContent = `📅 ${dt || filename}`;
+    noGpsEl.style.display  = 'block';
+    coordsEl.textContent   = `📅 ${dt||filename}`;
   }
 
-  // build cat buttons
-  const catsEl = document.getElementById('modal-cats');
+  // 種別ボタン生成
+  const catsEl = document.getElementById('modalCats');
   catsEl.innerHTML = '';
-  Object.keys(CATS).forEach(cat => {
+  Object.entries(CATS).forEach(([cat,v]) => {
     const btn = document.createElement('button');
-    btn.className = 'modal-cat-btn';
+    btn.className = 'cat-btn';
     btn.textContent = cat;
-    btn.style.borderColor = CATS[cat].color;
+    btn.style.borderColor = v.color;
     btn.onclick = () => {
-      document.querySelectorAll('.modal-cat-btn').forEach(b => b.classList.remove('selected'));
+      catsEl.querySelectorAll('.cat-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.style.background = '#f0f2f5'; b.style.color = 'var(--text)';
+      });
       btn.classList.add('selected');
-      btn.style.background = CATS[cat].color;
+      btn.style.background = v.color; btn.style.color = '#fff';
     };
     catsEl.appendChild(btn);
   });
 
-  document.getElementById('memo').value = '';
+  document.getElementById('modalMemo').value = '';
   updateQueueBadge();
   document.getElementById('modal').classList.add('open');
 }
 
 function closeModal() {
-  // 全キャンセル：キューも破棄
-  _hideModal();
-  fileQueue = [];
-  queueTotal = 0;
-  document.getElementById('queue-badge').style.display = 'none';
-  document.getElementById('skip-btn').style.display = 'none';
+  document.getElementById('modal').classList.remove('open');
+  fileQueue = []; queueTotal = 0;
+  document.getElementById('queueBadge').style.display = 'none';
+  document.getElementById('skipBtn').style.display = 'none';
 }
 
 function _hideModal() {
-  // モーダルを閉じるだけ（キューは触らない）
   document.getElementById('modal').classList.remove('open');
-  if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
-  modalCoords = null;
-  modalImgUrl = null;
 }
 
-function confirmAdd() {
-  if (!modalCoords) { alert('被害地点が指定されていません。'); return; }
-  const selBtn = document.querySelector('.modal-cat-btn.selected');
-  if (!selBtn) { alert('被害種別を選択してください。'); return; }
-  const cat = selBtn.textContent;
-  const memo = document.getElementById('memo').value.trim();
-
-  if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
-
-  addIncident({
-    id: Date.now(),
-    lat: modalCoords.lat,
-    lng: modalCoords.lng,
-    cat,
-    memo,
-    imgUrl: modalImgUrl,
-    time: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}),
-  });
-
-  _hideModal();
-  // 次のキューへ
-  processNextQueue();
-}
-
-// ── ADD INCIDENT ──
-function addIncident(inc) {
-  inc.address = null; // 取得前はnull
-  incidents.push(inc);
-  const marker = createMarker(inc);
-  markers[inc.id] = marker;
-  updateUI();
-  map.flyTo([inc.lat, inc.lng], Math.max(map.getZoom(), 14), { duration: 1 });
-
-  // 逆ジオコーディング（Nominatim）
-  fetchAddress(inc.lat, inc.lng).then(addr => {
-    inc.address = addr;
-    // ポップアップを更新
-    if (markers[inc.id]) {
-      markers[inc.id].setPopupContent(buildPopup(inc));
-    }
-    // リストも更新
-    renderList();
-  });
-}
-
-async function fetchAddress(lat, lng) {
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ja`,
-      { headers: { 'Accept-Language': 'ja' } }
-    );
-    const data = await res.json();
-    // 市区町村＋町名レベルで返す
-    const a = data.address || {};
-    const parts = [
-      a.province || a.state,       // 沖縄県
-      a.city || a.town || a.village || a.county, // 那覇市など
-      a.suburb || a.neighbourhood || a.quarter || a.hamlet, // 町名
-      a.road,                      // 道路名
-    ].filter(Boolean);
-    return parts.length > 0 ? parts.join(' ') : data.display_name || null;
-  } catch {
-    return null;
-  }
-}
-
-function createMarker(inc) {
-  const col = CATS[inc.cat]?.color || '#888';
-  // 短縮ラベル
-  const shortLabel = {
-    '浸水・冠水':        '💧 浸水',
-    '土砂崩れ':          '⛰️ 土砂',
-    '道路損壊・通行止め': '🚧 道路',
-    '建物被害':          '🏠 建物',
-    '人的被害':          '👤 人的',
-    'その他':            '📌 その他',
-  }[inc.cat] || inc.cat;
-
-  const icon = L.divIcon({
-    className: '',
-    html: `<div style="position:relative;display:inline-flex;flex-direction:column;align-items:center;">
-      <div style="
-        background:${col};
-        color:#fff;
-        font-size:11px;
-        font-family:'Noto Sans JP','Meiryo',sans-serif;
-        font-weight:700;
-        padding:3px 7px;
-        border-radius:10px;
-        white-space:nowrap;
-        box-shadow:0 2px 6px rgba(0,0,0,0.25);
-        border:1.5px solid rgba(255,255,255,0.8);
-        line-height:1.4;
-      ">${shortLabel}</div>
-      <div style="
-        width:0;height:0;
-        border-left:5px solid transparent;
-        border-right:5px solid transparent;
-        border-top:6px solid ${col};
-        margin-top:-1px;
-      "></div>
-      <div style="
-        width:8px;height:8px;
-        background:${col};
-        border:2px solid white;
-        border-radius:50%;
-        margin-top:-1px;
-        box-shadow:0 1px 4px rgba(0,0,0,0.3);
-      "></div>
-    </div>`,
-    iconSize: [60, 48],
-    iconAnchor: [30, 48],
-  });
-
-  const marker = L.marker([inc.lat, inc.lng], { icon }).addTo(map);
-  marker.bindPopup(buildPopup(inc), { maxWidth: 280 });
-  // メモがあればホバー時にツールチップ表示
-  if (inc.memo) {
-    marker.bindTooltip(`📝 ${inc.memo}`, {
-      direction: 'top', offset: [0, -46],
-      className: 'memo-tooltip', sticky: false,
-    });
-  }
-  marker.on('click', () => selectIncident(inc.id));
-  return marker;
-}
-
-function buildPopup(inc) {
-  const col = CATS[inc.cat]?.color || '#888';
-  const addrHtml = inc.address
-    ? `🏠 ${inc.address}<br>`
-    : inc.address === null && inc.id
-      ? `<span style="color:#aaa;font-size:10px">📍 住所取得中…</span><br>`
-      : '';
-  return `<div class="popup-inner">
-    ${inc.imgUrl ? `<img class="popup-img" src="${inc.imgUrl}">` : ''}
-    <div class="popup-cat" style="color:${col}">● ${inc.cat}</div>
-    <div class="popup-meta">
-      ${addrHtml}
-      🌐 ${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}<br>
-      🕐 ${inc.time}
-    </div>
-    ${inc.memo ? `<div class="popup-memo">📝 ${inc.memo}</div>` : ''}
-    <div style="margin-top:10px;display:flex;gap:6px;">
-      <button onclick="openEditModal('${inc.id}')" style="
-        flex:1;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;
-        background:#0070cc;color:#fff;border:none;border-radius:4px;">
-        ✏️ 編集
-      </button>
-      <button onclick="startRelocate('${inc.id}')" style="
-        flex:1;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;
-        background:#f5a623;color:#fff;border:none;border-radius:4px;">
-        📍 場所修正
-      </button>
-    </div>
-  </div>`;
-}
-
-// ── EDIT ──
-let editingId = null;
-let editImgUrl = null; // 編集中の画像（null=変更なし, ''=削除, 'data:...'=新画像）
-
-function openEditModal(id) {
-  // ポップアップを閉じる
-  map.closePopup();
-
-  const inc = incidents.find(i => i.id == id);
-  if (!inc) return;
-  editingId = id;
-  editImgUrl = null; // リセット
-
-  // 写真プレビュー
-  const preview = document.getElementById('edit-img-preview');
-  const delBtn = document.getElementById('edit-photo-del');
-  if (inc.imgUrl) {
-    preview.src = inc.imgUrl;
-    preview.style.display = 'block';
-    delBtn.style.display = 'inline-block';
-  } else {
-    preview.src = '';
-    preview.style.display = 'none';
-    delBtn.style.display = 'none';
-  }
-
-  // 被害種別ボタン
-  const catsEl = document.getElementById('edit-cats');
-  catsEl.innerHTML = '';
-  Object.entries(CATS).forEach(([cat, v]) => {
-    const btn = document.createElement('button');
-    btn.className = 'edit-cat-btn';
-    btn.textContent = cat;
-    btn.style.borderColor = v.color;
-    if (inc.cat === cat) {
-      btn.classList.add('selected');
-      btn.style.background = v.color;
-      btn.style.color = '#fff';
-    }
-    btn.onclick = () => {
-      document.querySelectorAll('.edit-cat-btn').forEach(b => {
-        b.classList.remove('selected');
-        b.style.background = '#f0f2f5';
-        b.style.color = 'var(--text)';
-      });
-      btn.classList.add('selected');
-      btn.style.background = v.color;
-      btn.style.color = '#fff';
-    };
-    catsEl.appendChild(btn);
-  });
-
-  // メモ・座標
-  document.getElementById('edit-memo').value = inc.memo || '';
-  document.getElementById('edit-coords').textContent =
-    `📍 ${inc.lat.toFixed(6)}, ${inc.lng.toFixed(6)}${inc.address ? '　🏠 ' + inc.address : ''}`;
-
-  document.getElementById('editModal').classList.add('open');
-}
-
-function closeEditModal() {
-  document.getElementById('editModal').classList.remove('open');
-  editingId = null;
-  editImgUrl = null;
-}
-
-// 写真変更
-document.getElementById('editPhotoInput').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    editImgUrl = ev.target.result;
-    const preview = document.getElementById('edit-img-preview');
-    preview.src = editImgUrl;
-    preview.style.display = 'block';
-    document.getElementById('edit-photo-del').style.display = 'inline-block';
+// 写真追加（手動追加モーダル内）
+document.getElementById('modalPhotoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    modalImgUrl = ev.target.result;
+    const imgEl = document.getElementById('modalImg');
+    imgEl.src = modalImgUrl; imgEl.style.display = 'block';
+    const btn = document.querySelector('#modalPhotoArea .photo-add-btn');
+    if (btn) btn.textContent = '📷 写真を変更する';
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(file);
 });
 
-function clearEditPhoto() {
-  editImgUrl = ''; // 空文字 = 削除
-  document.getElementById('edit-img-preview').style.display = 'none';
-  document.getElementById('edit-img-preview').src = '';
-  document.getElementById('edit-photo-del').style.display = 'none';
-}
+function confirmAdd() {
+  if (!modalCoords) { alert('場所が指定されていません。'); return; }
+  const selCat = document.querySelector('#modalCats .cat-btn.selected');
+  if (!selCat) { alert('被害種別を選択してください。'); return; }
 
-function saveEdit() {
-  const inc = incidents.find(i => i.id == editingId);
-  if (!inc) return;
-
-  // 種別
-  const selectedCat = document.querySelector('.edit-cat-btn.selected');
-  if (!selectedCat) { alert('被害種別を選択してください。'); return; }
-  inc.cat = selectedCat.textContent;
-
-  // メモ
-  inc.memo = document.getElementById('edit-memo').value.trim();
-
-  // 写真
-  if (editImgUrl === '') {
-    inc.imgUrl = null; // 削除
-  } else if (editImgUrl) {
-    inc.imgUrl = editImgUrl; // 更新
-  }
-  // null のときは変更なし
-
-  // マーカー更新
-  if (markers[inc.id]) {
-    map.removeLayer(markers[inc.id]);
-  }
+  const inc = {
+    id:      Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    lat:     modalCoords.lat,
+    lng:     modalCoords.lng,
+    cat:     selCat.textContent,
+    memo:    document.getElementById('modalMemo').value.trim(),
+    time:    new Date().toLocaleString('ja-JP',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    address: null,
+    imgUrl:  modalImgUrl || null,
+  };
+  incidents.push(inc);
   markers[inc.id] = createMarker(inc);
+  if (tempPin) { map.removeLayer(tempPin); tempPin = null; }
 
-  closeEditModal();
-  updateUI();
-}
-
-// ── 場所修正 ──
-let relocatingId = null;
-
-function startRelocate(id) {
-  map.closePopup();
-  relocatingId = id;
-  _startRelocateMode();
-}
-
-function startRelocateFromEdit(id) {
-  // 編集モーダルから呼ばれる場合はeditingIdを使う
-  relocatingId = editingId;
-  closeEditModal();
-  _startRelocateMode();
-}
-
-function _startRelocateMode() {
-  const inc = incidents.find(i => i.id == relocatingId);
-  if (!inc) return;
-  // オーバーレイのメッセージを変更して表示
-  document.getElementById('pinModeMsg').innerHTML =
-    `📍 <strong>${inc.cat}</strong> の新しい場所をクリックしてください<span>現在地：${inc.lat.toFixed(4)}, ${inc.lng.toFixed(4)}</span>`;
-  manualPinMode = false; // 通常のピンモードとは別フラグで管理
-  document.getElementById('pinModeOverlay').style.display = 'block';
-  map.getContainer().style.cursor = 'crosshair';
-
-  // 一度だけclickを受け取る
-  map.once('click', function(e) {
-    _finishRelocate(e.latlng);
-  });
-}
-
-function _finishRelocate(latlng) {
-  document.getElementById('pinModeOverlay').style.display = 'none';
-  map.getContainer().style.cursor = '';
-  // メッセージを元に戻す
-  document.getElementById('pinModeMsg').innerHTML =
-    `📍 被害地点をクリックしてください<span>クリックした場所にピンが立てられます</span>`;
-
-  const inc = incidents.find(i => i.id == relocatingId);
-  if (!inc) { relocatingId = null; return; }
-
-  inc.lat = latlng.lat;
-  inc.lng = latlng.lng;
-  inc.address = null; // 住所を再取得
-
-  // マーカー更新
-  if (markers[inc.id]) map.removeLayer(markers[inc.id]);
-  markers[inc.id] = createMarker(inc);
-
-  // 住所再取得
+  // 住所取得
   fetchAddress(inc.lat, inc.lng).then(addr => {
     inc.address = addr;
     if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
     renderList();
   });
 
-  relocatingId = null;
-  map.flyTo([inc.lat, inc.lng], Math.max(map.getZoom(), 15), { duration: 0.6 });
   updateUI();
+  _hideModal();
+  if (fileQueue.length) processQueue();
+  else { queueTotal = 0; }
 }
 
-// ── SELECT / DELETE ──
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ピンモード
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let pinMode  = false;
+let pinSrc   = null; // null = 通常, 'fromModal' = GPS無し写真, 'relocate' = 場所変更
+let tempPin  = null;
+
+function startManualPin(src) {
+  pinSrc = src;
+  if (src === 'fromModal') {
+    pendingModal = { imgUrl: modalImgUrl };
+    _hideModal();
+  }
+  pinMode = true;
+  document.getElementById('pinOverlay').style.display = 'block';
+  map.getContainer().style.cursor = 'crosshair';
+  document.getElementById('pinMsgTitle').textContent =
+    src === 'relocate' ? '📍 新しい場所をクリック' : '📍 被害地点をクリック';
+  document.getElementById('pinMsgSub').textContent =
+    'クリックした場所にピンが立てられます';
+}
+
+function cancelPin() {
+  pinMode = false; pinSrc = null; pendingModal = null;
+  relocatingId = null;
+  document.getElementById('pinOverlay').style.display = 'none';
+  map.getContainer().style.cursor = '';
+  if (tempPin) { map.removeLayer(tempPin); tempPin = null; }
+  fileQueue = []; queueTotal = 0;
+}
+
+function onPinOverlayClick(e) {
+  if (!pinMode) return;
+  const rect  = document.getElementById('map').getBoundingClientRect();
+  const pt    = L.point(e.clientX - rect.left, e.clientY - rect.top);
+  const latlng = map.containerPointToLatLng(pt);
+  handlePinClick(latlng);
+}
+map.on('click', e => { if (pinMode) handlePinClick(e.latlng); });
+
+function handlePinClick(latlng) {
+  pinMode = false;
+  document.getElementById('pinOverlay').style.display = 'none';
+  map.getContainer().style.cursor = '';
+
+  // 場所変更モード
+  if (pinSrc === 'relocate') {
+    finishRelocate(latlng);
+    return;
+  }
+
+  // 仮ピン
+  if (tempPin) map.removeLayer(tempPin);
+  tempPin = L.marker([latlng.lat, latlng.lng], {
+    icon: L.divIcon({ className:'', html:'<div style="width:16px;height:16px;background:var(--accent);border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>', iconSize:[16,16], iconAnchor:[8,8] })
+  }).addTo(map);
+
+  const pm   = pendingModal || {};
+  const imgUrl = pm.imgUrl || null;
+  pendingModal = null;
+  openModal(imgUrl, { lat:latlng.lat, lng:latlng.lng }, '', '手動追加');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// マーカー生成
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function createMarker(inc) {
+  const v   = CATS[inc.cat] || { color:'#888', short:inc.cat };
+  const col = v.color;
+  const lbl = v.short;
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="position:relative;display:inline-flex;flex-direction:column;align-items:center;">
+      <div style="background:${col};color:#fff;font-size:11px;font-family:'Noto Sans JP',sans-serif;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.25);border:1.5px solid rgba(255,255,255,0.8)">${lbl}</div>
+      <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${col};margin-top:-1px"></div>
+      <div style="width:8px;height:8px;background:${col};border:2px solid #fff;border-radius:50%;margin-top:-1px;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>
+    </div>`,
+    iconSize:[70,46], iconAnchor:[35,46],
+  });
+  const m = L.marker([inc.lat, inc.lng], { icon }).addTo(map);
+  m.bindPopup(buildPopup(inc), { maxWidth:280 });
+  if (inc.memo) {
+    m.bindTooltip(`📝 ${inc.memo}`, {
+      direction:'top', offset:[0,-48],
+      className:'leaflet-tooltip', sticky:false,
+    });
+  }
+  m.on('click', () => selectIncident(inc.id));
+  return m;
+}
+
+function buildPopup(inc) {
+  const col = CATS[inc.cat]?.color || '#888';
+  const addrHtml = inc.address
+    ? `🏠 ${inc.address}<br>`
+    : `<span style="color:#aaa;font-size:10px">📍 住所取得中…</span><br>`;
+  return `<div class="popup-inner">
+    ${inc.imgUrl ? `<img class="popup-img" src="${inc.imgUrl}">` : ''}
+    <div class="popup-cat" style="color:${col}">● ${inc.cat}</div>
+    <div class="popup-meta">${addrHtml}🌐 ${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}<br>🕐 ${inc.time}</div>
+    ${inc.memo ? `<div class="popup-memo">📝 ${inc.memo}</div>` : ''}
+    <div class="popup-actions">
+      <button class="popup-btn-edit"     onclick="openEditModal('${inc.id}')">✏️ 編集</button>
+      <button class="popup-btn-relocate" onclick="startRelocateFromPopup('${inc.id}')">📍 場所修正</button>
+    </div>
+  </div>`;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 住所取得
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function fetchAddress(lat, lng) {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ja`,
+      { headers:{ 'Accept-Language':'ja' } }
+    );
+    const d = await res.json();
+    const a = d.address || {};
+    return [a.city||a.town||a.village||a.county, a.suburb||a.neighbourhood||a.quarter, a.road||a.pedestrian]
+      .filter(Boolean).join(' ');
+  } catch { return null; }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 選択・削除
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function selectIncident(id) {
-  document.querySelectorAll('.incident-item').forEach(el => el.classList.remove('selected'));
-  const el = document.querySelector(`.incident-item[data-id="${id}"]`);
-  if (el) { el.classList.add('selected'); el.scrollIntoView({ block: 'nearest' }); }
+  document.querySelectorAll('.inc-item').forEach(el => el.classList.remove('selected'));
+  const el = document.querySelector(`.inc-item[data-id="${id}"]`);
+  if (el) { el.classList.add('selected'); el.scrollIntoView({ block:'nearest' }); }
   const inc = incidents.find(i => i.id === id);
   if (inc && markers[id]) {
-    map.flyTo([inc.lat, inc.lng], Math.max(map.getZoom(), 15), { duration: 0.8 });
+    map.flyTo([inc.lat, inc.lng], Math.max(map.getZoom(), 15), { duration:0.6 });
     markers[id].openPopup();
   }
 }
@@ -2017,762 +965,381 @@ function deleteIncident(id) {
   updateUI();
 }
 
-// ── FILTER ──
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// フィルター
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function filterCat(cat, el) {
-  currentFilter = cat;
+  curFilter = cat;
   document.querySelectorAll('.cat-row').forEach(r => r.classList.remove('active'));
   el.classList.add('active');
-  Object.entries(markers).forEach(([id, m]) => {
-    const inc = incidents.find(i => i.id == id);
-    if (!inc) return;
-    if (cat === 'all' || inc.cat === cat) {
-      map.addLayer(m);
-    } else {
-      map.removeLayer(m);
-    }
+  incidents.forEach(inc => {
+    const m = markers[inc.id];
+    if (!m) return;
+    if (cat === 'all' || inc.cat === cat) m.addTo(map);
+    else map.removeLayer(m);
   });
   renderList();
 }
 
-// ── UPDATE UI ──
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 編集モーダル
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let editingId   = null;
+let editImgUrl  = null;
+
+function openEditModal(id) {
+  map.closePopup();
+  const inc = incidents.find(i => i.id === id);
+  if (!inc) return;
+  editingId  = id;
+  editImgUrl = null;
+
+  // 写真
+  const imgEl  = document.getElementById('editImg');
+  const delBtn = document.getElementById('editPhotoDelBtn');
+  if (inc.imgUrl) {
+    imgEl.src = inc.imgUrl; imgEl.style.display = 'block';
+    delBtn.style.display = 'inline-block';
+  } else {
+    imgEl.src = ''; imgEl.style.display = 'none';
+    delBtn.style.display = 'none';
+  }
+  document.getElementById('editPhotoInput').value = '';
+
+  // 種別
+  const catsEl = document.getElementById('editCats');
+  catsEl.innerHTML = '';
+  Object.entries(CATS).forEach(([cat,v]) => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.textContent = cat;
+    btn.style.borderColor = v.color;
+    if (inc.cat === cat) {
+      btn.classList.add('selected');
+      btn.style.background = v.color; btn.style.color = '#fff';
+    }
+    btn.onclick = () => {
+      catsEl.querySelectorAll('.cat-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.style.background = '#f0f2f5'; b.style.color = 'var(--text)';
+      });
+      btn.classList.add('selected');
+      btn.style.background = v.color; btn.style.color = '#fff';
+    };
+    catsEl.appendChild(btn);
+  });
+
+  document.getElementById('editMemo').value = inc.memo || '';
+  document.getElementById('editCoords').textContent =
+    `📍 ${inc.lat.toFixed(6)}, ${inc.lng.toFixed(6)}${inc.address ? '  🏠 '+inc.address : ''}`;
+
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editingId = null; editImgUrl = null;
+}
+
+document.getElementById('editPhotoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    editImgUrl = ev.target.result;
+    const imgEl = document.getElementById('editImg');
+    imgEl.src = editImgUrl; imgEl.style.display = 'block';
+    document.getElementById('editPhotoDelBtn').style.display = 'inline-block';
+  };
+  r.readAsDataURL(file);
+});
+
+function clearEditPhoto() {
+  editImgUrl = '';
+  document.getElementById('editImg').style.display = 'none';
+  document.getElementById('editImg').src = '';
+  document.getElementById('editPhotoDelBtn').style.display = 'none';
+}
+
+function saveEdit() {
+  const inc = incidents.find(i => i.id === editingId);
+  if (!inc) return;
+  const selCat = document.querySelector('#editCats .cat-btn.selected');
+  if (!selCat) { alert('被害種別を選択してください。'); return; }
+
+  inc.cat  = selCat.textContent;
+  inc.memo = document.getElementById('editMemo').value.trim();
+  if      (editImgUrl === '') inc.imgUrl = null;
+  else if (editImgUrl)        inc.imgUrl = editImgUrl;
+
+  if (markers[inc.id]) map.removeLayer(markers[inc.id]);
+  markers[inc.id] = createMarker(inc);
+  closeEditModal();
+  updateUI();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 場所変更
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let relocatingId = null;
+
+function startRelocateFromPopup(id) {
+  map.closePopup();
+  relocatingId = id;
+  pinSrc = 'relocate';
+  startManualPin('relocate');
+}
+
+function startRelocate() {
+  relocatingId = editingId;
+  closeEditModal();
+  pinSrc = 'relocate';
+  startManualPin('relocate');
+}
+
+function finishRelocate(latlng) {
+  const inc = incidents.find(i => i.id === relocatingId);
+  if (!inc) { relocatingId = null; return; }
+  inc.lat     = latlng.lat;
+  inc.lng     = latlng.lng;
+  inc.address = null;
+  if (markers[inc.id]) map.removeLayer(markers[inc.id]);
+  markers[inc.id] = createMarker(inc);
+  fetchAddress(inc.lat, inc.lng).then(addr => {
+    inc.address = addr;
+    if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
+    renderList();
+  });
+  map.flyTo([inc.lat, inc.lng], Math.max(map.getZoom(), 15), { duration:0.6 });
+  relocatingId = null; pinSrc = null;
+  updateUI();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI 更新
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function updateUI() {
-  // counts
   const counts = {};
   Object.keys(CATS).forEach(c => counts[c] = 0);
   incidents.forEach(i => { if (counts[i.cat] !== undefined) counts[i.cat]++; });
 
-  document.getElementById('totalCount').textContent = incidents.length;
-  document.getElementById('floodCount').textContent = counts['浸水・冠水'];
-  document.getElementById('landCount').textContent  = counts['土砂崩れ'];
-  document.getElementById('roadCount').textContent  = counts['道路損壊・通行止め'];
-  document.getElementById('bldCount').textContent   = counts['建物被害'];
-  document.getElementById('humCount').textContent   = counts['人的被害'];
-  document.getElementById('otherCount').textContent = counts['その他'];
-
-  document.getElementById('leg-all').textContent   = incidents.length;
-  document.getElementById('leg-flood').textContent = counts['浸水・冠水'];
-  document.getElementById('leg-land').textContent  = counts['土砂崩れ'];
-  document.getElementById('leg-road').textContent  = counts['道路損壊・通行止め'];
-  document.getElementById('leg-bld').textContent   = counts['建物被害'];
-  document.getElementById('leg-hum').textContent   = counts['人的被害'];
-  document.getElementById('leg-other').textContent = counts['その他'];
+  document.getElementById('cntTotal').textContent = incidents.length;
+  Object.entries(CATS).forEach(([cat,v]) => {
+    document.getElementById(v.stat).textContent = counts[cat];
+    document.getElementById(v.leg).textContent  = counts[cat];
+  });
+  document.getElementById('leg-all').textContent = incidents.length;
 
   document.getElementById('emptyState').style.display = incidents.length > 0 ? 'none' : 'block';
-
   renderList();
 }
 
 function renderList() {
-  const list = document.getElementById('incidentList');
-  const filtered = currentFilter === 'all' ? incidents : incidents.filter(i => i.cat === currentFilter);
+  const list     = document.getElementById('incidentList');
+  const filtered = curFilter === 'all' ? incidents : incidents.filter(i => i.cat === curFilter);
   list.innerHTML = '';
-  if (filtered.length === 0) {
-    list.innerHTML = '<div style="padding:16px 12px;font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace">NO INCIDENTS</div>';
+  if (!filtered.length) {
+    list.innerHTML = '<div id="emptyMsg" style="padding:12px;font-size:10px;color:var(--dim);font-family:\'Share Tech Mono\',monospace">NO INCIDENTS</div>';
     return;
   }
   [...filtered].reverse().forEach(inc => {
     const col = CATS[inc.cat]?.color || '#888';
     const div = document.createElement('div');
-    div.className = 'incident-item';
+    div.className  = 'inc-item';
     div.dataset.id = inc.id;
-    div.innerHTML = `
+    div.innerHTML  = `
       <span class="inc-dot" style="background:${col}"></span>
       <div class="inc-info">
         <div class="inc-cat" style="color:${col}">${inc.cat}</div>
-        <div class="inc-loc">${inc.address || `${inc.lat.toFixed(4)}, ${inc.lng.toFixed(4)}`}${inc.memo ? ' — ' + inc.memo : ''}</div>
+        <div class="inc-loc">${inc.address || inc.lat.toFixed(4)+', '+inc.lng.toFixed(4)}</div>
+        ${inc.memo ? `<div class="inc-memo-preview">${inc.memo}</div>` : ''}
       </div>
       <span class="inc-time">${inc.time}</span>
-      <button class="inc-del" onclick="event.stopPropagation();deleteIncident(${inc.id})" title="削除">✕</button>
+      <button class="inc-del" onclick="event.stopPropagation();deleteIncident('${inc.id}')" title="削除">✕</button>
     `;
     div.addEventListener('click', () => selectIncident(inc.id));
     list.appendChild(div);
   });
 }
 
-// ── PDF出力 ──
-async function savePdf() {
-  const msg = document.getElementById('printMsg');
-  msg.style.display = 'block';
-  msg.textContent = '⏳ ライブラリ読み込み中…';
-  closePrintModal();
-  try {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-  } catch(e) {
-    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
-    return;
-  }
-  msg.textContent = '⏳ PDF生成中…地図を読み込んでいます';
-  await new Promise(r => setTimeout(r, 700));
-  try {
-    const canvas = await html2canvas(document.getElementById('mapwrap'), {
-      useCORS: true, allowTaint: true, scale: 2, logging: false,
-    });
-    const imgData = canvas.toDataURL('image/jpeg', 0.92);
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-
-    const dateStr = new Date().toLocaleString('ja-JP');
-    pdf.setFillColor(0, 112, 204);
-    pdf.rect(0, 0, 297, 12, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(11);
-    pdf.text('沖縄県 被害状況マップ', 8, 8);
-    pdf.setFontSize(8);
-    pdf.text(`出力日時：${dateStr}　総件数：${incidents.length}件`, 297 - 8, 8, { align: 'right' });
-
-    const mapH = 210 - 12 - 8;
-    pdf.addImage(imgData, 'JPEG', 0, 12, 297, mapH);
-
-    pdf.setTextColor(50, 50, 50);
-    pdf.setFontSize(7);
-    let lx = 4;
-    Object.entries(CATS).forEach(([cat, v]) => {
-      const n = incidents.filter(i => i.cat === cat).length;
-      if (n === 0) return;
-      const rgb = hexToRgb(v.color);
-      pdf.setFillColor(rgb.r, rgb.g, rgb.b);
-      pdf.circle(lx + 2, 210 - 4, 2, 'F');
-      pdf.text(`${cat}：${n}件`, lx + 5, 210 - 2.5);
-      lx += 38;
-    });
-
-    pdf.save(`被害状況マップ_${new Date().toISOString().slice(0,10)}.pdf`);
-    msg.style.display = 'none';
-  } catch(e) {
-    msg.textContent = '⚠️ PDF生成に失敗しました：' + e.message;
-  }
-}
-
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  return {r,g,b};
-}
-
-// ── PowerPoint出力 ──
-async function savePptx() {
-  const msg = document.getElementById('printMsg');
-  msg.style.display = 'block';
-  msg.textContent = '⏳ ライブラリ読み込み中…';
-  closePrintModal();
-  try {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-    await loadScript('https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
-  } catch(e) {
-    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
-    return;
-  }
-  msg.textContent = '⏳ PowerPoint生成中…';
-  await new Promise(r => setTimeout(r, 700));
-  try {
-    // 地図キャプチャ
-    const canvas = await html2canvas(document.getElementById('mapwrap'), {
-      useCORS: true, allowTaint: true, scale: 1.5, logging: false,
-    });
-    const mapImg = canvas.toDataURL('image/jpeg', 0.9);
-
-    const pptx = new PptxGenJS();
-    pptx.layout = 'LAYOUT_WIDE';
-
-    // ── スライド1：地図 ──
-    const s1 = pptx.addSlide();
-    s1.background = { color: 'F0F2F5' };
-
-    // タイトルバー
-    s1.addShape(pptx.ShapeType.rect, {
-      x:0, y:0, w:'100%', h:0.5,
-      fill:{ color:'0070CC' },
-    });
-    s1.addText('沖縄県 被害状況マップ', {
-      x:0.1, y:0, w:8, h:0.5,
-      fontSize:16, bold:true, color:'FFFFFF', valign:'middle',
-    });
-    s1.addText(`出力日時：${new Date().toLocaleString('ja-JP')}　総件数：${incidents.length}件`,{
-      x:8, y:0, w:5.33, h:0.5,
-      fontSize:9, color:'FFFFFF', valign:'middle', align:'right',
-    });
-
-    // 地図画像
-    s1.addImage({ data: mapImg, x:0, y:0.5, w:13.33, h:6.7 });
-
-    // 凡例バー
-    s1.addShape(pptx.ShapeType.rect, {
-      x:0, y:7.1, w:'100%', h:0.4,
-      fill:{ color:'FFFFFF' }, line:{ color:'D0D7E2', width:1 },
-    });
-    let lx = 0.2;
-    Object.entries(CATS).forEach(([cat, v]) => {
-      const n = incidents.filter(i => i.cat === cat).length;
-      if (n === 0) return;
-      const rgb = hexToRgb(v.color);
-      const hexClean = v.color.replace('#','');
-      s1.addShape(pptx.ShapeType.ellipse, {
-        x:lx, y:7.22, w:0.12, h:0.12,
-        fill:{ color: hexClean },
-      });
-      s1.addText(`${cat}：${n}件`, {
-        x:lx+0.15, y:7.15, w:1.8, h:0.3,
-        fontSize:8, color:'1A2433',
-      });
-      lx += 2.0;
-    });
-
-    // ── スライド2：インシデント一覧 ──
-    const s2 = pptx.addSlide();
-    s2.background = { color: 'FFFFFF' };
-    s2.addShape(pptx.ShapeType.rect, {
-      x:0, y:0, w:'100%', h:0.5, fill:{ color:'0070CC' },
-    });
-    s2.addText('インシデント一覧', {
-      x:0.1, y:0, w:13, h:0.5,
-      fontSize:16, bold:true, color:'FFFFFF', valign:'middle',
-    });
-
-    // テーブル
-    const rows = [
-      [
-        { text:'No.', options:{ bold:true, fill:{ color:'E8F0FB' }, color:'1A2433' } },
-        { text:'被害種別', options:{ bold:true, fill:{ color:'E8F0FB' }, color:'1A2433' } },
-        { text:'住所', options:{ bold:true, fill:{ color:'E8F0FB' }, color:'1A2433' } },
-        { text:'メモ', options:{ bold:true, fill:{ color:'E8F0FB' }, color:'1A2433' } },
-        { text:'時刻', options:{ bold:true, fill:{ color:'E8F0FB' }, color:'1A2433' } },
-        { text:'座標', options:{ bold:true, fill:{ color:'E8F0FB' }, color:'1A2433' } },
-      ],
-      ...incidents.map((inc, i) => {
-        const hexClean = (CATS[inc.cat]?.color || '#888888').replace('#','');
-        return [
-          { text: String(i+1), options:{ color:'555555' } },
-          { text: inc.cat, options:{ color: hexClean, bold:true } },
-          { text: inc.address || '—', options:{ color:'333333' } },
-          { text: inc.memo || '—', options:{ color:'555555' } },
-          { text: inc.time, options:{ color:'555555' } },
-          { text: `${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}`, options:{ color:'888888', fontSize:7 } },
-        ];
-      }),
-    ];
-    s2.addTable(rows, {
-      x:0.2, y:0.6, w:12.9,
-      fontSize:9,
-      border:{ type:'solid', color:'D0D7E2', pt:0.5 },
-      rowH: 0.28,
-      colW: [0.4, 1.6, 3.5, 3.5, 0.6, 2.0],
-    });
-
-    pptx.writeFile({ fileName: `被害状況マップ_${new Date().toISOString().slice(0,10)}.pptx` });
-    msg.style.display = 'none';
-  } catch(e) {
-    msg.textContent = '⚠️ PowerPoint生成に失敗しました：' + e.message;
-    console.error(e);
-  }
-}
-
-// ── Excel出力 ──
-async function saveExcel() {
-  if (incidents.length === 0) { alert('データがありません。'); return; }
-  const msg = document.getElementById('printMsg');
-  msg.style.display = 'block';
-  msg.textContent = '⏳ ライブラリ読み込み中…';
-  closePrintModal();
-  try {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
-  } catch(e) {
-    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
-    return;
-  }
-  msg.textContent = '⏳ Excel生成中…';
-  try {
-    const wb = XLSX.utils.book_new();
-
-    // ── シート1：インシデント一覧 ──
-    const headerRow = ['No.','被害種別','住所','メモ','時刻','緯度','経度'];
-    const dataRows = incidents.map((inc, i) => [
-      i + 1,
-      inc.cat,
-      inc.address || '',
-      inc.memo || '',
-      inc.time,
-      inc.lat,
-      inc.lng,
-    ]);
-    const ws = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows]);
-
-    // 列幅設定
-    ws['!cols'] = [
-      { wch: 5 }, { wch: 18 }, { wch: 35 }, { wch: 30 },
-      { wch: 8 }, { wch: 12 }, { wch: 12 },
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'インシデント一覧');
-
-    // ── シート2：種別集計 ──
-    const summaryHeader = ['被害種別', '件数'];
-    const summaryRows = Object.keys(CATS).map(cat => [
-      cat,
-      incidents.filter(i => i.cat === cat).length,
-    ]);
-    summaryRows.push(['合計', incidents.length]);
-    const ws2 = XLSX.utils.aoa_to_sheet([summaryHeader, ...summaryRows]);
-    ws2['!cols'] = [{ wch: 20 }, { wch: 8 }];
-    XLSX.utils.book_append_sheet(wb, ws2, '種別集計');
-
-    XLSX.writeFile(wb, `被害状況マップ_${new Date().toISOString().slice(0,10)}.xlsx`);
-    msg.style.display = 'none';
-  } catch(e) {
-    msg.textContent = '⚠️ Excel生成に失敗しました：' + e.message;
-  }
-}
-
-
-function openPrintModal() {
-  document.getElementById('printModal').style.display = 'flex';
-  document.getElementById('printMsg').style.display = 'none';
-}
-function closePrintModal() {
-  document.getElementById('printModal').style.display = 'none';
-}
-
-// JPEG保存
-async function saveJpeg() {
-  const msg = document.getElementById('printMsg');
-  msg.style.display = 'block';
-  msg.textContent = '⏳ ライブラリ読み込み中…';
-  closePrintModal();
-  try {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-  } catch(e) {
-    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
-    return;
-  }
-  msg.textContent = '⏳ 画像を生成しています…';
-  await new Promise(r => setTimeout(r, 600));
-  try {
-    const canvas = await html2canvas(document.getElementById('mapwrap'), {
-      useCORS: true, allowTaint: true, scale: 2, logging: false,
-    });
-    const a = document.createElement('a');
-    a.download = `被害状況マップ_${new Date().toISOString().slice(0,10)}.jpg`;
-    a.href = canvas.toDataURL('image/jpeg', 0.92);
-    a.click();
-    msg.style.display = 'none';
-  } catch(e) {
-    msg.textContent = '⚠️ 画像生成に失敗しました。ブラウザのスクリーンショット機能をお使いください。';
-  }
-}
-
-// 印刷（A4横 / A3横 / A2=A3×2枚）
-function printAs(size) {
-  closePrintModal();
-
-  // @page スタイルを動的に挿入
-  const styleId = 'print-page-style';
-  let el = document.getElementById(styleId);
-  if (el) el.remove();
-  el = document.createElement('style');
-  el.id = styleId;
-
-  if (size === 'A4') {
-    el.textContent = `
-      @page { size: A4 landscape; margin: 8mm; }
-      @media print {
-        #topbar, #sidebar, #pinModeOverlay, #mapinfo, #emptyState, #modal, #printModal { display: none !important; }
-        body { height: auto !important; overflow: visible !important; background: white !important; margin: 0 !important; }
-        #main { display: block !important; height: auto !important; overflow: visible !important; }
-        #mapwrap { width: 100% !important; height: calc(100vh - 16mm) !important; position: relative !important; break-inside: avoid; }
-        #map { width: 100% !important; height: 100% !important; }
-        #print-header { display: block !important; }
-      }`;
-  } else if (size === 'A3') {
-    el.textContent = `
-      @page { size: A3 landscape; margin: 8mm; }
-      @media print {
-        #topbar, #sidebar, #pinModeOverlay, #mapinfo, #emptyState, #modal, #printModal { display: none !important; }
-        body { height: auto !important; overflow: visible !important; background: white !important; margin: 0 !important; }
-        #main { display: block !important; height: auto !important; overflow: visible !important; }
-        #mapwrap { width: 100% !important; height: calc(100vh - 16mm) !important; position: relative !important; break-inside: avoid; }
-        #map { width: 100% !important; height: 100% !important; }
-        #print-header { display: block !important; }
-      }`;
-  } else if (size === 'A2') {
-    // A3横2枚 → 横2分割
-    el.textContent = `
-      @page { size: A3 landscape; margin: 0; }
-      @media print {
-        #topbar, #sidebar, #pinModeOverlay, #mapinfo, #emptyState, #modal, #printModal { display: none !important; }
-        body { height: auto !important; overflow: visible !important; background: white !important; margin: 0 !important; }
-        #main { display: block !important; height: auto !important; overflow: visible !important; }
-        #mapwrap { width: 200% !important; height: 100vh !important; position: relative !important; }
-        #map { width: 100% !important; height: 100% !important; }
-        #print-header { display: flex !important; }
-      }`;
-  } else if (size === 'A1') {
-    // A3横4枚 → 横2×縦2分割
-    el.textContent = `
-      @page { size: A3 landscape; margin: 0; }
-      @media print {
-        #topbar, #sidebar, #pinModeOverlay, #mapinfo, #emptyState, #modal, #printModal { display: none !important; }
-        body { height: auto !important; overflow: visible !important; background: white !important; margin: 0 !important; }
-        #main { display: block !important; height: auto !important; overflow: visible !important; }
-        #mapwrap { width: 200% !important; height: 200vh !important; position: relative !important; }
-        #map { width: 100% !important; height: 100% !important; }
-        #print-header { display: flex !important; }
-      }`;
-  } else if (size === 'A0') {
-    // A3横8枚 → 横4×縦2分割
-    el.textContent = `
-      @page { size: A3 landscape; margin: 0; }
-      @media print {
-        #topbar, #sidebar, #pinModeOverlay, #mapinfo, #emptyState, #modal, #printModal { display: none !important; }
-        body { height: auto !important; overflow: visible !important; background: white !important; margin: 0 !important; }
-        #main { display: block !important; height: auto !important; overflow: visible !important; }
-        #mapwrap { width: 400% !important; height: 200vh !important; position: relative !important; }
-        #map { width: 100% !important; height: 100% !important; }
-        #print-header { display: flex !important; }
-      }`;
-  }
-
-  document.head.appendChild(el);
-
-  // 枚数ガイド
-  const guide = {
-    A4: 'A4横で印刷します。',
-    A3: 'A3横で印刷します。',
-    A2: 'A3横 2枚で印刷されます。\n左右に並べて貼り合わせるとA2になります。',
-    A1: 'A3横 4枚で印刷されます。\n2列×2行で並べて貼り合わせるとA1になります。',
-    A0: 'A3横 8枚で印刷されます。\n4列×2行で並べて貼り合わせるとA0になります。',
-  };
-  if (['A2','A1','A0'].includes(size)) {
-    if (!confirm(guide[size] + '\n\n続けますか？')) {
-      el.remove();
-      return;
-    }
-  }
-
-  // 地図タイルが完全に読み込まれるまで待ってから印刷
-  map.invalidateSize();
-  setTimeout(() => {
-    window.print();
-    // 印刷後にスタイルを戻す
-    setTimeout(() => {
-      el.remove();
-      map.invalidateSize();
-    }, 1000);
-  }, 800);
-}
-
-
-function exportShareHTML() {
-  if (incidents.length === 0 && drawings.length === 0) { alert('データがありません。'); return; }
-
-  const dateStr = new Date().toLocaleString('ja-JP');
-  const incJSON = JSON.stringify(incidents.map(i => ({
-    id: i.id, lat: i.lat, lng: i.lng, cat: i.cat,
-    memo: i.memo, time: i.time, address: i.address || null, imgUrl: i.imgUrl || null,
-  })));
-  const drawJSON = JSON.stringify(drawings);
-
-  const CATS_JSON = JSON.stringify({
-    '浸水・冠水':        { color: '#1a7fd4' },
-    '土砂崩れ':          { color: '#a05c10' },
-    '道路損壊・通行止め': { color: '#c47d00' },
-    '建物被害':          { color: '#d42020' },
-    '人的被害':          { color: '#8b20cc' },
-  });
-
-  const html = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>被害状況マップ（共有版） ${dateStr}</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Meiryo','Noto Sans JP',sans-serif; background:#f0f2f5; color:#1a2433; font-size:14px; line-height:1.6; }
-#header {
-  background:#fff; border-bottom:4px solid #0070cc;
-  padding:14px 20px; display:flex; align-items:center; gap:14px;
-  flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,0.08);
-}
-#header h1 { font-size:20px; color:#0070cc; font-weight:700; }
-#header .sub { font-size:13px; color:#4a5568; margin-top:2px; }
-#header .badge {
-  margin-left:auto; background:#fff3cd; border:1px solid #f0ad00;
-  color:#7a5800; font-size:12px; padding:5px 14px; border-radius:20px; font-weight:700;
-}
-#stats {
-  background:#fff; border-bottom:1px solid #d0d7e2;
-  padding:10px 20px; display:flex; gap:24px; flex-wrap:wrap;
-  align-items:center;
-}
-.stat-item { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#1a2433; }
-.stat-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
-#map { width:100%; height:62vh; }
-#list { background:#fff; border-top:1px solid #d0d7e2; }
-.list-hdr {
-  padding:12px 20px; font-size:13px; font-weight:700; color:#4a5568;
-  letter-spacing:0.5px; border-bottom:1px solid #e2e8f0; background:#f8f9fb;
-}
-.inc-row {
-  display:flex; gap:12px; padding:12px 20px;
-  border-bottom:1px solid #eef0f3; cursor:pointer;
-  transition:background 0.15s; align-items:flex-start;
-}
-.inc-row:hover { background:#ebf4ff; }
-.inc-dot2 { width:12px; height:12px; border-radius:50%; flex-shrink:0; margin-top:4px; }
-.inc-cat2 { font-size:14px; font-weight:700; }
-.inc-addr { font-size:13px; color:#4a5568; margin-top:3px; }
-.inc-memo { font-size:13px; color:#2d3748; margin-top:3px; font-style:italic; background:#f7fafc; padding:3px 8px; border-radius:4px; border-left:3px solid #cbd5e0; }
-.inc-time2 { font-size:12px; color:#718096; margin-left:auto; flex-shrink:0; white-space:nowrap; }
-.leaflet-popup-content-wrapper { border-radius:8px !important; box-shadow:0 4px 16px rgba(0,0,0,0.15) !important; }
-.popup-img { width:100%; height:150px; object-fit:cover; border-radius:6px; margin-bottom:10px; }
-.popup-cat { font-size:14px; font-weight:700; margin-bottom:6px; }
-.popup-meta { font-size:12px; color:#4a5568; line-height:1.8; }
-.popup-memo { margin-top:8px; font-size:12px; background:#f7fafc; padding:6px 10px; border-radius:4px; border-left:3px solid #cbd5e0; color:#2d3748; }
-#footer { padding:12px 20px; font-size:12px; color:#718096; text-align:center; background:#f8f9fb; border-top:1px solid #e2e8f0; }
-@media(max-width:700px){
-  #map{ height:55vh; }
-  #header h1 { font-size:16px; }
-  .inc-row { padding:10px 14px; }
-}
-.draw-label-tooltip {
-  background: rgba(255,255,255,0.9) !important;
-  border: none !important;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.2) !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  color: #1a2433 !important;
-  padding: 2px 7px !important;
-}
-.draw-label-tooltip::before { display: none !important; }
-</style>
-</head>
-<body>
-<div id="header">
-  <span style="font-size:24px">⚠️</span>
-  <div>
-    <h1>沖縄県 被害状況マップ</h1>
-    <div class="sub">作成日時：${dateStr}</div>
-  </div>
-  <div class="badge">📋 読み取り専用</div>
-</div>
-<div id="stats"></div>
-<div id="map"></div>
-<div id="list">
-  <div class="list-hdr">▸ インシデント一覧</div>
-  <div id="incList"></div>
-</div>
-<div id="footer">このファイルは沖縄県防災マップシステムで書き出されました</div>
-<script>
-const INCIDENTS = ${incJSON};
-const CATS = ${CATS_JSON};
-const DRAWINGS = ${drawJSON};
-
-// 統計
-const statsEl = document.getElementById('stats');
-const counts = {};
-Object.keys(CATS).forEach(c => counts[c] = 0);
-INCIDENTS.forEach(i => { if(counts[i.cat]!==undefined) counts[i.cat]++; });
-Object.entries(counts).forEach(([cat, n]) => {
-  if(n===0) return;
-  const d = document.createElement('div');
-  d.className='stat-item';
-  d.innerHTML=\`<span class="stat-dot" style="background:\${CATS[cat].color}"></span>\${cat}：<strong>\${n}件</strong>\`;
-  statsEl.appendChild(d);
-});
-const tot = document.createElement('div');
-tot.className='stat-item';
-tot.innerHTML=\`<strong>合計 \${INCIDENTS.length}件</strong>\`;
-statsEl.prepend(tot);
-
-// 地図
-const map = L.map('map').setView([26.45, 127.93], 11);
-const gsiTile = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',{
-  attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a>',
-  maxZoom:18
-});
-const osmTile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'© OpenStreetMap contributors', maxZoom:19
-});
-gsiTile.addTo(map);
-gsiTile.on('tileerror', () => {
-  if (map.hasLayer(gsiTile)) { map.removeLayer(gsiTile); osmTile.addTo(map); }
-});
-
-const shortLabel = {
-  '浸水・冠水':'💧 浸水','土砂崩れ':'⛰️ 土砂',
-  '道路損壊・通行止め':'🚧 道路','建物被害':'🏠 建物','人的被害':'👤 人的'
-};
-const markerMap = {};
-
-INCIDENTS.forEach(inc => {
-  const col = CATS[inc.cat]?.color || '#888';
-  const lbl = shortLabel[inc.cat] || inc.cat;
-  const icon = L.divIcon({
-    className:'',
-    html:\`<div style="position:relative;display:inline-flex;flex-direction:column;align-items:center;">
-      <div style="background:\${col};color:#fff;font-size:11px;font-family:Meiryo,sans-serif;font-weight:700;padding:3px 7px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.25);border:1.5px solid rgba(255,255,255,0.8)">\${lbl}</div>
-      <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid \${col};margin-top:-1px"></div>
-      <div style="width:8px;height:8px;background:\${col};border:2px solid white;border-radius:50%;margin-top:-1px;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>
-    </div>\`,
-    iconSize:[60,48], iconAnchor:[30,48],
-  });
-  const addrHtml = inc.address ? \`🏠 \${inc.address}<br>\` : '';
-  const popup = \`<div style="min-width:200px">
-    \${inc.imgUrl ? \`<img class="popup-img" src="\${inc.imgUrl}">\` : ''}
-    <div class="popup-cat" style="color:\${col}">● \${inc.cat}</div>
-    <div class="popup-meta">\${addrHtml}🌐 \${inc.lat.toFixed(5)}, \${inc.lng.toFixed(5)}<br>🕐 \${inc.time}</div>
-    \${inc.memo ? \`<div class="popup-memo">\${inc.memo}</div>\` : ''}
-  </div>\`;
-  const m = L.marker([inc.lat, inc.lng], {icon}).addTo(map);
-  m.bindPopup(popup, {maxWidth:280});
-  markerMap[inc.id] = m;
-});
-
-// 全マーカーが収まるようにズーム
-if(INCIDENTS.length > 0) {
-  const group = L.featureGroup(Object.values(markerMap));
-  map.fitBounds(group.getBounds().pad(0.15));
-}
-
-// 描画データを再現
-const drawLayer = L.featureGroup().addTo(map);
-DRAWINGS.forEach(d => {
-  const col = d.color || '#e53935';
-  let layer;
-  if (d.type === 'polyline') {
-    layer = L.polyline(d.latlngs, { color: col, weight: 4, opacity: 0.9 });
-    if (d.label) layer.bindTooltip(d.label, { permanent: true, direction: 'center', sticky: false,
-      className: 'draw-label-tooltip' });
-  } else if (d.type === 'circle') {
-    layer = L.circle(d.latlng, { radius: d.radius, color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
-    if (d.label) layer.bindTooltip(d.label, { permanent: true, direction: 'center',
-      className: 'draw-label-tooltip' });
-  } else if (d.type === 'polygon') {
-    layer = L.polygon(d.latlngs, { color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
-    if (d.label) layer.bindTooltip(d.label, { permanent: true, direction: 'center',
-      className: 'draw-label-tooltip' });
-  } else if (d.type === 'text') {
-    const icon = L.divIcon({
-      className: '',
-      html: \`<div style="background:rgba(255,255,255,0.92);border:2px solid \${col};border-radius:4px;padding:3px 8px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.2);color:\${col}">\${d.label}</div>\`,
-      iconAnchor: [0, 12],
-    });
-    layer = L.marker(d.latlng, { icon });
-  }
-  if (layer) drawLayer.addLayer(layer);
-});
-
-// リスト
-const listEl = document.getElementById('incList');
-INCIDENTS.forEach(inc => {
-  const col = CATS[inc.cat]?.color || '#888';
-  const div = document.createElement('div');
-  div.className='inc-row';
-  div.innerHTML=\`
-    <span class="inc-dot2" style="background:\${col}"></span>
-    <div style="flex:1;min-width:0">
-      <div class="inc-cat2" style="color:\${col}">\${inc.cat}</div>
-      <div class="inc-addr">\${inc.address || (inc.lat.toFixed(4)+', '+inc.lng.toFixed(4))}</div>
-      \${inc.memo ? \`<div class="inc-memo">"\${inc.memo}"</div>\` : ''}
-    </div>
-    <span class="inc-time2">\${inc.time}</span>
-  \`;
-  div.onclick = () => {
-    map.flyTo([inc.lat, inc.lng], 16, {duration:0.8});
-    markerMap[inc.id]?.openPopup();
-    window.scrollTo({top:0, behavior:'smooth'});
-  };
-  listEl.appendChild(div);
-});
-<\/script>
-</body>
-</html>`;
-
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `被害状況マップ_${new Date().toISOString().slice(0,10)}.html`;
-  a.click();
-}
-
-
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// エクスポート / インポート / クリア
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function exportJSON() {
-  if (incidents.length === 0 && drawings.length === 0) { alert('データがありません。'); return; }
+  if (!incidents.length) { alert('データがありません。'); return; }
   const data = incidents.map(i => ({
-    id: i.id, lat: i.lat, lng: i.lng, cat: i.cat,
-    memo: i.memo, time: i.time, address: i.address || null, imgUrl: i.imgUrl,
+    id:i.id, lat:i.lat, lng:i.lng, cat:i.cat,
+    memo:i.memo, time:i.time, address:i.address||null, imgUrl:i.imgUrl||null,
   }));
-  const blob = new Blob([JSON.stringify({
-    version: 2, exported: new Date().toISOString(),
-    incidents: data,
-    drawings: drawings,
-  }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ version:1, exported:new Date().toISOString(), incidents:data }, null, 2)],
+    { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `saigai-map_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
 }
 
-function importJSON() {
-  document.getElementById('importInput').click();
-}
+function importJSON() { document.getElementById('importInput').click(); }
 document.getElementById('importInput').addEventListener('change', function(e) {
-  const f = e.target.files[0];
-  if (!f) return;
+  const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
   r.onload = ev => {
     try {
       const data = JSON.parse(ev.target.result);
-      if (!data.incidents) throw new Error('invalid');
-      if (!confirm(`インシデント${data.incidents.length}件、描画${(data.drawings||[]).length}件を読み込みます。現在のデータは保持されます。`)) return;
+      if (!data.incidents) throw new Error();
+      if (!confirm(`${data.incidents.length}件のデータを読み込みます。現在のデータは保持されます。`)) return;
       data.incidents.forEach(inc => {
         if (!incidents.find(i => i.id === inc.id)) {
           incidents.push(inc);
           markers[inc.id] = createMarker(inc);
-          if (!inc.address) {
-            fetchAddress(inc.lat, inc.lng).then(addr => {
-              inc.address = addr;
-              if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
-              renderList();
-            });
-          }
+          if (!inc.address) fetchAddress(inc.lat, inc.lng).then(addr => {
+            inc.address = addr;
+            if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
+            renderList();
+          });
         }
       });
-      // 描画データも読み込む
-      if (data.drawings) {
-        data.drawings.forEach(d => {
-          if (!drawings.find(x => x.id === d.id)) {
-            drawings.push(d);
-            renderOneDrawing(d);
-          }
-        });
-      }
       updateUI();
-      if (data.incidents.length > 0) {
-        const last = data.incidents[data.incidents.length - 1];
+      if (data.incidents.length) {
+        const last = data.incidents[data.incidents.length-1];
         map.flyTo([last.lat, last.lng], 12);
       }
     } catch { alert('読み込みに失敗しました。'); }
   };
-  r.readAsText(f);
-  this.value = '';
+  r.readAsText(f); this.value = '';
 });
 
 function clearAll() {
-  if (incidents.length === 0 && drawings.length === 0) return;
-  if (!confirm(`全データ（インシデント${incidents.length}件・描画${drawings.length}件）を削除しますか？`)) return;
+  if (!incidents.length) return;
+  if (!confirm(`全${incidents.length}件のデータを削除しますか？`)) return;
   incidents = [];
   Object.values(markers).forEach(m => map.removeLayer(m));
   markers = {};
-  drawings = [];
-  if (drawingLayer) drawingLayer.clearLayers();
   updateUI();
 }
 
-// init
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 共有用HTML出力
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function exportShareHTML() {
+  if (!incidents.length) { alert('データがありません。'); return; }
+  const dateStr  = new Date().toLocaleString('ja-JP');
+  const incJSON  = JSON.stringify(incidents.map(i => ({
+    id:i.id, lat:i.lat, lng:i.lng, cat:i.cat,
+    memo:i.memo, time:i.time, address:i.address||null, imgUrl:i.imgUrl||null,
+  })));
+  const CATS_JSON = JSON.stringify(
+    Object.fromEntries(Object.entries(CATS).map(([k,v]) => [k, { color:v.color, short:v.short }]))
+  );
+
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>被害状況マップ（共有版） ${dateStr}</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Meiryo','Noto Sans JP',sans-serif; background:#f0f2f5; color:#1a2433; font-size:14px; }
+#header { background:#fff; border-bottom:4px solid #0070cc; padding:14px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+#header h1 { font-size:18px; color:#0070cc; font-weight:700; }
+#header .sub { font-size:12px; color:#4a5568; margin-top:2px; }
+#header .badge { margin-left:auto; background:#fff3cd; border:1px solid #f0ad00; color:#7a5800; font-size:12px; padding:5px 12px; border-radius:20px; font-weight:700; }
+#stats { background:#fff; border-bottom:1px solid #d0d7e2; padding:10px 20px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; }
+.stat-item { display:flex; align-items:center; gap:7px; font-size:14px; font-weight:600; }
+.stat-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+#map { width:100%; height:62vh; }
+#list { background:#fff; }
+.list-hdr { padding:12px 20px; font-size:12px; font-weight:700; color:#4a5568; border-bottom:1px solid #e2e8f0; background:#f8f9fb; }
+.inc-row { display:flex; gap:12px; padding:12px 20px; border-bottom:1px solid #eef0f3; cursor:pointer; transition:background 0.15s; align-items:flex-start; }
+.inc-row:hover { background:#ebf4ff; }
+.inc-dot2 { width:11px; height:11px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.inc-cat2 { font-size:14px; font-weight:700; }
+.inc-addr { font-size:13px; color:#4a5568; margin-top:3px; }
+.inc-memo2 { font-size:12px; color:#2d3748; margin-top:3px; font-style:italic; background:#f7fafc; padding:3px 8px; border-radius:4px; border-left:3px solid #cbd5e0; }
+.inc-time2 { font-size:12px; color:#718096; margin-left:auto; flex-shrink:0; white-space:nowrap; }
+.leaflet-popup-content-wrapper { border-radius:8px !important; box-shadow:0 4px 16px rgba(0,0,0,0.15) !important; }
+.popup-img2 { width:100%; height:140px; object-fit:cover; border-radius:4px; margin-bottom:8px; }
+#footer { padding:12px 20px; font-size:11px; color:#718096; text-align:center; background:#f8f9fb; border-top:1px solid #e2e8f0; }
+</style>
+</head>
+<body>
+<div id="header">
+  <span style="font-size:26px">⚠️</span>
+  <div><h1>沖縄県 被害状況マップ</h1><div class="sub">作成日時：${dateStr}</div></div>
+  <div class="badge">📋 読み取り専用</div>
+</div>
+<div id="stats"></div>
+<div id="map"></div>
+<div id="list"><div class="list-hdr">▸ インシデント一覧</div><div id="incList"></div></div>
+<div id="footer">このファイルは沖縄県防災マップシステムで書き出されました</div>
+<script>
+const INCIDENTS = ${incJSON};
+const CATS = ${CATS_JSON};
+
+// 統計
+const statsEl = document.getElementById('stats');
+const counts = {};
+Object.keys(CATS).forEach(c => counts[c] = 0);
+INCIDENTS.forEach(i => { if (counts[i.cat] !== undefined) counts[i.cat]++; });
+const tot = document.createElement('div');
+tot.className='stat-item';
+tot.innerHTML='<strong>合計 '+INCIDENTS.length+'件</strong>';
+statsEl.appendChild(tot);
+Object.entries(counts).forEach(([cat,n]) => {
+  if (!n) return;
+  const d = document.createElement('div');
+  d.className='stat-item';
+  d.innerHTML='<span class="stat-dot" style="background:'+CATS[cat].color+'"></span>'+cat+'：<strong>'+n+'件</strong>';
+  statsEl.appendChild(d);
+});
+
+// 地図
+const map = L.map('map').setView([26.45,127.93],11);
+const gsi = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',{attribution:'国土地理院',maxZoom:18});
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19});
+gsi.addTo(map);
+gsi.on('tileerror', () => { if(map.hasLayer(gsi)){map.removeLayer(gsi);osm.addTo(map);} });
+
+const markerMap = {};
+INCIDENTS.forEach(inc => {
+  const col = CATS[inc.cat]?.color||'#888';
+  const lbl = CATS[inc.cat]?.short||inc.cat;
+  const icon = L.divIcon({ className:'', iconSize:[70,46], iconAnchor:[35,46],
+    html:'<div style="position:relative;display:inline-flex;flex-direction:column;align-items:center"><div style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.25);border:1.5px solid rgba(255,255,255,0.8)">'+lbl+'</div><div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid '+col+';margin-top:-1px"></div><div style="width:8px;height:8px;background:'+col+';border:2px solid #fff;border-radius:50%;margin-top:-1px"></div></div>'
+  });
+  const popup = '<div style="min-width:200px">'+(inc.imgUrl?'<img class="popup-img2" src="'+inc.imgUrl+'">':'')+'<div style="font-size:13px;font-weight:700;color:'+col+';margin-bottom:5px">● '+inc.cat+'</div><div style="font-size:11px;color:#6b7a8d;line-height:1.8">'+(inc.address?'🏠 '+inc.address+'<br>':'')+'🌐 '+inc.lat.toFixed(5)+', '+inc.lng.toFixed(5)+'<br>🕐 '+inc.time+'</div>'+(inc.memo?'<div style="margin-top:7px;font-size:11px;background:#f7fafc;padding:5px 8px;border-radius:4px;border-left:3px solid #cbd5e0">📝 '+inc.memo+'</div>':'')+'</div>';
+  const m = L.marker([inc.lat,inc.lng],{icon}).addTo(map);
+  m.bindPopup(popup,{maxWidth:280});
+  markerMap[inc.id] = m;
+});
+if (INCIDENTS.length) {
+  map.fitBounds(L.featureGroup(Object.values(markerMap)).getBounds().pad(0.15));
+}
+
+// リスト
+const listEl = document.getElementById('incList');
+INCIDENTS.forEach(inc => {
+  const col = CATS[inc.cat]?.color||'#888';
+  const div = document.createElement('div');
+  div.className='inc-row';
+  div.innerHTML='<span class="inc-dot2" style="background:'+col+'"></span><div style="flex:1;min-width:0"><div class="inc-cat2" style="color:'+col+'">'+inc.cat+'</div><div class="inc-addr">'+(inc.address||(inc.lat.toFixed(4)+', '+inc.lng.toFixed(4)))+'</div>'+(inc.memo?'<div class="inc-memo2">'+inc.memo+'</div>':'')+'</div><span class="inc-time2">'+inc.time+'</span>';
+  div.onclick = () => { map.flyTo([inc.lat,inc.lng],16,{duration:0.8}); markerMap[inc.id]?.openPopup(); window.scrollTo({top:0,behavior:'smooth'}); };
+  listEl.appendChild(div);
+});
+<\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type:'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `被害状況マップ_${new Date().toISOString().slice(0,10)}.html`;
+  a.click();
+}
+
+// 初期化
 updateUI();
 </script>
 </body>
