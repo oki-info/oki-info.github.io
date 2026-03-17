@@ -4,11 +4,76 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>沖縄県 被害状況マップ</title>
-<!-- 必須：Leaflet（地図本体） -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<!-- 必須：Leaflet（地図本体）複数CDNフォールバック -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+  onerror="this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'">
+<!-- Leaflet CSSが全CDNブロックされた場合の最低限インラインCSS -->
+<style id="leaflet-fallback-css">
+.leaflet-container{position:relative;overflow:hidden;outline:0;cursor:grab}
+.leaflet-map-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,
+.leaflet-tile-pane,.leaflet-overlay-pane,.leaflet-shadow-pane,.leaflet-marker-pane,
+.leaflet-tooltip-pane,.leaflet-popup-pane,.leaflet-zoom-box,.leaflet-image-layer,
+.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container .leaflet-overlay-pane svg{position:relative}
+.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile{max-width:none!important;max-height:none!important}
+.leaflet-tile{filter:inherit;visibility:hidden}
+.leaflet-tile-loaded{visibility:inherit}
+.leaflet-zoom-box{width:0;height:0;box-sizing:border-box;z-index:800}
+.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}
+.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}
+.leaflet-popup-pane{z-index:700}.leaflet-tile-pane{z-index:200}
+.leaflet-control-container{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:visiblePainted;pointer-events:auto}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-control{float:left;clear:both;pointer-events:auto}
+.leaflet-right .leaflet-control{float:right}
+.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}
+.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}
+.leaflet-control-zoom a{display:block;text-align:center;text-decoration:none;background:#fff;
+  color:#444;width:26px;height:26px;line-height:26px;font-size:16px;font-weight:bold}
+.leaflet-control-zoom{border:2px solid rgba(0,0,0,0.2);border-radius:4px}
+.leaflet-control-attribution{background:rgba(255,255,255,0.8);font-size:11px;padding:2px 5px}
+.leaflet-popup-content-wrapper{background:#fff;border-radius:6px;padding:1px;box-shadow:0 3px 14px rgba(0,0,0,0.4)}
+.leaflet-popup-content{margin:13px 19px;line-height:1.4}
+.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden}
+.leaflet-popup-tip{background:#fff;width:17px;height:17px;padding:1px;margin:-10px auto 0;transform:rotate(45deg)}
+.leaflet-popup-close-button{position:absolute;top:0;right:0;padding:4px 4px 0 0;color:#c3c3c3;font-size:16px;line-height:14px;text-decoration:none;font-weight:bold}
+.leaflet-div-icon{background:#fff;border:1px solid #666}
+.leaflet-tooltip{position:absolute;background:#fff;border:1px solid #fff;border-radius:3px;
+  color:#222;white-space:nowrap;user-select:none;pointer-events:none;padding:6px;box-shadow:0 1px 3px rgba(0,0,0,0.4)}
+</style>
+<script>
+// Leaflet JS：複数CDNフォールバック
+(function(){
+  var cdns = [
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js'
+  ];
+  function tryLoad(i) {
+    if (i >= cdns.length) {
+      document.getElementById('map-error').style.display = 'flex';
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = cdns[i];
+    s.onload = function() {
+      // CSSが読めてるか確認、なければフォールバックCSSを保持
+      if (typeof L !== 'undefined') {
+        document.getElementById('leaflet-fallback-css').disabled = false;
+      }
+    };
+    s.onerror = function() { tryLoad(i + 1); };
+    document.head.appendChild(s);
+  }
+  tryLoad(0);
+})();
+</script>
 <!-- 必須：EXIF（GPS読み取り） -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"
+  onerror="var EXIF={getData:function(i,cb){cb.call(i);},getTag:function(){return null;}}"></script>
 <!-- オプション：Leaflet.draw（描画ツール）→ 遅延読み込み -->
 <!-- オプション：html2canvas, jspdf, pptxgenjs, xlsx → 使用時に動的読み込み -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,10 +94,7 @@
   --cat-human: #8b20cc;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html {
-  height: 100%;
-  background: #b0b8c8;
-}
+html { height: 100%; background: #b0b8c8; }
 body {
   font-family: 'Noto Sans JP', sans-serif;
   background: var(--bg);
@@ -41,7 +103,6 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  max-width: none;
   width: 95%;
   margin: 0 auto;
   box-shadow: 0 0 50px rgba(0,0,0,0.22);
@@ -630,68 +691,6 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
   #mapwrap { width: 100% !important; height: 100vh !important; position: relative !important; }
   #map { width: 100% !important; height: 100% !important; }
 }
-
-  /* bodyをスクロール可能に */
-  body { height: auto; overflow: auto; }
-
-  /* トップバー：コンパクトに */
-  #topbar {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 12px;
-  }
-  #stats { display: none; }
-  .top-btns { gap: 4px; }
-  .top-btns .btn { font-size: 10px; padding: 5px 8px; }
-  h1 { font-size: 12px; }
-
-  /* メインを縦並びに */
-  #main { flex-direction: column; overflow: visible; height: auto; }
-
-  /* サイドバーを上に・横幅100% */
-  #sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    overflow: visible;
-    height: auto;
-  }
-
-  /* インシデントリストは高さ固定スクロール */
-  #incidentSection { height: auto; }
-  #incidentList { max-height: 200px; overflow-y: auto; }
-
-  /* 地図を下に・高さ固定 */
-  #mapwrap {
-    width: 100%;
-    height: 65vh;
-    flex-shrink: 0;
-  }
-
-  /* ドロップゾーン：タップしやすく */
-  #dropzone { padding: 16px 12px; margin: 10px; }
-  #dropzone .dz-icon { font-size: 22px; }
-
-  /* モーダルをモバイル最適化 */
-  #modal-box {
-    width: 96vw;
-    padding: 16px;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  #modal-box img { height: 140px; }
-
-  /* ボタン：タップしやすく */
-  .modal-cat-btn { padding: 8px 12px; font-size: 13px; }
-  .modal-actions { flex-wrap: wrap; }
-  .modal-actions button { flex: 1; min-width: 80px; }
-
-  /* mapinfo非表示 */
-  #mapinfo { display: none; }
-
-  /* モバイルは全幅 */
-  body { max-width: 100vw !important; box-shadow: none !important; }
-}
 </style>
 </head>
 <body>
@@ -819,6 +818,17 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
   <!-- MAP -->
   <div id="mapwrap">
     <div id="map"></div>
+    <!-- 地図ライブラリ読み込み失敗時のメッセージ -->
+    <div id="map-error" style="display:none;position:absolute;inset:0;background:#f0f2f5;
+      align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;text-align:center;padding:20px;">
+      <div style="font-size:40px">🗺️</div>
+      <div style="font-size:15px;font-weight:700;color:#1a2433">地図ライブラリを読み込めませんでした</div>
+      <div style="font-size:12px;color:#6b7a8d;line-height:1.7">
+        ネットワーク環境により外部CDNへのアクセスが制限されている可能性があります。<br>
+        写真のアップロードやデータ入力は引き続き使用できます。<br>
+        JSON書き出し → 別の端末でインポートして地図表示が可能です。
+      </div>
+    </div>
 
     <!-- 印刷時のみ表示するヘッダー -->
     <div id="print-header" style="display:none;position:absolute;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,0.95);border-bottom:2px solid #0070cc;padding:6px 14px;display:none;flex-wrap:wrap;align-items:center;gap:12px">
@@ -1078,6 +1088,15 @@ let currentFilter = 'all';
 let pendingData = null;
 
 // ── MAP ──
+// Leafletが読み込まれていない場合は地図初期化をスキップ
+if (typeof L === 'undefined') {
+  document.getElementById('map-error').style.display = 'flex';
+  // ダミーのmapオブジェクト（エラー防止）
+  window.map = { on:()=>{}, off:()=>{}, addLayer:()=>{}, removeLayer:()=>{},
+    flyTo:()=>{}, fitBounds:()=>{}, getZoom:()=>11, closePopup:()=>{},
+    getContainer:()=>({style:{}}), containerPointToLatLng:()=>({lat:0,lng:0}),
+    invalidateSize:()=>{}, hasLayer:()=>false, once:()=>{} };
+} else {
 const map = L.map('map', {
   center: [26.45, 127.93],
   zoom: 11,
@@ -1302,9 +1321,11 @@ function resetMapView() {
   map.flyTo([HOME_LAT, HOME_LNG], HOME_ZOOM, { duration: 0.8 });
 }
 
-// モバイルでサイドバー描画後に地図サイズを再計算
+// サイドバー描画後に地図サイズを再計算
 window.addEventListener('resize', () => map.invalidateSize());
 setTimeout(() => map.invalidateSize(), 400);
+
+} // end if (typeof L !== 'undefined')
 
 // 印刷前後のヘッダー表示制御
 window.addEventListener('beforeprint', () => {
