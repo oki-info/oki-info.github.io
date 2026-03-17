@@ -1008,7 +1008,7 @@ function pad(n) { return String(n).padStart(2,'0'); }
 
 // ── DRAWING TOOLS ──
 let drawings = [];
-let drawingLayer = null; // mapの初期化後に設定
+var drawingLayer = null;
 let activeDrawHandler = null;
 let currentDrawType = null;
 let drawColor = '#e53935';
