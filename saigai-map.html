@@ -379,11 +379,52 @@ h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; 
 }
 .grid-btn:hover  { border-color:var(--accent); color:var(--accent); }
 .grid-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+/* ── 写真パネル（地図下・印刷用） ── */
+#photoPanel {
+  display:none; background:#fff; border-top:2px solid var(--border);
+  padding:10px 14px; flex-shrink:0; overflow-x:auto;
+}
+#photoPanel.open { display:flex; flex-wrap:wrap; gap:10px; }
+.photo-card {
+  width:120px; flex-shrink:0;
+  border:1px solid var(--border); border-radius:6px; overflow:hidden;
+  font-size:9px; font-family:'Share Tech Mono',monospace;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+.photo-card img {
+  width:100%; height:80px; object-fit:cover; display:block;
+}
+.photo-card-info {
+  padding:4px 6px; background:#f8f9fb;
+  border-top:1px solid var(--border);
+  color:var(--text); line-height:1.5;
+}
+.photo-card-num {
+  display:inline-block; width:16px; height:16px;
+  background:var(--accent); color:#fff;
+  border-radius:50%; text-align:center; line-height:16px;
+  font-size:9px; font-weight:700; margin-right:3px; flex-shrink:0;
+}
+/* マーカー上の番号バッジ */
+.marker-num-badge {
+  position:absolute; top:-8px; right:-8px;
+  width:16px; height:16px; background:var(--accent);
+  color:#fff; border-radius:50%; font-size:9px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  border:1.5px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.3);
+  font-family:'Share Tech Mono',monospace;
+}
+
 @media print {
   #topbar, #sidebar, #pinOverlay, #mapinfo, #emptyState,
   #gridButtons, #scaleButtons, #homeBtn { display:none !important; }
   body { box-shadow:none !important; }
-  #mapwrap { width:100% !important; height:100vh !important; }
+  #main { display:block !important; overflow:visible !important; height:auto !important; }
+  #mapwrap { height:60vh !important; }
+  #photoPanel { display:flex !important; flex-wrap:wrap !important;
+    gap:8px !important; padding:10px 12px !important; }
+  .photo-card { width:100px !important; break-inside:avoid; }
+  .photo-card img { height:68px !important; }
 }
 
 /* ── 出力モーダル ── */
@@ -441,6 +482,8 @@ h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; 
   <div class="top-btns">
     <button class="btn primary" onclick="exportShareHTML()">📤 共有用HTML</button>
     <button class="btn"         onclick="openOutputModal()">🖨️ 画像・PDF出力</button>
+    <button class="btn"         id="photoPanelBtn"  onclick="togglePhotoPanel()">📋 写真一覧</button>
+    <button class="btn"         id="photoMarkerBtn" onclick="togglePhotoMarker()">📷 地図上の写真</button>
     <button class="btn"         onclick="exportJSON()">EXPORT JSON</button>
     <button class="btn"         onclick="importJSON()">IMPORT JSON</button>
     <button class="btn danger"  onclick="clearAll()">CLEAR ALL</button>
@@ -548,6 +591,9 @@ h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; 
       <button id="pinCancelBtn" onclick="event.stopPropagation();cancelPin()">✕ キャンセル</button>
     </div>
   </div><!-- /mapwrap -->
+
+  <!-- 写真パネル（地図下） -->
+  <div id="photoPanel"></div>
 
 </div><!-- /main -->
 
@@ -1163,7 +1209,7 @@ function confirmAdd() {
     imgUrl:  modalImgUrl || null,
   };
   incidents.push(inc);
-  markers[inc.id] = createMarker(inc);
+  markers[inc.id] = createMarker(inc, photoMarkerOn ? incidents.filter(i=>i.imgUrl).findIndex(i=>i.id===inc.id) : -1);
   if (tempPin) { map.removeLayer(tempPin); tempPin = null; }
 
   // 住所取得
@@ -1245,18 +1291,27 @@ function handlePinClick(latlng) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // マーカー生成
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function createMarker(inc) {
+function createMarker(inc, photoIdx = -1) {
   const v   = CATS[inc.cat] || { color:'#888', short:inc.cat };
   const col = v.color;
   const lbl = v.short;
+  // 写真モード時：番号バッジ付き、写真サムネイルも表示
+  const badgeHtml = (photoIdx >= 0 && inc.imgUrl)
+    ? `<div class="marker-num-badge">${photoIdx + 1}</div>` : '';
+  const thumbHtml = (photoIdx >= 0 && inc.imgUrl)
+    ? `<img src="${inc.imgUrl}" style="width:56px;height:40px;object-fit:cover;border-radius:4px;border:2px solid ${col};box-shadow:0 2px 6px rgba(0,0,0,0.3);display:block;margin-bottom:2px;">` : '';
+
   const icon = L.divIcon({
     className: '',
     html: `<div style="position:relative;display:inline-flex;flex-direction:column;align-items:center;">
+      ${badgeHtml}
+      ${thumbHtml}
       <div style="background:${col};color:#fff;font-size:11px;font-family:'Noto Sans JP',sans-serif;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.25);border:1.5px solid rgba(255,255,255,0.8)">${lbl}</div>
       <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${col};margin-top:-1px"></div>
       <div style="width:8px;height:8px;background:${col};border:2px solid #fff;border-radius:50%;margin-top:-1px;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>
     </div>`,
-    iconSize:[70,46], iconAnchor:[35,46],
+    iconSize: photoIdx >= 0 && inc.imgUrl ? [70, 92] : [70, 46],
+    iconAnchor: photoIdx >= 0 && inc.imgUrl ? [35, 92] : [35, 46],
   });
   const m = L.marker([inc.lat, inc.lng], { icon }).addTo(map);
   m.bindPopup(buildPopup(inc), { maxWidth:280 });
@@ -1430,8 +1485,9 @@ function saveEdit() {
   else if (editImgUrl)        inc.imgUrl = editImgUrl;
 
   if (markers[inc.id]) map.removeLayer(markers[inc.id]);
-  markers[inc.id] = createMarker(inc);
+  markers[inc.id] = createMarker(inc, photoMarkerOn ? incidents.filter(i=>i.imgUrl).findIndex(i=>i.id===inc.id) : -1);
   closeEditModal();
+  refreshPhotoPanel();
   updateUI();
 }
 
@@ -1461,7 +1517,7 @@ function finishRelocate(latlng) {
   inc.lng     = latlng.lng;
   inc.address = null;
   if (markers[inc.id]) map.removeLayer(markers[inc.id]);
-  markers[inc.id] = createMarker(inc);
+  markers[inc.id] = createMarker(inc, photoMarkerOn ? incidents.filter(i=>i.imgUrl).findIndex(i=>i.id===inc.id) : -1);
   fetchAddress(inc.lat, inc.lng).then(addr => {
     inc.address = addr;
     if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
@@ -1489,6 +1545,7 @@ function updateUI() {
 
   document.getElementById('emptyState').style.display = incidents.length > 0 ? 'none' : 'block';
   renderList();
+  if (photoPanelOn) refreshPhotoPanel();
 }
 
 function renderList() {
@@ -1548,7 +1605,7 @@ document.getElementById('importInput').addEventListener('change', function(e) {
       data.incidents.forEach(inc => {
         if (!incidents.find(i => i.id === inc.id)) {
           incidents.push(inc);
-          markers[inc.id] = createMarker(inc);
+          markers[inc.id] = createMarker(inc, photoMarkerOn ? incidents.filter(i=>i.imgUrl).findIndex(i=>i.id===inc.id) : -1);
           if (!inc.address) fetchAddress(inc.lat, inc.lng).then(addr => {
             inc.address = addr;
             if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
@@ -1700,8 +1757,73 @@ INCIDENTS.forEach(inc => {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 画像・PDF出力
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 写真表示モード
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 画像・PDF出力 + プレビューモード
+let photoPanelOn  = false;  // 地図下の写真一覧パネル
+let photoMarkerOn = false;  // 地図上マーカーのサムネイル
+
+// ── 写真一覧パネルのON/OFF ──
+function togglePhotoPanel() {
+  photoPanelOn = !photoPanelOn;
+  const btn = document.getElementById('photoPanelBtn');
+  btn.classList.toggle('primary', photoPanelOn);
+  btn.textContent = photoPanelOn ? '📋 写真一覧 ON' : '📋 写真一覧';
+  refreshPhotoPanel();
+  setTimeout(() => map.invalidateSize(), 80);
+}
+
+// ── 地図上マーカーの写真サムネイルON/OFF ──
+function togglePhotoMarker() {
+  photoMarkerOn = !photoMarkerOn;
+  const btn = document.getElementById('photoMarkerBtn');
+  btn.classList.toggle('primary', photoMarkerOn);
+  btn.textContent = photoMarkerOn ? '📷 地図上の写真 ON' : '📷 地図上の写真';
+  refreshAllMarkers();
+}
+
+// 全マーカーを現在の表示設定で作り直す
+function refreshAllMarkers() {
+  const withPhoto = incidents.filter(i => i.imgUrl);
+  incidents.forEach(inc => {
+    const m = markers[inc.id];
+    if (!m) return;
+    map.removeLayer(m);
+    const idx = photoMarkerOn ? withPhoto.findIndex(i => i.id === inc.id) : -1;
+    markers[inc.id] = createMarker(inc, idx);
+  });
+}
+
+function refreshPhotoBadges() {
+  refreshAllMarkers();
+}
+
+function refreshPhotoPanel() {
+  const panel     = document.getElementById('photoPanel');
+  const withPhoto = incidents.filter(i => i.imgUrl);
+  if (!photoPanelOn || !withPhoto.length) {
+    panel.classList.remove('open');
+    panel.innerHTML = '';
+    return;
+  }
+  panel.classList.add('open');
+  panel.innerHTML = withPhoto.map((inc, idx) => {
+    const col  = CATS[inc.cat]?.color || '#888';
+    const num  = idx + 1;
+    const addr = inc.address || `${inc.lat.toFixed(4)}, ${inc.lng.toFixed(4)}`;
+    return `<div class="photo-card" onclick="selectIncident('${inc.id}')" style="cursor:pointer">
+      <img src="${inc.imgUrl}" alt="写真${num}" loading="lazy">
+      <div class="photo-card-info">
+        <span class="photo-card-num" style="background:${col}">${num}</span>
+        <span style="color:${col};font-weight:700">${inc.cat}</span><br>
+        <span style="color:var(--dim)">${addr}</span>
+        ${inc.memo ? `<br><span style="font-style:italic">${inc.memo}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 画像・PDF出力
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function loadScript(src) {
   return new Promise((resolve, reject) => {
