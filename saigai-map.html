@@ -381,29 +381,52 @@ h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; 
 .grid-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 /* ── 写真パネル（地図下・印刷用） ── */
 #photoPanel {
-  display:none; background:#fff; border-top:2px solid var(--border);
-  padding:10px 14px; flex-shrink:0; overflow-x:auto;
+  display:none;
+  background:#fff;
+  border-top:2px solid var(--border);
+  padding:10px 14px;
+  flex-shrink:0;
+  overflow-x:auto;
+  overflow-y:auto;
+  max-height:240px; /* 画面表示時は高さ制限してスクロール */
 }
-#photoPanel.open { display:flex; flex-wrap:wrap; gap:10px; }
+#photoPanel.open {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-content:flex-start;
+}
 .photo-card {
-  width:120px; flex-shrink:0;
-  border:1px solid var(--border); border-radius:6px; overflow:hidden;
-  font-size:9px; font-family:'Share Tech Mono',monospace;
+  width:130px;
+  flex-shrink:0;
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+  font-size:9px;
+  font-family:'Share Tech Mono',monospace;
   box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  cursor:pointer;
+  transition:box-shadow 0.15s;
 }
+.photo-card:hover { box-shadow:0 2px 8px rgba(0,112,204,0.2); }
 .photo-card img {
-  width:100%; height:80px; object-fit:cover; display:block;
+  width:100%; height:88px; object-fit:cover; display:block;
 }
 .photo-card-info {
-  padding:4px 6px; background:#f8f9fb;
+  padding:5px 7px;
+  background:#f8f9fb;
   border-top:1px solid var(--border);
-  color:var(--text); line-height:1.5;
+  color:var(--text);
+  line-height:1.6;
 }
 .photo-card-num {
-  display:inline-block; width:16px; height:16px;
+  display:inline-flex;
+  width:16px; height:16px;
   background:var(--accent); color:#fff;
-  border-radius:50%; text-align:center; line-height:16px;
-  font-size:9px; font-weight:700; margin-right:3px; flex-shrink:0;
+  border-radius:50%; align-items:center; justify-content:center;
+  font-size:9px; font-weight:700;
+  margin-right:3px; flex-shrink:0;
+  vertical-align:middle;
 }
 /* マーカー上の番号バッジ */
 .marker-num-badge {
@@ -418,13 +441,41 @@ h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; 
 @media print {
   #topbar, #sidebar, #pinOverlay, #mapinfo, #emptyState,
   #gridButtons, #scaleButtons, #homeBtn { display:none !important; }
-  body { box-shadow:none !important; }
-  #main { display:block !important; overflow:visible !important; height:auto !important; }
-  #mapwrap { height:60vh !important; }
-  #photoPanel { display:flex !important; flex-wrap:wrap !important;
-    gap:8px !important; padding:10px 12px !important; }
-  .photo-card { width:100px !important; break-inside:avoid; }
-  .photo-card img { height:68px !important; }
+  body {
+    box-shadow:none !important;
+    display:block !important;
+    height:auto !important;
+    overflow:visible !important;
+  }
+  #main {
+    display:block !important;
+    height:auto !important;
+    overflow:visible !important;
+  }
+  #mapwrap {
+    width:100% !important;
+    height:62vh !important;
+    overflow:hidden !important;
+  }
+  /* 写真パネル：印刷時は高さ制限なし・きれいに折り返し */
+  #photoPanel {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:8px !important;
+    padding:10px 14px !important;
+    max-height:none !important;
+    overflow:visible !important;
+    border-top:2px solid #d0d7e2 !important;
+    background:#fff !important;
+    align-content:flex-start !important;
+    page-break-inside:avoid;
+  }
+  .photo-card {
+    width:110px !important;
+    break-inside:avoid !important;
+  }
+  .photo-card img { height:76px !important; }
+  .photo-card-info { font-size:8px !important; padding:3px 5px !important; }
 }
 
 /* ── 出力モーダル ── */
@@ -592,10 +643,10 @@ h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; 
     </div>
   </div><!-- /mapwrap -->
 
-  <!-- 写真パネル（地図下） -->
-  <div id="photoPanel"></div>
-
 </div><!-- /main -->
+
+<!-- 写真パネル（地図下・mainの外） -->
+<div id="photoPanel"></div>
 
 <!-- ── モーダル：登録 ── -->
 <div id="modal" class="modal-overlay">
@@ -1932,20 +1983,27 @@ function printMap(size) {
   const pgSize   = { A4:'A4 landscape', A3:'A3 landscape', A2:'A3 landscape', A1:'A3 landscape', A0:'A3 landscape' };
   const pgMargin = { A4:'8mm', A3:'8mm', A2:'0', A1:'0', A0:'0' };
   const mW = { A4:'100%', A3:'100%', A2:'200%', A1:'200%', A0:'400%' };
-  const mH = { A4:'calc(100vh - 16mm)', A3:'calc(100vh - 16mm)', A2:'100vh', A1:'200vh', A0:'200vh' };
+  // 写真パネルがONのとき地図高さを下げて写真スペースを確保
+  const hasPhotos = photoPanelOn && incidents.some(i => i.imgUrl);
+  const mH = {
+    A4: hasPhotos ? 'calc(100vh - 16mm - 160px)' : 'calc(100vh - 16mm)',
+    A3: hasPhotos ? 'calc(100vh - 16mm - 180px)' : 'calc(100vh - 16mm)',
+    A2: '100vh', A1: '200vh', A0: '200vh',
+  };
 
   el.textContent = `
     @page { size:${pgSize[size]}; margin:${pgMargin[size]}; }
     @media print {
-      html,body { background:white !important; }
-      body { box-shadow:none !important; height:auto !important; overflow:visible !important; }
+      html,body { background:white !important; display:block !important; height:auto !important; overflow:visible !important; }
+      body { box-shadow:none !important; }
       #topbar,#sidebar,#pinOverlay,#mapinfo,#emptyState,.modal-overlay,
       #gridButtons,#scaleButtons,#homeBtn { display:none !important; }
-      #main   { display:block !important; height:auto !important; overflow:visible !important; }
-      #mapwrap { width:${mW[size]} !important; height:${mH[size]} !important; position:relative !important; overflow:visible !important; }
-      #map    { width:100% !important; height:100% !important; }
-      #_phdr  { display:flex !important; }
-      #_pleg  { display:flex !important; }
+      #main    { display:block !important; height:auto !important; overflow:visible !important; }
+      #mapwrap { width:${mW[size]} !important; height:${mH[size]} !important; position:relative !important; overflow:hidden !important; }
+      #map     { width:100% !important; height:100% !important; }
+      #photoPanel { max-height:none !important; overflow:visible !important; page-break-inside:avoid; }
+      #_phdr   { display:flex !important; }
+      #_pleg   { display:flex !important; }
     }`;
   document.head.appendChild(el);
 
