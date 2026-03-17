@@ -2097,6 +2097,16 @@ body { font-family:'Meiryo','Noto Sans JP',sans-serif; background:#f0f2f5; color
   #header h1 { font-size:16px; }
   .inc-row { padding:10px 14px; }
 }
+.draw-label-tooltip {
+  background: rgba(255,255,255,0.9) !important;
+  border: none !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.2) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #1a2433 !important;
+  padding: 2px 7px !important;
+}
+.draw-label-tooltip::before { display: none !important; }
 </style>
 </head>
 <body>
@@ -2186,6 +2196,34 @@ if(INCIDENTS.length > 0) {
   const group = L.featureGroup(Object.values(markerMap));
   map.fitBounds(group.getBounds().pad(0.15));
 }
+
+// 描画データを再現
+const drawLayer = L.featureGroup().addTo(map);
+DRAWINGS.forEach(d => {
+  const col = d.color || '#e53935';
+  let layer;
+  if (d.type === 'polyline') {
+    layer = L.polyline(d.latlngs, { color: col, weight: 4, opacity: 0.9 });
+    if (d.label) layer.bindTooltip(d.label, { permanent: true, direction: 'center', sticky: false,
+      className: 'draw-label-tooltip' });
+  } else if (d.type === 'circle') {
+    layer = L.circle(d.latlng, { radius: d.radius, color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
+    if (d.label) layer.bindTooltip(d.label, { permanent: true, direction: 'center',
+      className: 'draw-label-tooltip' });
+  } else if (d.type === 'polygon') {
+    layer = L.polygon(d.latlngs, { color: col, fillColor: col, fillOpacity: 0.2, weight: 2 });
+    if (d.label) layer.bindTooltip(d.label, { permanent: true, direction: 'center',
+      className: 'draw-label-tooltip' });
+  } else if (d.type === 'text') {
+    const icon = L.divIcon({
+      className: '',
+      html: \`<div style="background:rgba(255,255,255,0.92);border:2px solid \${col};border-radius:4px;padding:3px 8px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.2);color:\${col}">\${d.label}</div>\`,
+      iconAnchor: [0, 12],
+    });
+    layer = L.marker(d.latlng, { icon });
+  }
+  if (layer) drawLayer.addLayer(layer);
+});
 
 // リスト
 const listEl = document.getElementById('incList');
