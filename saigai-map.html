@@ -692,14 +692,15 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
   <!-- SIDEBAR -->
   <div id="sidebar">
     <!-- DROPZONE -->
-    <div id="dropzone">
-      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*" multiple style="display:none">
-      <label for="fileInput" style="display:block;cursor:pointer;width:100%;height:100%">
-        <span class="dz-icon">📷</span>
-        <div class="dz-main">写真をタップして選択</div>
-        <div class="dz-sub">または ここにドロップ</div>
-        <div class="dz-sub" style="margin-top:4px">GPS情報が自動で読み取られます</div>
-      </label>
+    <div id="dropzone" onclick="triggerFileInput()" style="position:relative;">
+      <input type="file" id="fileInput"
+        accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*"
+        multiple
+        style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;">
+      <span class="dz-icon">📷</span>
+      <div class="dz-main">写真をタップして選択</div>
+      <div class="dz-sub">または ここにドロップ</div>
+      <div class="dz-sub" style="margin-top:4px">GPS情報が自動で読み取られます</div>
     </div>
     <div style="margin: 0 12px 10px; display:flex; gap:6px;">
       <button class="btn" style="flex:1;font-size:10px;padding:6px 4px" onclick="startManualPinNoPhoto()">
@@ -1175,6 +1176,13 @@ window.addEventListener('afterprint', () => {
 
 
 // ── DRAG & DROP ──
+// iOSフォールバック：inputが直接タップされなかった場合にJS経由で開く
+function triggerFileInput() {
+  // inputがposition:absoluteで全面に重なっているので通常はinput直タップで動く
+  // このonclickはdropzone枠外クリック時の念のための保険
+  document.getElementById('fileInput').click();
+}
+
 const dz = document.getElementById('dropzone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
