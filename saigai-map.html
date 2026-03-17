@@ -4,15 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>沖縄県 被害状況マップ</title>
+<!-- 必須：Leaflet（地図本体） -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<!-- 必須：EXIF（GPS読み取り） -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- オプション：Leaflet.draw（描画ツール）→ 遅延読み込み -->
+<!-- オプション：html2canvas, jspdf, pptxgenjs, xlsx → 使用時に動的読み込み -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -567,6 +565,45 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
 .draw-label-tooltip::before { display: none !important; }
 
 
+/* メモツールチップ */
+.memo-tooltip {
+  background: rgba(30,40,60,0.88) !important;
+  border: none !important; color: #fff !important;
+  font-size: 11px !important; padding: 4px 10px !important;
+  border-radius: 4px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+  max-width: 200px !important; white-space: normal !important;
+}
+.memo-tooltip::before { display: none !important; }
+
+/* 編集モーダル */
+#editModal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(30,50,80,0.45); z-index: 9999;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+#editModal.open { display: flex; }
+#edit-box {
+  background: #fff; border-radius: 10px; padding: 24px;
+  width: 420px; max-width: 95vw; max-height: 90vh;
+  overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+#edit-box h2 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.edit-label { font-size: 10px; font-weight: 700; color: var(--dim); letter-spacing: 1px; margin: 12px 0 5px; }
+.edit-cat-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.edit-cat-btn {
+  padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 4px;
+  cursor: pointer; background: #f0f2f5; border: 1.5px solid var(--border); color: var(--text);
+  transition: all 0.15s;
+}
+.edit-cat-btn.selected { color: #fff; }
+#edit-memo {
+  width: 100%; min-height: 70px; padding: 8px 10px; font-size: 13px;
+  border: 1px solid var(--border); border-radius: 4px; resize: vertical;
+  font-family: 'Noto Sans JP', sans-serif; color: var(--text);
+}
+#edit-img-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: none; }
+
 .print-opt-btn {
   display: flex;
   align-items: center;
@@ -675,6 +712,7 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
     <div class="stat"><span class="num" id="roadCount" style="color:var(--cat-road)">0</span><span class="lbl">道路</span></div>
     <div class="stat"><span class="num" id="bldCount" style="color:var(--cat-building)">0</span><span class="lbl">建物</span></div>
     <div class="stat"><span class="num" id="humCount" style="color:var(--cat-human)">0</span><span class="lbl">人的</span></div>
+    <div class="stat"><span class="num" id="otherCount" style="color:#6b7a8d">0</span><span class="lbl">その他</span></div>
   </div>
 
   <div class="top-btns">
@@ -764,6 +802,10 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
       <div class="cat-row" data-cat="人的被害" onclick="filterCat('人的被害',this)">
         <span class="cat-dot" style="background:var(--cat-human)"></span> 人的被害
         <span class="cat-count" id="leg-hum">0</span>
+      </div>
+      <div class="cat-row" data-cat="その他" onclick="filterCat('その他',this)">
+        <span class="cat-dot" style="background:#6b7a8d"></span> その他
+        <span class="cat-count" id="leg-other">0</span>
       </div>
     </div>
 
@@ -959,6 +1001,64 @@ textarea#memo:focus { outline: none; border-color: var(--accent); }
   </div>
 </div>
 
+<!-- MODAL: 編集 -->
+<div id="editModal">
+  <div id="edit-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2>✏️ 被害情報を編集</h2>
+      <button onclick="closeEditModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7a8d;line-height:1">✕</button>
+    </div>
+
+    <!-- 写真プレビュー＋変更 -->
+    <img id="edit-img-preview" src="">
+    <div style="display:flex;gap:6px;margin-bottom:4px">
+      <button type="button" id="edit-photo-btn" onclick="document.getElementById('editPhotoInput').click()" style="
+        flex:1;padding:7px;font-size:11px;border:1.5px dashed var(--border);border-radius:4px;
+        background:#f8f9fb;color:var(--dim);cursor:pointer;">
+        📷 写真を変更する
+      </button>
+      <button type="button" id="edit-photo-del" onclick="clearEditPhoto()" style="
+        display:none;padding:7px 10px;font-size:11px;border:1.5px solid #ffcdd2;border-radius:4px;
+        background:#fff5f5;color:#d32f2f;cursor:pointer;">
+        🗑️ 削除
+      </button>
+    </div>
+    <input type="file" id="editPhotoInput" accept="image/jpeg,image/png,image/heic,image/heif,image/webp,image/*" style="display:none">
+
+    <!-- 被害種別 -->
+    <div class="edit-label">被害種別 *</div>
+    <div class="edit-cat-grid" id="edit-cats"></div>
+
+    <!-- メモ -->
+    <div class="edit-label">メモ</div>
+    <textarea id="edit-memo" placeholder="状況の詳細、優先度など…"></textarea>
+
+    <!-- 座標表示 -->
+    <div class="edit-label">現在地点</div>
+    <div id="edit-coords" style="font-size:12px;color:var(--dim);padding:6px 8px;background:#f8f9fb;border-radius:4px;margin-bottom:4px"></div>
+    <button type="button" onclick="startRelocateFromEdit()" style="
+      width:100%;padding:8px;font-size:12px;font-weight:700;
+      border:1.5px solid #f5a623;border-radius:4px;background:#fff8e1;
+      color:#b36000;cursor:pointer;margin-bottom:12px;">
+      📍 地図上で場所を修正する
+    </button>
+
+    <!-- 操作ボタン -->
+    <div style="display:flex;gap:8px">
+      <button onclick="closeEditModal()" style="
+        flex:1;padding:9px;font-size:13px;border:1px solid var(--border);
+        border-radius:4px;background:#f0f2f5;color:var(--text);cursor:pointer;">
+        キャンセル
+      </button>
+      <button onclick="saveEdit()" style="
+        flex:2;padding:9px;font-size:13px;font-weight:700;
+        border:none;border-radius:4px;background:#0070cc;color:#fff;cursor:pointer;">
+        ✅ 保存する
+      </button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="importInput" accept=".json" style="display:none">
 
 <script>
@@ -969,6 +1069,7 @@ const CATS = {
   '道路損壊・通行止め': { color: '#f5a623', leg: 'leg-road',  stat: 'roadCount'  },
   '建物被害':       { color: '#ff4455', leg: 'leg-bld',   stat: 'bldCount'   },
   '人的被害':       { color: '#cc44ff', leg: 'leg-hum',   stat: 'humCount'   },
+  'その他':         { color: '#6b7a8d', leg: 'leg-other', stat: 'otherCount' },
 };
 
 let incidents = [];
@@ -1021,12 +1122,31 @@ setInterval(updateClock, 1000);
 updateClock();
 function pad(n) { return String(n).padStart(2,'0'); }
 
+// ── 動的ライブラリ読み込みユーティリティ ──
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('読み込み失敗: ' + src));
+    document.head.appendChild(s);
+  });
+}
+function loadCSS(href) {
+  if (document.querySelector(`link[href="${href}"]`)) return;
+  const l = document.createElement('link');
+  l.rel = 'stylesheet'; l.href = href;
+  document.head.appendChild(l);
+}
+
 // ── DRAWING TOOLS ──
 let drawings = [];
 var drawingLayer = null;
 let activeDrawHandler = null;
 let currentDrawType = null;
 let drawColor = '#e53935';
+let leafletDrawLoaded = false;
 
 function initDrawingLayer() {
   drawingLayer = L.featureGroup().addTo(map);
@@ -1041,12 +1161,11 @@ document.querySelectorAll('.color-swatch').forEach(el => {
   });
 });
 
-function activateDraw(type) {
+async function activateDraw(type) {
   deactivateDraw();
   currentDrawType = type;
   document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
-  const btnId = type === 'polygon' ? 'dt-polygon' : `dt-${type}`;
-  document.getElementById(btnId)?.classList.add('active');
+  document.getElementById(`dt-${type}`)?.classList.add('active');
   const hint = document.getElementById('drawHint');
   const cancelBtn = document.getElementById('drawCancelBtn');
   hint.style.display = 'block';
@@ -1059,7 +1178,26 @@ function activateDraw(type) {
       addTextAnnotation(e.latlng, text, drawColor);
       deactivateDraw();
     });
-  } else if (type === 'line') {
+    return;
+  }
+
+  // 線・円・多角形はLeaflet.drawが必要 → 遅延読み込み
+  if (!leafletDrawLoaded) {
+    hint.textContent = '⏳ 描画ツールを読み込み中…';
+    try {
+      loadCSS('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css');
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js');
+      leafletDrawLoaded = true;
+      // CREATED イベントを一度だけ登録
+      map.on(L.Draw.Event.CREATED, onDrawCreated);
+    } catch(e) {
+      hint.textContent = '⚠️ 描画ツールの読み込みに失敗しました（ネットワーク制限の可能性）';
+      cancelBtn.style.display = 'block';
+      return;
+    }
+  }
+
+  if (type === 'line') {
     hint.textContent = 'クリックで点を追加 → ダブルクリックで確定';
     activeDrawHandler = new L.Draw.Polyline(map, {
       shapeOptions: { color: drawColor, weight: 4, opacity: 0.9 },
@@ -1081,17 +1219,7 @@ function activateDraw(type) {
   }
 }
 
-function deactivateDraw() {
-  if (activeDrawHandler) { activeDrawHandler.disable(); activeDrawHandler = null; }
-  if (currentDrawType === 'text') { map.off('click'); }
-  currentDrawType = null;
-  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('drawHint').style.display = 'none';
-  document.getElementById('drawCancelBtn').style.display = 'none';
-}
-
-// Leaflet.Draw 完了イベント
-map.on(L.Draw.Event.CREATED, function(e) {
+function onDrawCreated(e) {
   const layer = e.layer;
   const type = e.layerType;
   const label = document.getElementById('drawLabelInput').value.trim();
@@ -1108,7 +1236,16 @@ map.on(L.Draw.Event.CREATED, function(e) {
   drawings.push(d);
   renderOneDrawing(d);
   deactivateDraw();
-});
+}
+
+function deactivateDraw() {
+  if (activeDrawHandler) { activeDrawHandler.disable(); activeDrawHandler = null; }
+  if (currentDrawType === 'text') { map.off('click'); }
+  currentDrawType = null;
+  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('drawHint').style.display = 'none';
+  document.getElementById('drawCancelBtn').style.display = 'none';
+}
 
 function addTextAnnotation(latlng, text, color) {
   const id = 'drw_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
@@ -1372,8 +1509,10 @@ function enterPinMode() {
 
 function cancelManualPin() {
   manualPinMode = false;
+  relocatingId = null;
   document.getElementById('pinModeOverlay').style.display = 'none';
   map.getContainer().style.cursor = '';
+  map.off('click'); // relocate用の一時clickも解除
   if (tempPinMarker) { map.removeLayer(tempPinMarker); tempPinMarker = null; }
   pendingModalData = null;
   // ピンモードキャンセル＝残りキューも破棄
@@ -1381,20 +1520,30 @@ function cancelManualPin() {
   queueTotal = 0;
   document.getElementById('queue-badge').style.display = 'none';
   document.getElementById('skip-btn').style.display = 'none';
+  // メッセージを元に戻す
+  document.getElementById('pinModeMsg').innerHTML =
+    `📍 被害地点をクリックしてください<span>クリックした場所にピンが立てられます</span>`;
 }
 
 // map click handler for manual pin（オーバーレイ経由）
 function onOverlayClick(e) {
-  if (!manualPinMode) return;
-  // オーバーレイ上のピクセル座標 → Leaflet LatLng に変換
   const rect = document.getElementById('map').getBoundingClientRect();
   const point = L.point(e.clientX - rect.left, e.clientY - rect.top);
   const latlng = map.containerPointToLatLng(point);
+
+  // 場所修正モード
+  if (relocatingId != null) {
+    _finishRelocate(latlng);
+    return;
+  }
+  // 通常の手動ピンモード
+  if (!manualPinMode) return;
   handleManualPin(latlng);
 }
 
 // 旧mapクリックハンドラは念のため残す（タブレット等の互換用）
 map.on('click', function(e) {
+  if (relocatingId != null) { _finishRelocate(e.latlng); return; }
   if (!manualPinMode) return;
   handleManualPin(e.latlng);
 });
@@ -1566,6 +1715,7 @@ function createMarker(inc) {
     '道路損壊・通行止め': '🚧 道路',
     '建物被害':          '🏠 建物',
     '人的被害':          '👤 人的',
+    'その他':            '📌 その他',
   }[inc.cat] || inc.cat;
 
   const icon = L.divIcon({
@@ -1606,6 +1756,13 @@ function createMarker(inc) {
 
   const marker = L.marker([inc.lat, inc.lng], { icon }).addTo(map);
   marker.bindPopup(buildPopup(inc), { maxWidth: 280 });
+  // メモがあればホバー時にツールチップ表示
+  if (inc.memo) {
+    marker.bindTooltip(`📝 ${inc.memo}`, {
+      direction: 'top', offset: [0, -46],
+      className: 'memo-tooltip', sticky: false,
+    });
+  }
   marker.on('click', () => selectIncident(inc.id));
   return marker;
 }
@@ -1625,8 +1782,200 @@ function buildPopup(inc) {
       🌐 ${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}<br>
       🕐 ${inc.time}
     </div>
-    ${inc.memo ? `<div class="popup-memo">${inc.memo}</div>` : ''}
+    ${inc.memo ? `<div class="popup-memo">📝 ${inc.memo}</div>` : ''}
+    <div style="margin-top:10px;display:flex;gap:6px;">
+      <button onclick="openEditModal('${inc.id}')" style="
+        flex:1;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;
+        background:#0070cc;color:#fff;border:none;border-radius:4px;">
+        ✏️ 編集
+      </button>
+      <button onclick="startRelocate('${inc.id}')" style="
+        flex:1;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;
+        background:#f5a623;color:#fff;border:none;border-radius:4px;">
+        📍 場所修正
+      </button>
+    </div>
   </div>`;
+}
+
+// ── EDIT ──
+let editingId = null;
+let editImgUrl = null; // 編集中の画像（null=変更なし, ''=削除, 'data:...'=新画像）
+
+function openEditModal(id) {
+  // ポップアップを閉じる
+  map.closePopup();
+
+  const inc = incidents.find(i => i.id == id);
+  if (!inc) return;
+  editingId = id;
+  editImgUrl = null; // リセット
+
+  // 写真プレビュー
+  const preview = document.getElementById('edit-img-preview');
+  const delBtn = document.getElementById('edit-photo-del');
+  if (inc.imgUrl) {
+    preview.src = inc.imgUrl;
+    preview.style.display = 'block';
+    delBtn.style.display = 'inline-block';
+  } else {
+    preview.src = '';
+    preview.style.display = 'none';
+    delBtn.style.display = 'none';
+  }
+
+  // 被害種別ボタン
+  const catsEl = document.getElementById('edit-cats');
+  catsEl.innerHTML = '';
+  Object.entries(CATS).forEach(([cat, v]) => {
+    const btn = document.createElement('button');
+    btn.className = 'edit-cat-btn';
+    btn.textContent = cat;
+    btn.style.borderColor = v.color;
+    if (inc.cat === cat) {
+      btn.classList.add('selected');
+      btn.style.background = v.color;
+      btn.style.color = '#fff';
+    }
+    btn.onclick = () => {
+      document.querySelectorAll('.edit-cat-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.style.background = '#f0f2f5';
+        b.style.color = 'var(--text)';
+      });
+      btn.classList.add('selected');
+      btn.style.background = v.color;
+      btn.style.color = '#fff';
+    };
+    catsEl.appendChild(btn);
+  });
+
+  // メモ・座標
+  document.getElementById('edit-memo').value = inc.memo || '';
+  document.getElementById('edit-coords').textContent =
+    `📍 ${inc.lat.toFixed(6)}, ${inc.lng.toFixed(6)}${inc.address ? '　🏠 ' + inc.address : ''}`;
+
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editingId = null;
+  editImgUrl = null;
+}
+
+// 写真変更
+document.getElementById('editPhotoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    editImgUrl = ev.target.result;
+    const preview = document.getElementById('edit-img-preview');
+    preview.src = editImgUrl;
+    preview.style.display = 'block';
+    document.getElementById('edit-photo-del').style.display = 'inline-block';
+  };
+  reader.readAsDataURL(file);
+});
+
+function clearEditPhoto() {
+  editImgUrl = ''; // 空文字 = 削除
+  document.getElementById('edit-img-preview').style.display = 'none';
+  document.getElementById('edit-img-preview').src = '';
+  document.getElementById('edit-photo-del').style.display = 'none';
+}
+
+function saveEdit() {
+  const inc = incidents.find(i => i.id == editingId);
+  if (!inc) return;
+
+  // 種別
+  const selectedCat = document.querySelector('.edit-cat-btn.selected');
+  if (!selectedCat) { alert('被害種別を選択してください。'); return; }
+  inc.cat = selectedCat.textContent;
+
+  // メモ
+  inc.memo = document.getElementById('edit-memo').value.trim();
+
+  // 写真
+  if (editImgUrl === '') {
+    inc.imgUrl = null; // 削除
+  } else if (editImgUrl) {
+    inc.imgUrl = editImgUrl; // 更新
+  }
+  // null のときは変更なし
+
+  // マーカー更新
+  if (markers[inc.id]) {
+    map.removeLayer(markers[inc.id]);
+  }
+  markers[inc.id] = createMarker(inc);
+
+  closeEditModal();
+  updateUI();
+}
+
+// ── 場所修正 ──
+let relocatingId = null;
+
+function startRelocate(id) {
+  map.closePopup();
+  relocatingId = id;
+  _startRelocateMode();
+}
+
+function startRelocateFromEdit(id) {
+  // 編集モーダルから呼ばれる場合はeditingIdを使う
+  relocatingId = editingId;
+  closeEditModal();
+  _startRelocateMode();
+}
+
+function _startRelocateMode() {
+  const inc = incidents.find(i => i.id == relocatingId);
+  if (!inc) return;
+  // オーバーレイのメッセージを変更して表示
+  document.getElementById('pinModeMsg').innerHTML =
+    `📍 <strong>${inc.cat}</strong> の新しい場所をクリックしてください<span>現在地：${inc.lat.toFixed(4)}, ${inc.lng.toFixed(4)}</span>`;
+  manualPinMode = false; // 通常のピンモードとは別フラグで管理
+  document.getElementById('pinModeOverlay').style.display = 'block';
+  map.getContainer().style.cursor = 'crosshair';
+
+  // 一度だけclickを受け取る
+  map.once('click', function(e) {
+    _finishRelocate(e.latlng);
+  });
+}
+
+function _finishRelocate(latlng) {
+  document.getElementById('pinModeOverlay').style.display = 'none';
+  map.getContainer().style.cursor = '';
+  // メッセージを元に戻す
+  document.getElementById('pinModeMsg').innerHTML =
+    `📍 被害地点をクリックしてください<span>クリックした場所にピンが立てられます</span>`;
+
+  const inc = incidents.find(i => i.id == relocatingId);
+  if (!inc) { relocatingId = null; return; }
+
+  inc.lat = latlng.lat;
+  inc.lng = latlng.lng;
+  inc.address = null; // 住所を再取得
+
+  // マーカー更新
+  if (markers[inc.id]) map.removeLayer(markers[inc.id]);
+  markers[inc.id] = createMarker(inc);
+
+  // 住所再取得
+  fetchAddress(inc.lat, inc.lng).then(addr => {
+    inc.address = addr;
+    if (markers[inc.id]) markers[inc.id].setPopupContent(buildPopup(inc));
+    renderList();
+  });
+
+  relocatingId = null;
+  map.flyTo([inc.lat, inc.lng], Math.max(map.getZoom(), 15), { duration: 0.6 });
+  updateUI();
 }
 
 // ── SELECT / DELETE ──
@@ -1677,6 +2026,7 @@ function updateUI() {
   document.getElementById('roadCount').textContent  = counts['道路損壊・通行止め'];
   document.getElementById('bldCount').textContent   = counts['建物被害'];
   document.getElementById('humCount').textContent   = counts['人的被害'];
+  document.getElementById('otherCount').textContent = counts['その他'];
 
   document.getElementById('leg-all').textContent   = incidents.length;
   document.getElementById('leg-flood').textContent = counts['浸水・冠水'];
@@ -1684,6 +2034,7 @@ function updateUI() {
   document.getElementById('leg-road').textContent  = counts['道路損壊・通行止め'];
   document.getElementById('leg-bld').textContent   = counts['建物被害'];
   document.getElementById('leg-hum').textContent   = counts['人的被害'];
+  document.getElementById('leg-other').textContent = counts['その他'];
 
   document.getElementById('emptyState').style.display = incidents.length > 0 ? 'none' : 'block';
 
@@ -1721,8 +2072,16 @@ function renderList() {
 async function savePdf() {
   const msg = document.getElementById('printMsg');
   msg.style.display = 'block';
-  msg.textContent = '⏳ PDF生成中…地図を読み込んでいます';
+  msg.textContent = '⏳ ライブラリ読み込み中…';
   closePrintModal();
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  } catch(e) {
+    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
+    return;
+  }
+  msg.textContent = '⏳ PDF生成中…地図を読み込んでいます';
   await new Promise(r => setTimeout(r, 700));
   try {
     const canvas = await html2canvas(document.getElementById('mapwrap'), {
@@ -1732,7 +2091,6 @@ async function savePdf() {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
-    // ヘッダー
     const dateStr = new Date().toLocaleString('ja-JP');
     pdf.setFillColor(0, 112, 204);
     pdf.rect(0, 0, 297, 12, 'F');
@@ -1742,11 +2100,9 @@ async function savePdf() {
     pdf.setFontSize(8);
     pdf.text(`出力日時：${dateStr}　総件数：${incidents.length}件`, 297 - 8, 8, { align: 'right' });
 
-    // 地図画像
-    const mapH = 210 - 12 - 8; // A4横の高さ - ヘッダー - 余白
+    const mapH = 210 - 12 - 8;
     pdf.addImage(imgData, 'JPEG', 0, 12, 297, mapH);
 
-    // 凡例
     pdf.setTextColor(50, 50, 50);
     pdf.setFontSize(7);
     let lx = 4;
@@ -1778,8 +2134,16 @@ function hexToRgb(hex) {
 async function savePptx() {
   const msg = document.getElementById('printMsg');
   msg.style.display = 'block';
-  msg.textContent = '⏳ PowerPoint生成中…';
+  msg.textContent = '⏳ ライブラリ読み込み中…';
   closePrintModal();
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    await loadScript('https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
+  } catch(e) {
+    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
+    return;
+  }
+  msg.textContent = '⏳ PowerPoint生成中…';
   await new Promise(r => setTimeout(r, 700));
   try {
     // 地図キャプチャ
@@ -1789,7 +2153,7 @@ async function savePptx() {
     const mapImg = canvas.toDataURL('image/jpeg', 0.9);
 
     const pptx = new PptxGenJS();
-    pptx.layout = 'LAYOUT_WIDE'; // 13.33 x 7.5 inch
+    pptx.layout = 'LAYOUT_WIDE';
 
     // ── スライド1：地図 ──
     const s1 = pptx.addSlide();
@@ -1884,13 +2248,19 @@ async function savePptx() {
 }
 
 // ── Excel出力 ──
-function saveExcel() {
+async function saveExcel() {
   if (incidents.length === 0) { alert('データがありません。'); return; }
   const msg = document.getElementById('printMsg');
   msg.style.display = 'block';
-  msg.textContent = '⏳ Excel生成中…';
+  msg.textContent = '⏳ ライブラリ読み込み中…';
   closePrintModal();
-
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+  } catch(e) {
+    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
+    return;
+  }
+  msg.textContent = '⏳ Excel生成中…';
   try {
     const wb = XLSX.utils.book_new();
 
@@ -1946,18 +2316,19 @@ function closePrintModal() {
 async function saveJpeg() {
   const msg = document.getElementById('printMsg');
   msg.style.display = 'block';
-  msg.textContent = '⏳ 画像を生成しています…';
+  msg.textContent = '⏳ ライブラリ読み込み中…';
   closePrintModal();
-
-  // タイルが全部読み込まれるまで少し待つ
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  } catch(e) {
+    msg.textContent = '⚠️ ライブラリの読み込みに失敗しました（ネットワーク制限の可能性）';
+    return;
+  }
+  msg.textContent = '⏳ 画像を生成しています…';
   await new Promise(r => setTimeout(r, 600));
-
   try {
     const canvas = await html2canvas(document.getElementById('mapwrap'), {
-      useCORS: true,
-      allowTaint: true,
-      scale: 2,
-      logging: false,
+      useCORS: true, allowTaint: true, scale: 2, logging: false,
     });
     const a = document.createElement('a');
     a.download = `被害状況マップ_${new Date().toISOString().slice(0,10)}.jpg`;
