@@ -754,9 +754,9 @@ body.fullscreen-mode #exitFullscreenBtn { display:block; }
     </div>
 
     <!-- タイトル入力 -->
-    <div class="out-section-title">▸ タイトル（印刷・PDF・ヘッダーに反映）</div>
+    <div class="out-section-title">▸ タイトル（任意・JPEG出力時のファイル名に使用）</div>
     <input type="text" id="mapTitleInput"
-      value="沖縄県 被害状況マップ"
+      placeholder="例：令和6年台風10号 被害状況"
       style="width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--border);border-radius:4px;margin-bottom:14px;font-family:'Noto Sans JP',sans-serif;color:var(--text);">
 
     <!-- 画質選択 -->
@@ -1977,7 +1977,8 @@ async function saveJpeg(mode = 'normal') {
       canvas = await html2canvas(mw, { useCORS:true, allowTaint:true, scale, logging:false });
       resetSize();
       const a = document.createElement('a');
-      a.download = `被害状況マップ_A3横_${new Date().toISOString().slice(0,10)}.jpg`;
+      const _title = document.getElementById('mapTitleInput')?.value.trim() || '被害状況マップ';
+      a.download = `${_title}_A3横_${new Date().toISOString().slice(0,10)}.jpg`;
       a.href = canvas.toDataURL('image/jpeg', 0.92); a.click();
 
     } else if (mode === 'A2split') {
@@ -1990,7 +1991,7 @@ async function saveJpeg(mode = 'normal') {
         cv.width = sw; cv.height = canvas.height;
         cv.getContext('2d').drawImage(canvas, sx, 0, sw, canvas.height, 0, 0, sw, canvas.height);
         const a = document.createElement('a');
-        a.download = `被害状況マップ_A2${label}_${new Date().toISOString().slice(0,10)}.jpg`;
+        a.download = `${_title}_A2${label}_${new Date().toISOString().slice(0,10)}.jpg`;
         a.href = cv.toDataURL('image/jpeg', 0.92); a.click();
         await new Promise(r => setTimeout(r, 400));
       }
@@ -2006,7 +2007,7 @@ async function saveJpeg(mode = 'normal') {
         cv.width = hw; cv.height = hh;
         cv.getContext('2d').drawImage(canvas, sx, sy, hw, hh, 0, 0, hw, hh);
         const a = document.createElement('a');
-        a.download = `被害状況マップ_A1${label}_${new Date().toISOString().slice(0,10)}.jpg`;
+        a.download = `${_title}_A1${label}_${new Date().toISOString().slice(0,10)}.jpg`;
         a.href = cv.toDataURL('image/jpeg', 0.92); a.click();
         await new Promise(r => setTimeout(r, 400));
       }
@@ -2016,7 +2017,8 @@ async function saveJpeg(mode = 'normal') {
       await new Promise(r => setTimeout(r, 400));
       canvas = await html2canvas(mw, { useCORS:true, allowTaint:true, scale, logging:false });
       const a = document.createElement('a');
-      a.download = `被害状況マップ_${new Date().toISOString().slice(0,10)}.jpg`;
+      const _title = document.getElementById('mapTitleInput')?.value.trim() || '被害状況マップ';
+      a.download = `${_title}_${new Date().toISOString().slice(0,10)}.jpg`;
       a.href = canvas.toDataURL('image/jpeg', 0.92); a.click();
     }
   } catch(e) {
@@ -2035,8 +2037,8 @@ function printMap(size) {
   const pgSize   = { A4:'A4 landscape', A3:'A3 landscape' };
   const pgMargin = { A4:'8mm', A3:'8mm' };
   const mH = {
-    A4: photoPanelOn && incidents.some(i=>i.imgUrl) ? 'calc(100vh - 16mm - 160px)' : 'calc(100vh - 16mm)',
-    A3: photoPanelOn && incidents.some(i=>i.imgUrl) ? 'calc(100vh - 16mm - 180px)' : 'calc(100vh - 16mm)',
+    A4: photoPanelOn && incidents.some(i => i.imgUrl) ? 'calc(100vh - 16mm - 160px)' : 'calc(100vh - 16mm)',
+    A3: photoPanelOn && incidents.some(i => i.imgUrl) ? 'calc(100vh - 16mm - 180px)' : 'calc(100vh - 16mm)',
   };
   el.textContent = `
     @page { size:${pgSize[size]}; margin:${pgMargin[size]}; }
@@ -2050,26 +2052,11 @@ function printMap(size) {
       #mapwrap { width:100% !important; height:${mH[size]} !important; position:relative !important; overflow:hidden !important; }
       #map     { width:100% !important; height:100% !important; }
       #photoPanel { max-height:none !important; overflow:visible !important; page-break-inside:avoid; }
-      #_phdr   { display:flex !important; }
       #_pleg   { display:flex !important; }
     }`;
   document.head.appendChild(el);
 
-  // 印刷ヘッダー
-  let hdr = document.getElementById('_phdr');
-  if (!hdr) {
-    hdr = document.createElement('div'); hdr.id = '_phdr';
-    hdr.style.cssText = 'display:none;position:absolute;top:0;left:0;right:0;z-index:2000;background:rgba(0,112,204,0.9);color:#fff;padding:5px 12px;align-items:center;gap:12px;font-size:11px;';
-    document.getElementById('mapwrap').appendChild(hdr);
-  }
-  hdr.innerHTML = `<strong>${document.getElementById('mapTitleInput')?.value || '沖縄県 被害状況マップ'}</strong>
-    <span>${new Date().toLocaleString('ja-JP')}</span>
-    <span style="margin-left:auto">総件数：${incidents.length}件　` +
-    Object.entries(CATS).filter(([c]) => incidents.some(i=>i.cat===c))
-      .map(([c,v]) => `<span>${v.short}:${incidents.filter(i=>i.cat===c).length}</span>`)
-      .join('　') + '</span>';
-
-  // 印刷凡例
+  // 印刷凡例（下部のみ）
   let leg = document.getElementById('_pleg');
   if (!leg) {
     leg = document.createElement('div'); leg.id = '_pleg';
@@ -2077,22 +2064,22 @@ function printMap(size) {
     document.getElementById('mapwrap').appendChild(leg);
   }
   leg.innerHTML = Object.entries(CATS)
-    .filter(([c]) => incidents.some(i=>i.cat===c))
+    .filter(([c]) => incidents.some(i => i.cat === c))
     .map(([c,v]) => `<span style="display:inline-flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:${v.color};display:inline-block"></span>${c}：${incidents.filter(i=>i.cat===c).length}件</span>`)
-    .join('');
+    .join('　');
 
   map.invalidateSize();
   setTimeout(() => {
     window.print();
-    setTimeout(() => { el.remove(); hdr.remove(); leg.remove(); map.invalidateSize(); }, 1200);
+    setTimeout(() => { el.remove(); leg.remove(); map.invalidateSize(); }, 1200);
   }, 600);
 }
 
 window.addEventListener('beforeprint', () => {
-  ['_phdr','_pleg'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display='flex'; });
+  const e = document.getElementById('_pleg'); if (e) e.style.display='flex';
 });
 window.addEventListener('afterprint', () => {
-  ['_phdr','_pleg'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display='none'; });
+  const e = document.getElementById('_pleg'); if (e) e.style.display='none';
 });
 
 // ── 全画面モード ──
