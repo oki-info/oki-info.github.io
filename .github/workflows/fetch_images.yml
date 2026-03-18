@@ -295,11 +295,13 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"earthquake.json 生成完了: {len(result['earthquakes'])}件")
 
-      - name: 河川水位デバッグ（データファイル確認）
+      - name: 河川水位データ生成（沖縄県河川情報システム）
         shell: python3 {0}
         run: |
-          import urllib.request
+          import json, re, urllib.request
+          from datetime import datetime, timezone, timedelta
 
+          JST = timezone(timedelta(hours=9))
           BASE = 'http://bousai-kasen.pref.okinawa.jp/river/kasen/'
 
           def fetch(url):
@@ -307,24 +309,117 @@ jobs:
                   'User-Agent': 'Mozilla/5.0',
                   'Referer': BASE,
               })
-              with urllib.request.urlopen(req, timeout=15) as r:
+              with urllib.request.urlopen(req, timeout=20) as r:
                   raw = r.read()
               for enc in ('utf-8', 'euc-jp', 'shift-jis'):
                   try: return raw.decode(enc)
                   except: pass
               return raw.decode('utf-8', errors='replace')
 
-          for fname in [
-              'js/jrcokinawa.js',
-              'dat_js/DBDAT_dat.js',
-              'dat_js/DBDAT_inf.js',
-          ]:
-              try:
-                  txt = fetch(BASE + fname)
-                  print(f"\n=== {fname} ({len(txt)}chars) ===")
-                  print(txt[:3000])
-              except Exception as e:
-                  print(f"{fname} NG: {e}")
+          def js_to_json(txt):
+              """JavaScriptオブジェクトリテラル→JSON変換"""
+              # キーをクォート
+              txt = re.sub(r'([{,])\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'\1"\2":', txt)
+              # 末尾カンマを除去
+              txt = re.sub(r',\s*([}\]])', r'\1', txt)
+              # 単引用符を二重に
+              txt = txt.replace("\'", "__SQ__").replace("'", '"').replace("__SQ__", "'")
+              return txt
+
+          result = {
+              'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
+              'updated': '',
+              'stations': [],
+              'history': [],
+          }
+
+          try:
+              # 観測所情報
+              inf_js = fetch(BASE + 'dat_js/DBDAT_inf.js')
+              # kind:4（水位局）を抽出
+              inf_pattern = re.compile(
+                  r'\{\s*kind:4\s*,\s*sno:\s*(\d+)\s*,.*?'
+                  r'stn:\s*['"]([^'"]+)['"]\s*,.*?'
+                  r'rgrp:\s*['"]([^'"]+)['"]\s*,.*?'
+                  r'ksn:\s*['"]([^'"]+)['"]',
+                  re.DOTALL
+              )
+              stn_map = {}  # sno → info
+              for m in inf_pattern.finditer(inf_js):
+                  sno, stn, rgrp, ksn = int(m.group(1)), m.group(2), m.group(3), m.group(4)
+                  stn_map[sno] = {'stn': stn, 'river': ksn, 'rgrp': rgrp}
+              print(f"水位観測所: {len(stn_map)}局")
+
+              # 基準水位（alm_inf）を抽出
+              alm_pattern = re.compile(
+                  r'\{\s*kind:4\s*,\s*sno:\s*(\d+)\s*,.*?'
+                  r'a1:\s*([\d.\-]+).*?'   # 氾濫危険
+                  r'a2:\s*([\d.\-]+)',       # 護岸天端
+                  re.DOTALL
+              )
+              alm_map = {}
+              # alm_infブロックを先に取り出す
+              alm_block = re.search(r'alm_inf:\s*\[(.*?)\]', inf_js, re.DOTALL)
+              if alm_block:
+                  for m in re.finditer(
+                      r'\{\s*kind:4\s*,\s*sno:\s*(\d+).*?'
+                      r'a1:\s*([\d.\-]+).*?a2:\s*([\d.\-]+)',
+                      alm_block.group(1), re.DOTALL
+                  ):
+                      sno = int(m.group(1))
+                      alm_map[sno] = {'danger': float(m.group(2)), 'caution': float(m.group(3))}
+
+              # 現在水位データ
+              dat_js = fetch(BASE + 'dat_js/DBDAT_dat.js')
+
+              # 最新時刻
+              tm_m = re.search(r'kind:\s*4.*?dsp:\s*['"]([^'"]+)['"]', dat_js, re.DOTALL)
+              if tm_m:
+                  result['updated'] = tm_m.group(1)
+
+              # nowdt（現在値）: kind:4 のもの
+              now_pattern = re.compile(
+                  r'\{\s*kind:\s*4\s*,\s*sno:\s*(\d+)\s*,\s*'
+                  r'item10:\s*\{\s*dat:\s*['"]([^'"]*)['"]\s*,\s*alm:\s*(-?\d+)'
+              )
+              for m in now_pattern.finditer(dat_js):
+                  sno = int(m.group(1))
+                  level = m.group(2)
+                  alm   = int(m.group(3))
+                  if sno not in stn_map:
+                      continue
+                  info = stn_map[sno]
+                  alm_info = alm_map.get(sno, {})
+                  result['stations'].append({
+                      'sno':    sno,
+                      'stn':    info['stn'],
+                      'river':  info['river'],
+                      'level':  level,
+                      'alm':    alm,   # 0=平常 1=注意 2=警戒 3=危険
+                      'danger':  alm_info.get('danger'),
+                      'caution': alm_info.get('caution'),
+                  })
+
+              print(f"水位データ取得: {len(result['stations'])}局, 更新時刻: {result['updated']}")
+              # アラート確認
+              alerts = [s for s in result['stations'] if s['alm'] >= 2]
+              if alerts:
+                  print(f"⚠ 警戒以上: {[s['stn'] for s in alerts]}")
+
+              # repdt（経過表）: 直近24時間分
+              rep_block = re.search(r'repdt:\s*\[(.*?)\]\s*,\s*(?:nowdt|repdt2|\})', dat_js, re.DOTALL)
+              if rep_block:
+                  # 最初の観測所のサンプルでデータ構造確認
+                  sample = rep_block.group(1)[:500]
+                  print(f"repdt構造サンプル: {sample[:300]}")
+
+          except Exception as e:
+              import traceback; traceback.print_exc()
+              print(f"河川水位 NG: {e}")
+
+          with open('river.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          print(f"river.json生成完了: {len(result['stations'])}局")
 
       - name: YouTube ライブID取得 + cameras.json + warning.json 生成
         env:
@@ -534,5 +629,5 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add img_cam/ cameras.json warning.json kikukuru.json earthquake.json
+          git add img_cam/ cameras.json warning.json kikukuru.json earthquake.json river.json
           git diff --staged --quiet || (git commit -m "🌊 カメラ更新 $(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M') JST" && git pull --rebase && git push)
