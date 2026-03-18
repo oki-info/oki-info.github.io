@@ -1,5 +1,5 @@
 {
-  "fetched_jst": "2026-03-18 23:08",
+  "fetched_jst": "2026-03-18 23:18",
   "updated": "2026/03/18 23:00",
   "stations": [
     {
@@ -236,5 +236,6 @@
       "danger": null,
       "caution": null
     }
-  ]
+  ],
+  "history": []
 }
