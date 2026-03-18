@@ -2052,9 +2052,24 @@ function printMap(size) {
       #mapwrap { width:100% !important; height:${mH[size]} !important; position:relative !important; overflow:hidden !important; }
       #map     { width:100% !important; height:100% !important; }
       #photoPanel { max-height:none !important; overflow:visible !important; page-break-inside:avoid; }
+      #_phdr   { display:flex !important; }
       #_pleg   { display:flex !important; }
     }`;
   document.head.appendChild(el);
+
+  // 印刷ヘッダー（タイトルのみ・日時なし）
+  let hdr = document.getElementById('_phdr');
+  if (!hdr) {
+    hdr = document.createElement('div'); hdr.id = '_phdr';
+    hdr.style.cssText = 'display:none;position:absolute;top:0;left:0;right:0;z-index:2000;background:rgba(0,112,204,0.9);color:#fff;padding:5px 12px;align-items:center;gap:12px;font-size:11px;';
+    document.getElementById('mapwrap').appendChild(hdr);
+  }
+  const printTitle = document.getElementById('mapTitleInput')?.value.trim() || '沖縄県 被害状況マップ';
+  hdr.innerHTML = `<strong style="font-size:13px">${printTitle}</strong>
+    <span style="margin-left:auto">総件数：${incidents.length}件　` +
+    Object.entries(CATS).filter(([c]) => incidents.some(i => i.cat === c))
+      .map(([c,v]) => `<span>${v.short}:${incidents.filter(i=>i.cat===c).length}</span>`)
+      .join('　') + '</span>';
 
   // 印刷凡例（下部のみ）
   let leg = document.getElementById('_pleg');
