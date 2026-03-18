@@ -1,5 +1,240 @@
 {
-  "fetched_jst": "2026-03-18 22:59",
-  "updated": "2026/03/18 22:50",
-  "stations": []
+  "fetched_jst": "2026-03-18 23:03",
+  "updated": "2026/03/18 23:00",
+  "stations": [
+    {
+      "sno": 1,
+      "stn": "ひめゆり橋",
+      "river": "安里川",
+      "level": "0.16",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 3,
+      "stn": "御成橋",
+      "river": "久茂地川",
+      "level": "0.92",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 4,
+      "stn": "美栄橋",
+      "river": "久茂地川",
+      "level": "2.58",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 5,
+      "stn": "真嘉比川",
+      "river": "真嘉比川",
+      "level": "1.77",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 8,
+      "stn": "兼城",
+      "river": "国場川",
+      "level": "0.62",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 9,
+      "stn": "真玉橋",
+      "river": "国場川",
+      "level": "0.92",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 10,
+      "stn": "長堂川",
+      "river": "長堂川",
+      "level": "1.22",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 11,
+      "stn": "報得川",
+      "river": "報得川",
+      "level": "0.23",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 12,
+      "stn": "安岡",
+      "river": "安謝川",
+      "level": "0.06",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 13,
+      "stn": "古島",
+      "river": "安謝川",
+      "level": "0.20",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 14,
+      "stn": "石嶺",
+      "river": "安謝川",
+      "level": "1.84",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 15,
+      "stn": "小波津川",
+      "river": "小波津川",
+      "level": "1.45",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 16,
+      "stn": "牧港川",
+      "river": "牧港川",
+      "level": "1.09",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 17,
+      "stn": "比謝川",
+      "river": "比謝川",
+      "level": "0.66",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 18,
+      "stn": "白比川",
+      "river": "白比川",
+      "level": "0.31",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 19,
+      "stn": "普天間川",
+      "river": "普天間川",
+      "level": "0.26",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 20,
+      "stn": "小湾川",
+      "river": "小湾川",
+      "level": "0.99",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 21,
+      "stn": "天願川",
+      "river": "天願川",
+      "level": "2.51",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 22,
+      "stn": "石川川",
+      "river": "石川川",
+      "level": "-0.15",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 30,
+      "stn": "赤田地橋",
+      "river": "天願川",
+      "level": "0.06",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 31,
+      "stn": "栄野比",
+      "river": "天願川",
+      "level": "0.11",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 23,
+      "stn": "屋部川",
+      "river": "屋部川",
+      "level": "0.28",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 24,
+      "stn": "西屋部川",
+      "river": "西屋部川",
+      "level": "3.96",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 25,
+      "stn": "我部祖河川",
+      "river": "我部祖河川",
+      "level": "0.32",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 26,
+      "stn": "源河川",
+      "river": "源河川",
+      "level": "-0.06",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    },
+    {
+      "sno": 27,
+      "stn": "幸地川",
+      "river": "幸地川",
+      "level": "0.39",
+      "alm": 0,
+      "danger": null,
+      "caution": null
+    }
+  ]
 }
