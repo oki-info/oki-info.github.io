@@ -295,6 +295,46 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"earthquake.json 生成完了: {len(result['earthquakes'])}件")
 
+      - name: 河川水位デバッグ（URL構造確認）
+        shell: python3 {0}
+        run: |
+          import urllib.request
+
+          def fetch(url, enc='utf-8'):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Referer': 'http://bousai-kasen.pref.okinawa.jp/river/kasen/',
+              })
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  raw = r.read()
+              try:
+                  return raw.decode(enc)
+              except:
+                  return raw.decode('euc-jp', errors='replace')
+
+          # メインページ確認
+          try:
+              html = fetch('http://bousai-kasen.pref.okinawa.jp/river/kasen/')
+              print(f"メインページ取得OK: {len(html)}chars")
+              print("先頭500chars:")
+              print(html[:500])
+          except Exception as e:
+              print(f"メインページ NG: {e}")
+
+          # rep.html確認
+          for url in [
+              'http://bousai-kasen.pref.okinawa.jp/river/kasen/rep.html',
+              'http://bousai-kasen.pref.okinawa.jp/river/kasen/jrcokinawa.js',
+              'http://bousai-kasen.pref.okinawa.jp/river/kasen/dsp.js',
+          ]:
+              try:
+                  txt = fetch(url)
+                  name = url.split('/')[-1]
+                  print(f"\n{name} ({len(txt)}chars):")
+                  print(txt[:800])
+              except Exception as e:
+                  print(f"{url.split('/')[-1]} NG: {e}")
+
       - name: YouTube ライブID取得 + cameras.json + warning.json 生成
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
