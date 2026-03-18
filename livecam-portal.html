@@ -304,6 +304,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   <button class="tab"        id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
   <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
   <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
+  <button class="tab"        id="tab-kasen"  onclick="showTab('kasen')">📊 河川水位</button>
   <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-bousai"   onclick="showTab('bousai')">🚨 防災カメラ <span class="tab-count">4</span></button>
 </nav>
@@ -542,6 +543,14 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 </div>
 
 <!-- ④ 道路カメラ -->
+<div class="section" id="sec-kasen">
+  <div class="portal-body" style="background:#f0f4f8;min-height:400px">
+    <div id="kasen-inner">
+      <div style="color:#666;font-family:monospace;font-size:12px;padding:16px">読込中…</div>
+    </div>
+  </div>
+</div>
+
 <div class="section" id="sec-road">
   <div class="river-toolbar">
     <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">南部国道事務所 道路カメラ</span>
@@ -656,12 +665,13 @@ async function setImgNoCache(imgEl, url) {
 }
 
 function showTab(id){
-  ['river','bousaiinfo','youtube','kaiho','road','bousai'].forEach(t=>{
+  ['river','bousaiinfo','youtube','kaiho','road','bousai','kasen'].forEach(t=>{
     document.getElementById('sec-'+t).classList.toggle('active',t===id);
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
   document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
-  if(id==='bousaiinfo'){ loadKikukuru(); loadBousaiInfo(); loadRiver(); loadEarthquake(); }
+  if(id==='bousaiinfo'){ loadKikukuru(); loadBousaiInfo(); loadRiver(); loadEarthquake();
+  if(id==='kasen'){ loadKasen(); } }
   // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
@@ -996,6 +1006,141 @@ const AREA_NAMES={
 };
 
 let bousaiInfoLoaded=false;
+// ── 河川水位タブ ──
+let kasenLoaded = false;
+let kasenHistSno = null;
+
+async function loadKasen(){
+  if(kasenLoaded) return;
+  kasenLoaded = true;
+  const el = document.getElementById('kasen-inner');
+  if(!el) return;
+  try {
+    const res = await fetch('river.json?_='+Math.floor(Date.now()/300000));
+    if(!res.ok){ el.innerHTML='<p style="color:#666;padding:16px">データなし</p>'; return; }
+    const data = await res.json();
+    renderKasenNow(data);
+  } catch(e){ console.warn('river.json取得失敗',e); }
+}
+
+function renderKasenNow(data){
+  const el = document.getElementById('kasen-inner');
+  const stns = data.stations || [];
+  const hist = data.history  || [];
+
+  // 色定義（明るい配色）
+  const AC = {'-1':'#888', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
+  const AB = {'-1':'#eee', 0:'#fff',  1:'#fff9c4', 2:'#ffe0b2', 3:'#ffcdd2', 4:'#b71c1c'};
+  const AL = {'-1':'欠測', 0:'–',     1:'注意',    2:'警戒',    3:'危険',    4:'氾濫危険'};
+  const ARROWS = {up:'↑', down:'↓', stay:'→', '':''};
+
+  // ヘッダー
+  const header = `<div style="background:#1565c0;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div style="font-weight:700;font-size:14px">🌊 河川水位情報（沖縄県）</div>
+    <div style="font-size:12px;opacity:.85">観測時刻: ${data.updated||''} &nbsp;
+      <button onclick="kasenLoaded=false;loadKasen()" style="background:#1976d2;border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:11px">↺ 更新</button>
+    </div>
+  </div>`;
+
+  // 総括表
+  const nowRows = stns.map(s => {
+    const c = AC[s.alm]??'#333', bg = AB[s.alm]??'#fff';
+    const lv = (!s.level || s.level==='-' || s.level==='欠測') ? '欠測' : s.level+'m';
+    const isMissing = lv==='欠測';
+    const dangerStr = s.danger  != null ? s.danger+'m'  : '－';
+    const cautStr   = s.caution != null ? s.caution+'m' : '－';
+    const almBadge  = s.alm > 0
+      ? `<span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]}</span>`
+      : `<span style="color:#aaa;font-size:11px">${AL[0]}</span>`;
+    const histLink = hist.find(h=>h.sno===s.sno)
+      ? `<a href="#" onclick="event.preventDefault();showKasenHist(${s.sno})" style="font-size:11px;color:#1565c0">経過表</a>`
+      : '';
+    return `<tr style="background:${bg};border-bottom:1px solid #ddd">
+      <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:600;white-space:nowrap">${s.stn}</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px;white-space:nowrap">${s.river}</td>
+      <td style="padding:6px 10px;font-size:14px;font-weight:700;text-align:right;font-family:monospace;color:${isMissing?'#aaa':c}">${lv}</td>
+      <td style="padding:6px 10px;color:#c62828;font-size:12px;text-align:right;font-family:monospace">${dangerStr}</td>
+      <td style="padding:6px 10px;color:#e65100;font-size:12px;text-align:right;font-family:monospace">${cautStr}</td>
+      <td style="padding:6px 10px;text-align:center">${almBadge}</td>
+      <td style="padding:6px 10px;text-align:center">${histLink}</td>
+    </tr>`;
+  }).join('');
+
+  const nowTable = `<div style="overflow-x:auto;margin-bottom:16px">
+    <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #ccc">
+      <thead>
+        <tr style="background:#1565c0">
+          <th colspan="7" style="padding:8px 12px;color:#fff;text-align:left;font-size:13px">水位総括表</th>
+        </tr>
+        <tr style="background:#e3f2fd">
+          <th style="padding:7px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">観測所</th>
+          <th style="padding:7px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">河川</th>
+          <th style="padding:7px 10px;text-align:right;color:#333;font-size:12px;border-bottom:2px solid #1565c0">現在水位</th>
+          <th style="padding:7px 10px;text-align:right;color:#c62828;font-size:12px;border-bottom:2px solid #1565c0">氾濫危険</th>
+          <th style="padding:7px 10px;text-align:right;color:#e65100;font-size:12px;border-bottom:2px solid #1565c0">護岸天端</th>
+          <th style="padding:7px 10px;text-align:center;color:#333;font-size:12px;border-bottom:2px solid #1565c0">状態</th>
+          <th style="padding:7px 10px;text-align:center;color:#333;font-size:12px;border-bottom:2px solid #1565c0">経過</th>
+        </tr>
+      </thead>
+      <tbody>${nowRows}</tbody>
+    </table>
+  </div>`;
+
+  // 凡例
+  const legend = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:11px">
+    ${[{l:1,t:'注意（護岸天端超え）'},{l:2,t:'警戒（氾濫危険超え）'},{l:3,t:'危険'}].map(x=>
+      `<div style="display:flex;align-items:center;gap:5px">
+        <div style="width:14px;height:14px;border-radius:2px;background:${AB[x.l]};border:1px solid ${AC[x.l]}"></div>
+        <span style="color:#555">${x.t}</span>
+      </div>`).join('')}
+    <a href="http://bousai-kasen.pref.okinawa.jp/river/kasen/now.html?g=22&k=4&a=0" target="_blank" style="margin-left:auto;color:#1565c0;font-size:11px">↗ 沖縄県河川情報システム（公式）</a>
+  </div>`;
+
+  el.innerHTML = header +
+    `<div style="padding:16px;background:#f5f8ff">` +
+    legend + nowTable +
+    `<div id="kasen-hist-area"></div></div>`;
+}
+
+function showKasenHist(sno){
+  const el = document.getElementById('kasen-hist-area');
+  if(!el) return;
+  fetch('river.json?_='+Math.floor(Date.now()/300000)).then(r=>r.json()).then(data=>{
+    const h = (data.history||[]).find(x=>x.sno===sno);
+    if(!h){ el.innerHTML=''; return; }
+    const AC2 = {'-1':'#aaa', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
+    const AB2 = {'-1':'#eee', 0:'#fff',  1:'#fff9c4', 2:'#ffe0b2', 3:'#ffcdd2', 4:'#b71c1c'};
+    const TR  = {up:'↑',down:'↓',stay:'→','':'→'};
+    const rows = h.records.map(r=>{
+      const c=AC2[r.alm]??'#333', bg=AB2[r.alm]??'#fff';
+      const lv = (!r.level||r.level==='-'||r.level==='欠測') ? '欠測' : r.level+'m';
+      return `<tr style="background:${bg};border-bottom:1px solid #ddd">
+        <td style="padding:5px 10px;font-family:monospace;font-size:12px;color:#555;white-space:nowrap">${r.time}</td>
+        <td style="padding:5px 10px;font-family:monospace;font-size:13px;font-weight:600;text-align:right;color:${c}">${lv}</td>
+        <td style="padding:5px 10px;text-align:center;font-size:14px;color:${c}">${TR[r.trend]||'→'}</td>
+      </tr>`;
+    }).join('');
+    el.innerHTML = `<div style="overflow-x:auto">
+      <table style="width:100%;max-width:400px;border-collapse:collapse;background:#fff;border:1px solid #ccc">
+        <thead>
+          <tr style="background:#1565c0">
+            <th colspan="3" style="padding:8px 12px;color:#fff;text-align:left;font-size:13px">水位経過表 — ${h.stn}（${h.river}）
+              <button onclick="document.getElementById('kasen-hist-area').innerHTML=''" style="float:right;background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:11px">✕ 閉じる</button>
+            </th>
+          </tr>
+          ${h.danger!=null||h.caution!=null ? `<tr style="background:#ffebee"><td colspan="3" style="padding:4px 12px;font-size:11px;color:#c62828">氾濫危険水位: ${h.danger!=null?h.danger+'m':'－'} ／ 護岸天端: ${h.caution!=null?h.caution+'m':'－'}</td></tr>` : ''}
+          <tr style="background:#e3f2fd">
+            <th style="padding:6px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">日時</th>
+            <th style="padding:6px 10px;text-align:right;color:#333;font-size:12px;border-bottom:2px solid #1565c0">水位</th>
+            <th style="padding:6px 10px;text-align:center;color:#333;font-size:12px;border-bottom:2px solid #1565c0">傾向</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  });
+}
+
 // ── 河川水位 ──
 async function loadRiver(){
   const el = document.getElementById('river-panel');
