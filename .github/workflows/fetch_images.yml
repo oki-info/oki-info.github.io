@@ -295,7 +295,7 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"earthquake.json 生成完了: {len(result['earthquakes'])}件")
 
-      - name: 河川水位デバッグ（データURL確認）
+      - name: 河川水位デバッグ（データファイル確認）
         shell: python3 {0}
         run: |
           import urllib.request
@@ -314,40 +314,17 @@ jobs:
                   except: pass
               return raw.decode('utf-8', errors='replace')
 
-          # main.jsの後半を確認（データURL探し）
-          try:
-              txt = fetch(BASE + 'scripts/main.js')
-              print("=== main.js 後半 ===")
-              print(txt[1500:])
-          except Exception as e:
-              print(f"main.js NG: {e}")
-
-          # now.htmlを確認
-          try:
-              txt = fetch(BASE + 'now.html')
-              print(f"\n=== now.html ({len(txt)}chars) ===")
-              print(txt[:2000])
-          except Exception as e:
-              print(f"now.html NG: {e}")
-
-          # データ取得系URLを直接試す
-          import datetime
-          now = datetime.datetime.now()
-          ymd = now.strftime('%Y%m%d')
-          for url in [
-              BASE + f'data/suii_now.csv',
-              BASE + f'data/suii_now.json',
-              BASE + f'scripts/data/suii.csv',
-              BASE + f'data/now_{ymd}.csv',
-              BASE + f'csv/suii_now.csv',
-              'http://bousai-kasen.pref.okinawa.jp/river/kasen/data/',
+          for fname in [
+              'js/jrcokinawa.js',
+              'dat_js/DBDAT_dat.js',
+              'dat_js/DBDAT_inf.js',
           ]:
               try:
-                  txt = fetch(url)
-                  print(f"\n成功: {url.split('kasen/')[1]}")
-                  print(txt[:500])
+                  txt = fetch(BASE + fname)
+                  print(f"\n=== {fname} ({len(txt)}chars) ===")
+                  print(txt[:3000])
               except Exception as e:
-                  print(f"失敗: {url.split('kasen/')[1]} → {e}")
+                  print(f"{fname} NG: {e}")
 
       - name: YouTube ライブID取得 + cameras.json + warning.json 生成
         env:
