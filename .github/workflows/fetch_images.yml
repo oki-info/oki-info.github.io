@@ -296,18 +296,16 @@ jobs:
           print(f"earthquake.json 生成完了: {len(result['earthquakes'])}件")
 
       - name: 河川水位データ生成（沖縄県河川情報システム）
-        shell: python3 {0}
         run: |
+          cat > /tmp/river.py << 'PYEOF'
           import json, re, urllib.request
           from datetime import datetime, timezone, timedelta
-
           JST = timezone(timedelta(hours=9))
           BASE = 'http://bousai-kasen.pref.okinawa.jp/river/kasen/'
 
           def fetch(url):
               req = urllib.request.Request(url, headers={
-                  'User-Agent': 'Mozilla/5.0',
-                  'Referer': BASE,
+                  'User-Agent': 'Mozilla/5.0', 'Referer': BASE,
               })
               with urllib.request.urlopen(req, timeout=20) as r:
                   raw = r.read()
@@ -316,8 +314,10 @@ jobs:
                   except: pass
               return raw.decode('utf-8', errors='replace')
 
+          QQ = '[\x27\x22]'  # ['"] の代わり
+
           def get_val(s, key):
-              m = re.search(key + r":\s*['"]([^'"]*)['"]", s)
+              m = re.search(key + r':\s*' + QQ + r'([^\x27\x22]*)' + QQ, s)
               return m.group(1) if m else ''
 
           def get_num(s, key):
@@ -326,89 +326,67 @@ jobs:
 
           result = {
               'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
-              'updated': '',
-              'stations': [],
+              'updated': '', 'stations': [],
           }
 
-          try:
-              inf_js  = fetch(BASE + 'dat_js/DBDAT_inf.js')
-              dat_js  = fetch(BASE + 'dat_js/DBDAT_dat.js')
+          inf_js = fetch(BASE + 'dat_js/DBDAT_inf.js')
+          dat_js = fetch(BASE + 'dat_js/DBDAT_dat.js')
 
-              # 最新時刻 (kind:4)
-              tm_m = re.search(r'kind:\s*4[^}]+dsp:\s*['"]([^'"]+)['"]', dat_js)
-              if tm_m:
-                  result['updated'] = tm_m.group(1)
-              print(f"更新時刻: {result['updated']}")
+          # 最新時刻
+          tm_m = re.search(r'kind:\s*4[^}]+dsp:\s*' + QQ + r'([^\x27\x22]+)' + QQ, dat_js)
+          result['updated'] = tm_m.group(1) if tm_m else ''
+          print(f"更新時刻: {result['updated']}")
 
-              # 観測所マスタ: kind:4 の行を1行ずつ処理
-              stn_map = {}
-              for chunk in re.findall(r'\{[^{}]*kind:4[^{}]*\}', inf_js):
-                  sno_m = re.search(r'sno:\s*(\d+)', chunk)
-                  if not sno_m: continue
-                  sno = int(sno_m.group(1))
-                  stn_map[sno] = {
-                      'stn':   get_val(chunk, 'stn'),
-                      'river': get_val(chunk, 'ksn'),
+          # 観測所マスタ (kind:4)
+          stn_map = {}
+          for chunk in re.findall(r'\{[^{}]*kind:4[^{}]*\}', inf_js):
+              m = re.search(r'sno:\s*(\d+)', chunk)
+              if not m: continue
+              sno = int(m.group(1))
+              stn_map[sno] = {'stn': get_val(chunk,'stn'), 'river': get_val(chunk,'ksn')}
+          print(f"観測所マスタ: {len(stn_map)}局")
+
+          # 基準水位マスタ
+          alm_map = {}
+          alm_sec = re.search(r'alm_inf:\s*\[(.*?)\]\s*,', inf_js, re.DOTALL)
+          if alm_sec:
+              for chunk in re.findall(r'\{[^{}]*kind:4[^{}]*\}', alm_sec.group(1)):
+                  m = re.search(r'sno:\s*(\d+)', chunk)
+                  if not m: continue
+                  alm_map[int(m.group(1))] = {
+                      'danger': get_num(chunk,'a1'), 'caution': get_num(chunk,'a2')
                   }
-              print(f"水位観測所マスタ: {len(stn_map)}局")
+          print(f"基準水位マスタ: {len(alm_map)}局")
 
-              # 基準水位マスタ: alm_inf内の kind:4
-              alm_map = {}
-              alm_sec = re.search(r'alm_inf:\s*\[(.*?)\]\s*,', inf_js, re.DOTALL)
-              if alm_sec:
-                  for chunk in re.findall(r'\{[^{}]*kind:4[^{}]*\}', alm_sec.group(1)):
-                      sno_m = re.search(r'sno:\s*(\d+)', chunk)
-                      if not sno_m: continue
-                      sno = int(sno_m.group(1))
-                      alm_map[sno] = {
-                          'danger':  get_num(chunk, 'a1'),
-                          'caution': get_num(chunk, 'a2'),
-                      }
-              print(f"基準水位マスタ: {len(alm_map)}局")
+          # 現在水位 nowdt
+          now_sec = re.search(r'nowdt:\s*\[(.*?)\]\s*,\s*\w', dat_js, re.DOTALL)
+          target = now_sec.group(1) if now_sec else dat_js
+          for chunk in re.findall(r'\{[^{}]*kind:\s*4[^{}]*\}', target):
+              m = re.search(r'sno:\s*(\d+)', chunk)
+              if not m: continue
+              sno = int(m.group(1))
+              if sno not in stn_map: continue
+              lv_m  = re.search(r'item10:\s*\{\s*dat:\s*' + QQ + r'([^\x27\x22]*)' + QQ, chunk)
+              alm_m = re.search(r'item10:\s*\{[^}]*alm:\s*(-?\d+)', chunk)
+              result['stations'].append({
+                  'sno': sno, 'stn': stn_map[sno]['stn'], 'river': stn_map[sno]['river'],
+                  'level': lv_m.group(1) if lv_m else '-',
+                  'alm': int(alm_m.group(1)) if alm_m else 0,
+                  'danger':  alm_map.get(sno,{}).get('danger'),
+                  'caution': alm_map.get(sno,{}).get('caution'),
+              })
 
-              # 現在水位: nowdt 内の kind:4
-              now_sec = re.search(r'nowdt:\s*\[(.*?)\]\s*,\s*(?:repdt|alm_inf|\})', dat_js, re.DOTALL)
-              if not now_sec:
-                  print("nowdtブロック見つからず、全体から検索")
-              target = now_sec.group(1) if now_sec else dat_js
-
-              for chunk in re.findall(r'\{[^{}]*kind:\s*4[^{}]*\}', target):
-                  sno_m = re.search(r'sno:\s*(\d+)', chunk)
-                  if not sno_m: continue
-                  sno = int(sno_m.group(1))
-                  if sno not in stn_map: continue
-                  # item10が現在水位(10分値)
-                  lv_m  = re.search(r'item10:\s*\{\s*dat:\s*['"]([^'"]*)['"]', chunk)
-                  alm_m = re.search(r'item10:\s*\{[^}]*alm:\s*(-?\d+)', chunk)
-                  level = lv_m.group(1)  if lv_m  else '-'
-                  alm   = int(alm_m.group(1)) if alm_m else 0
-                  info  = stn_map[sno]
-                  alm_i = alm_map.get(sno, {})
-                  result['stations'].append({
-                      'sno':     sno,
-                      'stn':     info['stn'],
-                      'river':   info['river'],
-                      'level':   level,
-                      'alm':     alm,
-                      'danger':  alm_i.get('danger'),
-                      'caution': alm_i.get('caution'),
-                  })
-
-              print(f"水位データ: {len(result['stations'])}局")
-              alerts = [s for s in result['stations'] if s['alm'] >= 2]
-              if alerts:
-                  print(f"警戒以上: {[s['stn'] for s in alerts]}")
-              # サンプル出力
-              for s in result['stations'][:3]:
-                  print(f"  {s['stn']} {s['river']} {s['level']}m alm={s['alm']}")
-
-          except Exception as e:
-              import traceback; traceback.print_exc()
-              print(f"河川水位 NG: {e}")
+          print(f"水位データ: {len(result['stations'])}局")
+          for s in result['stations'][:3]:
+              print(f"  {s['stn']} {s['river']} {s['level']}m alm={s['alm']}")
+          alerts = [s for s in result['stations'] if s['alm'] >= 2]
+          if alerts: print(f"警戒以上: {[s['stn'] for s in alerts]}")
 
           with open('river.json', 'w', encoding='utf-8') as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"river.json生成完了: {len(result['stations'])}局")
+          PYEOF
+          python3 /tmp/river.py
 
       - name: YouTube ライブID取得 + cameras.json + warning.json 生成
         env:
