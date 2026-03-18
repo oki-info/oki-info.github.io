@@ -1,1389 +1,512 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>沖縄 防災ライブカメラ ポータル</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
-:root {
-  --ink:   #080e17;
-  --deep:  #0d1520;
-  --panel: #111c2b;
-  --card:  #162233;
-  --edge:  rgba(255,255,255,.07);
-  --edge2: rgba(255,255,255,.12);
-  --teal:  #2dd4bf;
-  --teal3: rgba(45,212,191,.08);
-  --amber: #fbbf24;
-  --red:   #f87171;
-  --green: #4ade80;
-  --muted: #7a9ab8;    /* 明るめに変更 */
-  --text:  #e2edf7;    /* より明るく */
-  --bright:#f5faff;
-  --mono:  'JetBrains Mono', monospace;
-  --sans:  'Noto Sans JP', sans-serif;
-}
-/* ── ライトテーマ ── */
-[data-theme="light"] {
-  --ink:   #f0f4f8;
-  --deep:  #e2eaf3;
-  --panel: #d8e4f0;
-  --card:  #ffffff;
-  --edge:  rgba(0,0,0,.08);
-  --edge2: rgba(0,0,0,.15);
-  --teal:  #0d7a70;
-  --teal3: rgba(13,122,112,.08);
-  --muted: #4a6e8a;
-  --text:  #1a3448;
-  --bright:#0d1e2e;
-  --green: #16a34a;
-  --red:   #dc2626;
-}
-[data-theme="light"] .seg-btn{color:#111;}
-[data-theme="light"] .seg-btn.active{background:rgba(13,122,112,.15);color:#0d7a70;}
-[data-theme="light"] .tbtn{color:#111;}
-[data-theme="light"] .tbtn:hover{color:#0d7a70;}
-[data-theme="light"] body::before{display:none;}
-[data-theme="light"] header{background:rgba(240,244,248,.97);}
-.theme-btn{padding:4px 8px;background:transparent;border:1px solid var(--edge2);border-radius:5px;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
-.theme-btn:hover,.theme-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal3);}
-.theme-switcher{display:flex;gap:3px;align-items:center;flex-shrink:0;}
-/* PC: ボタンにラベルを付加 */
-@media(min-width:641px){
-  #theme-dark::after{content:' ダーク';}
-  #theme-light::after{content:' ライト';}
-  .info-btn::after{content:' このサイトについて';}
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);}
-
-header{position:sticky;top:0;z-index:200;background:rgba(8,14,23,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--edge2);padding:0 8px;display:flex;align-items:center;gap:5px;height:54px;flex-shrink:0;}
-.logo{display:flex;align-items:center;gap:7px;min-width:0;flex-shrink:1;overflow:hidden;}
-.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#0d9488,#0891b2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-.logo-title{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--teal);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.logo-sub{font-family:var(--mono);font-size:9px;color:var(--muted);white-space:nowrap;}
-@media(max-width:640px){.logo-sub{display:none;}}
-.h-right{margin-left:auto;text-align:right;flex-shrink:0;}
-.hclock{font-family:var(--mono);font-size:16px;color:var(--teal);letter-spacing:.06em;}
-.hdate{font-family:var(--mono);font-size:10px;color:var(--muted);}
-@media(max-width:640px){.hdate{display:none;}.hclock{font-size:14px;}}
-
-.fetch-bar{padding:5px 14px;background:rgba(0,0,0,.3);border-bottom:1px solid var(--edge);display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
-.fb-label{font-family:var(--mono);font-size:11px;color:var(--muted);}
-.fb-val{font-family:var(--mono);font-size:11px;color:var(--text);}
-.pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:pulse 3s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
-
-nav{background:var(--deep);border-bottom:1px solid var(--edge);padding:0 14px;display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
-nav::-webkit-scrollbar{display:none;}
-.tab{padding:10px 16px;background:none;border:none;font-family:var(--mono);font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:5px;}
-.tab:hover{color:var(--text);}
-.tab.active{color:var(--teal);border-bottom-color:var(--teal);}
-.tab-count{background:var(--teal3);border:1px solid rgba(45,212,191,.2);border-radius:10px;padding:1px 7px;font-size:10px;color:var(--teal);}
-
-.section{display:none;flex:1;}
-.section.active{display:flex;flex-direction:column;}
-
-.river-toolbar{background:var(--panel);border-bottom:1px solid var(--edge);padding:7px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
-.seg{display:flex;background:rgba(0,0,0,.3);border:1px solid var(--edge);border-radius:6px;overflow:hidden;}
-.seg-btn{padding:5px 13px;background:transparent;border:none;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;}
-.seg-btn+.seg-btn{border-left:1px solid var(--edge);}
-.seg-btn:hover{color:var(--teal);}
-.seg-btn.active{background:var(--teal3);color:var(--teal);}
-.tbtn{padding:5px 13px;background:transparent;border:1px solid var(--edge);border-radius:5px;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;}
-.tbtn:hover{border-color:var(--teal);color:var(--teal);}
-.ml-auto{margin-left:auto;}
-.s-row{display:flex;align-items:center;gap:8px;}
-.s-pill{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;}
-.dot{width:7px;height:7px;border-radius:50%;}
-.dot-ok{background:var(--green);box-shadow:0 0 4px #4ade8088;}
-.dot-err{background:var(--red);box-shadow:0 0 4px #f8717188;}
-.workspace{flex:1;padding:8px;overflow:auto;}
-.grid{display:grid;gap:8px;}
-.grid.g1{grid-template-columns:1fr;}
-.grid.g2{grid-template-columns:1fr 1fr;}
-.grid.g4{grid-template-columns:1fr 1fr;}
-.grid.g8,.grid.gall{grid-template-columns:repeat(4,1fr);}
-@media(max-width:640px){.grid.g8,.grid.gall{grid-template-columns:1fr 1fr;}}
-@media(min-width:641px) and (max-width:1024px){.grid.gall{grid-template-columns:repeat(3,1fr);}}
-
-/* 静止画カード */
-.card{background:var(--card);border:1px solid var(--edge);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .3s;}
-.card.ok{border-color:rgba(74,222,128,.3);}
-.card.err{border-color:rgba(248,113,113,.25);}
-.card-head{padding:7px 10px;background:rgba(0,0,0,.3);border-bottom:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;}
-.card-river{font-size:13px;font-weight:700;color:var(--bright);}
-.card-loc{font-family:var(--mono);font-size:11px;color:var(--muted);}
-.live-badge{font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:3px;white-space:nowrap;}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 4px var(--green);animation:pulse 3s infinite;}
-.card-img{position:relative;background:#0a0f16;aspect-ratio:4/3;overflow:hidden;cursor:pointer;}
-.cam-img{width:100%;height:100%;object-fit:contain;display:block;transition:opacity .4s;}
-.state-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
-.spin{width:22px;height:22px;border:2px solid var(--edge);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.state-txt{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;line-height:1.6;}
-.img-bot{position:absolute;bottom:0;left:0;right:0;padding:18px 8px 5px;background:linear-gradient(transparent,rgba(0,0,0,.8));display:flex;justify-content:space-between;pointer-events:none;}
-.ov-time{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.6);}
-.ov-pid{font-family:var(--mono);font-size:10px;color:rgba(45,212,191,.6);}
-.card-foot{padding:5px 10px;background:rgba(0,0,0,.2);border-top:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;gap:6px;}
-.foot-stamp{font-family:var(--mono);font-size:10px;color:var(--muted);flex:1;}
-.foot-link{font-family:var(--mono);font-size:10px;color:rgba(45,212,191,.6);text-decoration:none;}
-.foot-link:hover{color:var(--teal);}
-.foot-retry{font-size:13px;background:none;border:none;cursor:pointer;color:var(--muted);}
-.foot-retry:hover{color:var(--teal);}
-.fav-btn{font-size:13px;background:none;border:none;cursor:pointer;padding:0 2px;transition:transform .15s;}
-.fav-btn:hover{transform:scale(1.3);}
-@media print{
-  header,nav,.river-toolbar,.fetch-bar,.theme-switcher,footer,.tbtn,.seg,.foot-retry,.fav-btn,.lb-close{display:none!important;}
-  .section{display:block!important;}
-  .grid{grid-template-columns:repeat(3,1fr)!important;}
-  body{background:#fff!important;color:#000!important;}
-  .card{border:1px solid #ccc!important;background:#fff!important;}
-  .card-river,.card-loc{color:#000!important;}
-}
-
-/* YouTubeカード */
-.yt-card{background:var(--card);border:1px solid rgba(248,113,113,.3);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;}
-.yt-head{padding:7px 10px;background:rgba(0,0,0,.3);border-bottom:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;}
-.yt-badge{font-family:var(--mono);font-size:10px;color:#f87171;display:flex;align-items:center;gap:3px;}
-.yt-badge-dot{width:6px;height:6px;border-radius:50%;background:#f87171;box-shadow:0 0 4px #f87171;animation:pulse 2s infinite;}
-.yt-wrap{position:relative;aspect-ratio:4/3;background:#000;}
-.yt-wrap iframe{width:100%;height:100%;border:none;display:block;}
-.yt-foot{padding:5px 10px;background:rgba(0,0,0,.2);border-top:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;}
-.yt-foot-txt{font-family:var(--mono);font-size:10px;color:var(--muted);}
-
-/* 配信なしカード */
-.offline-card{background:var(--card);border:1px solid rgba(255,255,255,.05);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;opacity:.6;}
-.offline-wrap{aspect-ratio:4/3;background:#0a0f16;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
-.offline-txt{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;}
-
-.loading-msg{display:flex;align-items:center;justify-content:center;height:200px;font-family:var(--mono);font-size:13px;color:var(--muted);}
-
-/* ポータルタブ共通 */
-.portal-body{flex:1;padding:14px;overflow:auto;}
-.sec-title{font-family:var(--mono);font-size:13px;color:var(--teal);letter-spacing:.12em;display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--edge);}
-.sec-title::before{content:'';width:3px;height:16px;background:var(--teal);border-radius:2px;}
-.cam-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));}
-.cam-grid.wide{grid-template-columns:repeat(auto-fill,minmax(380px,1fr));}
-@media(max-width:600px){
-  .cam-grid,.cam-grid.wide{grid-template-columns:1fr 1fr;}
-  .cam-embed{padding-bottom:75%;}
-}
-.sub-sec{margin-bottom:20px;}
-.sub-title{font-family:var(--mono);font-size:11px;color:var(--text);letter-spacing:.08em;font-weight:700;margin-bottom:8px;}
-
-/* ポータルカメラカード */
-.cam-card{background:var(--card);border:1px solid var(--edge);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .3s,transform .2s;}
-.cam-card:hover{border-color:rgba(255,255,255,.12);transform:translateY(-1px);}
-.cam-head{padding:8px 10px;background:rgba(0,0,0,.3);border-bottom:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;}
-.cam-name{font-size:13px;font-weight:700;color:var(--bright);}
-.cam-loc{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;}
-.cam-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
-.badge-yt   {background:rgba(255,0,0,.15);color:#f87171;border:1px solid rgba(248,113,113,.2);}
-.badge-road {background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.2);}
-.badge-bousai{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2);}
-.cam-embed{position:relative;padding-bottom:56.25%;background:#0a0f16;overflow:hidden;}
-.cam-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
-.cam-link{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:8px;text-decoration:none;background:var(--teal3);aspect-ratio:16/9;transition:background .2s;}
-.cam-link:hover{background:rgba(45,212,191,.14);}
-.cam-link-icon{font-size:24px;opacity:.4;}
-.cam-link-text{font-family:var(--mono);font-size:10px;color:var(--teal);text-align:center;line-height:1.6;}
-
-/* 外部サイトカード */
-.ext-card{background:var(--card);border:1px solid var(--edge);border-radius:10px;overflow:hidden;margin-bottom:10px;}
-.ext-head{padding:8px 12px;background:rgba(0,0,0,.3);border-bottom:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;}
-.ext-name{font-size:13px;font-weight:700;color:var(--bright);}
-.ext-body{padding:10px;display:flex;flex-direction:column;gap:6px;}
-.ext-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--teal3);border:1px solid rgba(45,212,191,.15);border-radius:6px;text-decoration:none;transition:background .2s;}
-.ext-link:hover{background:rgba(45,212,191,.14);}
-.ext-link-name{font-size:13px;color:var(--text);flex:1;}
-.ext-link-arr{font-family:var(--mono);font-size:12px;color:var(--teal);}
-
-/* ライトボックス */
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;}
-.lightbox.open{display:flex;}
-.lb-img{max-width:100%;max-height:80vh;object-fit:contain;border-radius:6px;}
-.lb-cap{font-family:var(--mono);font-size:13px;color:var(--text);text-align:center;}
-.lb-close{position:absolute;top:12px;right:16px;background:none;border:none;color:#ccc;font-size:28px;cursor:pointer;}
-
-footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;flex-wrap:wrap;gap:4px;}
-.foot-l,.foot-r{font-family:var(--mono);font-size:11px;color:var(--muted);}
-</style>
-
-<!-- サイト説明モーダル -->
-<div id="info-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);overflow-y:auto" onclick="if(event.target===this)closeInfo()">
-  <div style="max-width:640px;margin:40px auto;background:var(--panel);border:1px solid var(--edge2);border-radius:14px;padding:28px 28px 24px;position:relative">
-    <button onclick="closeInfo()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1">✕</button>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-      <div style="width:36px;height:36px;background:linear-gradient(135deg,#0d9488,#0891b2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🌊</div>
-      <div>
-        <div style="font-family:var(--mono);font-weight:700;font-size:14px;color:var(--teal)">沖縄 防災ライブカメラ ポータル</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Okinawa Disaster Live Camera Portal</div>
-      </div>
-    </div>
-
-    <p style="font-size:13px;line-height:1.8;color:var(--text);margin-bottom:18px">
-      沖縄県内の河川・道路・防災カメラおよびYouTubeライブ映像を一画面に集約した統合監視ポータルです。<br>
-      県・市町村・防災関係機関での利用を想定しています。
-    </p>
-
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
-      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px">🌊 河川カメラ</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.7">沖縄県河川情報システム（42台）・沖縄市水位監視カメラ（3台）・小波津川YouTubeライブ（2台）を表示。画像は<strong>毎時05・15・25・35・45・55分</strong>に自動取得。タップで拡大、スワイプで切り替え可能。</div>
-      </div>
-      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#f87171;margin-bottom:6px">▶ YouTube ライブ</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.7">県内各地のYouTubeライブカメラを一覧表示。「LIVE」は固定動画ID、「LIVE※」はAPIで動画IDを自動取得（配信停止中は「配信なし」と表示）。</div>
-      </div>
-      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">⚓ 海保カメラ</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.7">第十一管区海上保安本部が提供するライブカメラ映像（5か所）。iframeで表示できない場合は「別タブで開く」から直接閲覧できます。</div>
-      </div>
-      <div style="background:rgba(0,0,0,.2);border:1px solid var(--edge);border-radius:8px;padding:12px 14px">
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">🚗 道路カメラ / 🚨 防災カメラ</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.7">沖縄総合事務局 南部国道事務所（5台）、東村防災カメラ（8台）、大宜味村防災ネットワークカメラ（7台）。「↺ 今すぐ更新」で手動再読み込み可能。</div>
-      </div>
-    </div>
-
-    <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:12px 14px;margin-bottom:12px">
-      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:6px">⚠️ ご利用にあたって</div>
-      <p style="font-size:12px;line-height:1.9;color:var(--text);margin:0">
-        本サイトは個人が作成したものであり、掲載情報の正確性・完全性を担保するものではありません。<br>
-        気象情報・防災情報に関して疑義がある場合は、<strong>気象庁・お住まいの都道府県・市町村等の公式情報</strong>を必ずご確認ください。<br>
-        本サイトの閲覧・利用によって生じたいかなる損害についても、本サイトは一切の責任を負いません。
-      </p>
-    </div>
-
-    <div style="background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8">
-      <div>📡 <strong style="color:var(--text)">データソース:</strong> 沖縄県河川情報システム / 沖縄市 / 沖縄総合事務局 / 東村 / 大宜味村 / 海上保安庁 / YouTube</div>
-      <div>🔄 <strong style="color:var(--text)">自動更新:</strong> 河川・防災画像は10分ごと（毎時05分〜） / ページは10分ごとに自動リロード</div>
-      <div>📱 <strong style="color:var(--text)">操作:</strong> 画像タップ → 拡大表示 / 拡大中にスワイプ → 前後の画像へ</div>
-    </div>
-  </div>
-</div>
-
-</head>
-<body>
-
-<header>
-  <div class="logo">
-    <div class="logo-icon">🌊</div>
-    <div>
-      <div class="logo-title">沖縄 防災ライブカメラ ポータル</div>
-      <div class="logo-sub">河川 · 道路 · 防災 · YouTube ライブ一覧</div>
-    </div>
-  </div>
-  <div class="theme-switcher">
-    <button class="theme-btn info-btn" onclick="openInfo()">？</button>
-    <button class="theme-btn active" id="theme-dark"  onclick="setTheme('dark')">🌑</button>
-    <button class="theme-btn"        id="theme-light" onclick="setTheme('light')">☀️</button>
-  </div>
-  <div class="h-right">
-    <div class="hclock" id="clock">--:--:--</div>
-    <div class="hdate" id="hdate">---- / -- / --</div>
-  </div>
-</header>
-
-<div class="fetch-bar" id="fetch-bar" style="display:none">
-  <span class="pulse"></span>
-  <span class="fb-label">最終取得（JST）:</span>
-  <span class="fb-val" id="fb-time">読込中…</span>
-  <span style="color:rgba(255,255,255,.07)">|</span>
-  <span class="fb-label">検出:</span>
-  <span class="fb-val" id="fb-count">—</span>
-  <span style="color:rgba(255,255,255,.07)">|</span>
-  <span class="fb-label">10分ごと自動更新</span>
-</div>
-
-<nav>
-  <button class="tab active" id="tab-bousaiinfo" onclick="showTab('bousaiinfo')">⚠️ 防災情報</button>
-  <button class="tab"        id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
-  <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
-  <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
-  <button class="tab"        id="tab-kasen"  onclick="showTab('kasen')">📊 河川水位</button>
-  <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
-  <button class="tab"        id="tab-bousai"   onclick="showTab('bousai')">🚨 防災カメラ <span class="tab-count">4</span></button>
-</nav>
-
-<!-- ① 河川カメラ -->
-<div class="section" id="sec-river">
-  <div class="river-toolbar">
-    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">表示:</span>
-    <div class="seg">
-      <button class="seg-btn" id="btn1"   onclick="setMode(1)">１画面</button>
-      <button class="seg-btn" id="btn2"   onclick="setMode(2)">２画面</button>
-      <button class="seg-btn active" id="btn4" onclick="setMode(4)">４画面</button>
-      <button class="seg-btn" id="btn8"   onclick="setMode(8)">８画面</button>
-      <button class="seg-btn" id="btnall" onclick="setMode('all')">全画面</button>
-    </div>
-    <button class="tbtn" onclick="reloadAll()">↺ 今すぐ更新</button>
-    <div class="ml-auto s-row">
-      <div class="s-pill"><div class="dot dot-ok"></div><span id="cnt-ok">0</span></div>
-      <div class="s-pill"><div class="dot dot-err"></div><span id="cnt-err">0</span> エラー</div>
-    </div>
-  </div>
-  <div class="workspace">
-    <div id="grid" class="grid g4">
-      <div class="loading-msg">カメラ情報を読み込み中…</div>
-    </div>
-  </div>
-</div>
-
-<!-- ② 防災情報タブ -->
-<div class="section active" id="sec-bousaiinfo">
-  <div class="portal-body">
-    <div style="display:grid;gap:16px;grid-template-columns:1fr 1fr;">
-
-      <!-- 気象警報・注意報 -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">気象警報・注意報 <span style="font-size:11px;font-weight:400;letter-spacing:0">（沖縄県 — 気象庁）</span>
-          <button class="tbtn" style="margin-left:auto" onclick="loadBousaiInfo()">↺ 更新</button>
-        </div>
-        <div id="warning-area" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
-        </div>
-      </div>
-
-      <!-- 雨雲レーダー -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">📡 雨雲レーダー（気象庁）</div>
-        <a href="https://www.jma.go.jp/bosai/nowc/" target="_blank" class="ext-link">
-          <span class="ext-link-name">気象庁 雨雲レーダー（ナウキャスト）を開く</span>
-          <span class="ext-link-arr">↗</span>
-        </a>
-      </div>
-      <!-- キキクル危険度分布アラート -->
-      <div style="grid-column:1/-1" id="kikukuru-banner"></div>
-
-      <!-- 河川水位 -->
-      <div style="grid-column:1/-1;text-align:left">
-        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-          <span>🌊 河川水位（沖縄県河川情報システム）</span>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span id="river-updated" style="font-family:var(--mono);font-size:10px;color:var(--muted)"></span>
-            <button class="tbtn" onclick="loadRiver()">↺ 更新</button>
-          </div>
-        </div>
-        <div id="river-panel">
-          <div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">読込中…</div>
-        </div>
-      </div>
-
-      <!-- 地震情報 -->
-      <div style="grid-column:1/-1;text-align:left">
-        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-          <span>🌏 地震情報（沖縄周辺 直近24時間）</span>
-          <button class="tbtn" onclick="loadEarthquake()">↺ 更新</button>
-        </div>
-        <div id="earthquake-panel">
-          <div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">読込中…</div>
-        </div>
-      </div>
-
-      <!-- 台風情報 -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">台風情報</div>
-        <div id="typhoon-area" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
-        </div>
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <a class="ext-link" href="https://www.jma.go.jp/bosai/typhoon/" target="_blank" style="font-size:12px"><span class="ext-link-name">気象庁 台風情報</span><span class="ext-link-arr">↗</span></a>
-          <a class="ext-link" href="https://www.jma-net.go.jp/okinawa/" target="_blank" style="font-size:12px"><span class="ext-link-name">沖縄気象台</span><span class="ext-link-arr">↗</span></a>
-        </div>
-      </div>
-
-      <!-- 停電情報 -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">停電情報</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <a class="ext-link" href="https://www.okidenmail.jp/bosai/info/index.html" target="_blank">
-            <span style="font-size:16px">⚡</span><span class="ext-link-name">沖縄電力 停電情報</span><span class="ext-link-arr">↗</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- 防災ポータル -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">防災ポータル</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <a class="ext-link" href="https://bousai-okinawa.my.salesforce-sites.com" target="_blank">
-            <span style="font-size:16px">🛡</span><span class="ext-link-name">沖縄防災情報ポータル ハイサイ！防災で〜びる</span><span class="ext-link-arr">↗</span>
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<div class="section" id="sec-youtube">
-  <div class="portal-body">
-    <div class="sec-title">YouTube ライブカメラ</div>
-
-    <div class="sub-sec">
-      <div class="sub-title">📍 那覇・中南部</div>
-      <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇空港</div><div class="cam-loc">那覇市鏡水</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-0" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇空港・那覇新港（日テレNews）</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-18" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">鳩間島</div><div class="cam-loc">八重山郡竹富町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-22" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">QAB琉球朝日放送 お天気カメラ</div><div class="cam-loc">那覇市ほか</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-20" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇市役所前・国際通り</div><div class="cam-loc">那覇市泉崎</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-1" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">国際通り 牧志交番前</div><div class="cam-loc">那覇市牧志</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-2" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">県庁前駅（朝日新聞那覇総局）</div><div class="cam-loc">那覇市久茂地</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-3" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇クルーズターミナル</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-21" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宜野湾市 大謝名交差点</div><div class="cam-loc">宜野湾市大謝名</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-4" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">ラグナガーデンホテル</div><div class="cam-loc">宜野湾市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-10" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">アメリカンビレッジ</div><div class="cam-loc">中頭郡北谷町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-15" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">豊見城市宜保</div><div class="cam-loc">豊見城市宜保</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-豊見城市宜保" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">南風原町（１）</div><div class="cam-loc">島尻郡南風原町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-島尻郡南風原町ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">南風原町（２）</div><div class="cam-loc">島尻郡南風原町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-沖縄県島尻郡ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">与那原町 字与那原</div><div class="cam-loc">島尻郡与那原町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-与那原ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-      </div>
-    </div>
-
-    <div class="sub-sec">
-      <div class="sub-title">📍 中部・北部</div>
-      <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">西原高台（１）</div><div class="cam-loc">中頭郡西原町上原付近</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-11" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">西原高台（２）</div><div class="cam-loc">中頭郡西原町上原付近</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-12" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">浦添市城間</div><div class="cam-loc">浦添市城間</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-浦添市城間ライブ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">本部町備瀬（エメラルドビーチ近く）</div><div class="cam-loc">国頭郡本部町備瀬</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-5" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">本部町備瀬（ニルヤカナヤBISE屋上）</div><div class="cam-loc">国頭郡本部町備瀬</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-19" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">モトブテラス</div><div class="cam-loc">国頭郡本部町伊野波</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-16" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">道の駅やんばるパイナップルの丘安波（１）</div><div class="cam-loc">国頭村安波近辺</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-13" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">道の駅やんばるパイナップルの丘安波（太平洋側）</div><div class="cam-loc">国頭村安波近辺</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-14" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">うるま市洲崎</div><div class="cam-loc">うるま市洲崎</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-うるま市州崎ライブカメラ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">恩納村 マリブビーチ</div><div class="cam-loc">国頭郡恩納村</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-恩納村マリブビーチ" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">かりゆしビーチリゾート</div><div class="cam-loc">国頭郡恩納村</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-かりゆしビーチリゾート" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">北谷町砂辺</div><div class="cam-loc">中頭郡北谷町砂辺</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-北谷町砂辺" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">那覇市古島</div><div class="cam-loc">那覇市古島</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-那覇市古島" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">比地川（国頭村）</div><div class="cam-loc">国頭郡国頭村</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-比地川（国頭村）" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-      </div>
-    </div>
-
-    <div class="sub-sec">
-      <div class="sub-title">🌊 小波津川（西原町）</div>
-      <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">小波津川 さわふじ保育園前</div><div class="cam-loc">中頭郡西原町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-6" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">小波津川 金秀鉄工前</div><div class="cam-loc">中頭郡西原町</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-7" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-      </div>
-    </div>
-
-    <div class="sub-sec">
-      <div class="sub-title">📍 離島・宮古</div>
-      <div class="cam-grid">
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島</div><div class="cam-loc">石垣市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-8" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島730交差点</div><div class="cam-loc">石垣市美崎町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-石垣島730交差点" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">石垣島ユーグレナ離島ターミナル</div><div class="cam-loc">石垣市美崎町</div></div><span class="cam-badge badge-yt">LIVE※</span></div><div id="yt-dyn-石垣島ユーグレナ離島ターミナル" class="cam-embed"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted)">読込中…</div></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宮古島 ウォーターマークホテル</div><div class="cam-loc">宮古島市</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-9" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">宮古島 バイナガマビーチ（OTV）</div><div class="cam-loc">宮古島市平良下里</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-17" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-        <div class="cam-card"><div class="cam-head"><div><div class="cam-name">鳩間島</div><div class="cam-loc">八重山郡竹富町鳩間</div></div><span class="cam-badge badge-yt">LIVE</span></div><div class="cam-embed"><iframe id="ytf-23" allowfullscreen allow="autoplay;encrypted-media"></iframe></div></div>
-      </div>
-    </div>
-
-    <p style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:4px">※ LIVE※ はAPIで動画IDを自動取得。配信停止中は「配信なし」と表示されます。</p>
-
-    <div class="sub-sec" style="margin-top:16px">
-      <div class="sub-title">🏨 リゾートカメラ</div>
-      <div class="cam-grid">
-        <a class="cam-card" href="https://www.terrace.co.jp/busena/livecam/" target="_blank" style="text-decoration:none"><div class="cam-head"><div><div class="cam-name">ザ・ブセナテラス</div><div class="cam-loc">名護市喜瀬</div></div><span class="cam-badge badge-yt">海カメラ↗</span></div><div class="cam-link"><div class="cam-link-icon">🏖</div><div class="cam-link-text">クリックして公式サイトで視聴</div></div></a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ③ 海上保安庁カメラ -->
-<div class="section" id="sec-kaiho">
-  <div class="portal-body">
-    <div class="sec-title">海上保安庁 ライブカメラ — 第十一管区</div>
-    <p style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">※ サイト側の設定でiframeに表示できない場合は「別タブで開く↗」から直接閲覧できます。</p>
-    <div class="cam-grid">
-      <div class="cam-card">
-        <div class="cam-head"><div><div class="cam-name">第十一管区海上保安本部庁舎</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-bousai">海保</span></div>
-        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/11th_rcgh/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
-        </div>
-        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/11th_rcgh/" target="_blank">別タブで開く↗</a></div>
-      </div>
-      <div class="cam-card">
-        <div class="cam-head"><div><div class="cam-name">伊計島灯台</div><div class="cam-loc">うるま市与那城伊計</div></div><span class="cam-badge badge-bousai">海保</span></div>
-        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/ikeishima_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
-        </div>
-        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/ikeishima_lt/" target="_blank">別タブで開く↗</a></div>
-      </div>
-      <div class="cam-card">
-        <div class="cam-head"><div><div class="cam-name">琉球観音埼灯台</div><div class="cam-loc">石垣市新川</div></div><span class="cam-badge badge-bousai">海保</span></div>
-        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/ryukyukannonsaki_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
-        </div>
-        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/ryukyukannonsaki_lt/" target="_blank">別タブで開く↗</a></div>
-      </div>
-      <div class="cam-card">
-        <div class="cam-head"><div><div class="cam-name">西埼灯台</div><div class="cam-loc">八重山郡与那国町</div></div><span class="cam-badge badge-bousai">海保</span></div>
-        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/irisaki_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
-        </div>
-        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/irisaki_lt/" target="_blank">別タブで開く↗</a></div>
-      </div>
-      <div class="cam-card" style="opacity:.5">
-        <div class="cam-head"><div><div class="cam-name">平安名埼灯台</div><div class="cam-loc">宮古島市</div></div><span class="cam-badge" style="background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3)">故障中</span></div>
-        <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
-          <div style="font-size:28px;opacity:.3">🔧</div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">現在故障中</div>
-        </div>
-        <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/hennasaki_lt/" target="_blank">別タブで開く↗</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ④ 道路カメラ -->
-<div class="section" id="sec-kasen">
-  <div class="portal-body" style="background:#f0f4f8;min-height:400px">
-    <div id="kasen-inner">
-      <div style="color:#666;font-family:monospace;font-size:12px;padding:16px">読込中…</div>
-    </div>
-  </div>
-</div>
-
-<div class="section" id="sec-road">
-  <div class="river-toolbar">
-    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">南部国道事務所 道路カメラ</span>
-    <button class="tbtn" onclick="reloadRoad()">↺ 今すぐ更新</button>
-  </div>
-  <div class="portal-body">
-    <div class="sec-title">道路ライブカメラ — 沖縄総合事務局 南部国道事務所</div>
-    <div id="road-grid" class="cam-grid wide">
-      <div class="loading-msg">カメラ情報を読み込み中…</div>
-    </div>
-    <p style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:12px;text-align:center">
-      10分ごと自動更新 ｜ 直接リンク：
-      <a href="https://www.dc.ogb.go.jp/nankoku/cctv/01.html" target="_blank" style="color:var(--teal);text-decoration:none">①読谷↗</a>　
-      <a href="https://www.dc.ogb.go.jp/nankoku/cctv/02.html" target="_blank" style="color:var(--teal);text-decoration:none">②中城↗</a>　
-      <a href="https://www.dc.ogb.go.jp/nankoku/cctv/03.html" target="_blank" style="color:var(--teal);text-decoration:none">③西原↗</a>　
-      <a href="https://www.dc.ogb.go.jp/nankoku/cctv/04.html" target="_blank" style="color:var(--teal);text-decoration:none">④糸満↗</a>　
-      <a href="https://www.dc.ogb.go.jp/nankoku/cctv/05.html" target="_blank" style="color:var(--teal);text-decoration:none">⑤那覇↗</a>
-    </p>
-  </div>
-</div>
-
-<!-- ④ 防災カメラ -->
-<div class="section" id="sec-bousai">
-  <div class="river-toolbar">
-    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">東村・大宜味村 防災カメラ</span>
-    <button class="tbtn" onclick="reloadBousai()">↺ 今すぐ更新</button>
-  </div>
-  <div class="portal-body">
-    <div class="sec-title">防災監視カメラ</div>
-
-    <div class="sub-sec">
-      <div class="sub-title">🚨 東村 防災監視カメラ</div>
-      <div id="higashi-grid" class="cam-grid">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読み込み中…</div>
-      </div>
-    </div>
-
-    <div class="sub-sec">
-      <div class="sub-title">🚨 大宜味村 防災ネットワークカメラ</div>
-      <div id="ogimi-grid" class="cam-grid">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読み込み中…</div>
-      </div>
-    </div>
-
-    <div class="sub-sec">
-      <div class="sub-title">🔗 その他 外部リンク</div>
-      <div class="ext-card"><div class="ext-head"><div class="ext-name">🚨 北中城村 防災カメラ</div><span class="cam-badge badge-bousai">防災</span></div><div class="ext-body"><a class="ext-link" href="https://www.vill.kitanakagusuku.lg.jp/kakuka/soumu/soumukakari/bousai/329.html" target="_blank"><span class="ext-link-name">北中城村防災カメラ</span><span class="ext-link-arr">↗</span></a></div></div>
-      <div class="ext-card"><div class="ext-head"><div class="ext-name">🚨 沖縄市 水位監視カメラ</div><span class="cam-badge badge-bousai">防災</span></div><div class="ext-body"><a class="ext-link" href="https://www.city.okinawa.okinawa.jp/k058-003/anshin/bousai/saigaijouhou/22230.html" target="_blank"><span class="ext-link-name">沖縄市水位監視カメラ 一覧ページ</span><span class="ext-link-arr">↗</span></a></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ライトボックス -->
-<div class="lightbox" id="lb" onclick="closeLb()">
-  <button class="lb-close">✕</button>
-  <img class="lb-img" id="lb-img" src="" alt="">
-  <div class="lb-cap" id="lb-cap"></div>
-</div>
-
-<footer>
-  <div class="foot-l">沖縄 防災ライブカメラ ポータル ｜ 各カメラの著作権は各提供元に帰属します</div>
-  <div class="foot-r" id="foot-r">次回更新: --:--</div>
-</footer>
-
-<script>
-const YT_FIXED = [
-  { id:'DBju-AkvIVM', name:'🌊 小波津川 金秀鉄工前',     loc:'西原町', ytUrl:'https://www.youtube.com/watch?v=DBju-AkvIVM' },
-  { id:'EkbG_VYkExM', name:'🌊 小波津川 さわふじ保育園前', loc:'西原町', ytUrl:'https://www.youtube.com/watch?v=EkbG_VYkExM' },
-];
-const EXTRA_CAM_INFO = {
-  'okinawa-city-hija':   { name:'🌊 比謝川',  loc:'沖縄市（水位監視）', link:'https://www.city.okinawa.okinawa.jp/k058-003/anshin/bousai/saigaijouhou/22230.html' },
-  'okinawa-city-awase1': { name:'🌊 泡瀬川①', loc:'沖縄市（水位監視）', link:'https://www.city.okinawa.okinawa.jp/k058-003/anshin/bousai/saigaijouhou/22230.html' },
-  'okinawa-city-awase2': { name:'🌊 泡瀬川②', loc:'沖縄市（水位監視）', link:'https://www.city.okinawa.okinawa.jp/k058-003/anshin/bousai/saigaijouhou/22230.html' },
-};
-// YouTubeタブ内の固定iframe（タブを開いた時に自動再生セット）
-const YT_TAB_FIXED = [
-  { id:'Yzl9offu5g8', el:'ytf-0' }, { id:'nU41kpfKLJM', el:'ytf-1' },
-  { id:'Zhfodg0io7M', el:'ytf-2' }, { id:'6HYjCFkmDPA', el:'ytf-3' },
-  { id:'WIYUrH4luck', el:'ytf-4' }, { id:'XTeL4encP9o', el:'ytf-5' },
-  { id:'EkbG_VYkExM', el:'ytf-6' }, { id:'DBju-AkvIVM', el:'ytf-7' },
-  { id:'5jHCxMEGor0', el:'ytf-8' }, { id:'4v5e4eKIT_E', el:'ytf-9' },
-  { id:'o7i9-ZK0U6c', el:'ytf-10' }, { id:'lVSfo5jnMH8', el:'ytf-11' },
-  { id:'0zIiC88ccwA', el:'ytf-12' }, { id:'gxIrB0DYUzU', el:'ytf-13' },
-  { id:'LT_mSo_AlEI', el:'ytf-14' }, { id:'briBfx5IZbg', el:'ytf-15' },
-  { id:'Tlc3uegvdrQ', el:'ytf-16' }, { id:'vALZRyqT_Jg', el:'ytf-17' },
-  { id:'PS96EPeWljE', el:'ytf-18' }, { id:'VyT694OcIHM', el:'ytf-19' },
-  { id:'ZdvNQ3D0PY4', el:'ytf-20' }, { id:'uLZ3pTdxr6M', el:'ytf-21' },
-  { id:'wRq4tg4d-aA', el:'ytf-22' },
-];
-
-let CAMERAS=[], mode=4, initialized=false, ytTabLoaded=false, nextAt=null;
-const st={};
-let _lastYtLive=null;
-
-function pad(n){return String(n).padStart(2,'0');}
-function esc(s){return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;');}
-function imgSrc(f){return `img_cam/${f}?t=${Date.now()}`;}
-
-// キャッシュを完全に回避してimgにセットする
-async function setImgNoCache(imgEl, url) {
-  try {
-    const res = await fetch(url + '?t=' + Date.now(), {cache: 'no-store'});
-    if (!res.ok) throw new Error('fetch failed');
-    const blob = await res.blob();
-    const old = imgEl.src;
-    imgEl.src = URL.createObjectURL(blob);
-    if (old && old.startsWith('blob:')) URL.revokeObjectURL(old);
-  } catch(e) {
-    // fetchが失敗したら従来のimgSrc方式にフォールバック
-    imgEl.src = url + '?t=' + Date.now();
-  }
-}
-
-function showTab(id){
-  ['river','bousaiinfo','youtube','kaiho','road','bousai','kasen'].forEach(t=>{
-    document.getElementById('sec-'+t).classList.toggle('active',t===id);
-    document.getElementById('tab-'+t).classList.toggle('active',t===id);
-  });
-  document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
-  if(id==='bousaiinfo'){ loadKikukuru(); loadBousaiInfo(); loadRiver(); loadEarthquake();
-  if(id==='kasen'){ loadKasen(); } }
-  // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
-  if(id==='youtube' && !ytTabLoaded){
-    ytTabLoaded=true;
-    if(_lastYtLive) applyYoutubeLive(_lastYtLive);
-    setupYtLazyLoad();
-  }
-}
-
-// 画面に入った時だけiframeをロード（メモリ節約）
-function setupYtLazyLoad(){
-  const obs=new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(!entry.isIntersecting) return;
-      const el=entry.target;
-      if(el.dataset.ytid && !el.src){
-        el.src=`https://www.youtube.com/embed/${el.dataset.ytid}?autoplay=0&mute=1&rel=0`;
-      }
-      obs.unobserve(el);
-    });
-  },{rootMargin:'200px'});
-  YT_TAB_FIXED.forEach(item=>{
-    const el=document.getElementById(item.el);
-    if(el){el.dataset.ytid=item.id; obs.observe(el);}
-  });
-}
-
-function applyYoutubeLive(list){
-  if(!list) return;
-  _lastYtLive=list;
-  const obs=new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(!entry.isIntersecting) return;
-      const el=entry.target;
-      if(el.dataset.pendingHtml){
-        el.innerHTML=el.dataset.pendingHtml;
-        delete el.dataset.pendingHtml;
-      }
-      obs.unobserve(el);
-    });
-  },{rootMargin:'200px'});
-  list.forEach(cam=>{
-    const el=document.getElementById('yt-dyn-'+cam.name);
-    if(!el) return;
-    if(cam.video_id){
-      const html=`<iframe style="position:absolute;inset:0;width:100%;height:100%;border:none"
-        src="https://www.youtube.com/embed/${cam.video_id}?autoplay=0&mute=1&rel=0"
-        allowfullscreen allow="autoplay;encrypted-media"></iframe>`;
-      if(ytTabLoaded){el.dataset.pendingHtml=html; obs.observe(el);}
-      else el.dataset.pendingHtml=html;
-    } else {
-      el.innerHTML=`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
-        <div style="font-size:20px;opacity:.3">📡</div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">現在配信なし</div>
-        <a href="https://www.youtube.com/@${cam.name}" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--teal);text-decoration:none">チャンネルを開く↗</a>
-      </div>`;
-    }
-  });
-}
-
-async function loadCameras(){
-  try{
-    const res=await fetch('cameras.json?t='+Date.now());
-    const data=await res.json();
-    document.getElementById('fb-time').textContent=data.last_fetch_jst||'—';
-    const total=data.camera_count+(data.extra_cameras?data.extra_cameras.length:0)+YT_FIXED.length;
-    document.getElementById('fb-count').textContent=total+'台';
-    document.getElementById('tc-river').textContent=total+'台';
-    applyYoutubeLive(data.youtube_live);
-
-    if(!initialized){
-      // ── 初回のみ：カメラリスト構築＋グリッド描画 ──
-      initialized=true;
-      CAMERAS=data.cameras.map(c=>({type:'static',filename:`p-${c.pid}.jpg`,name:'🌊 カメラ '+c.pid,loc:'p-'+c.pid,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/'}));
-      if(data.extra_cameras) data.extra_cameras.forEach(c=>{const info=EXTRA_CAM_INFO[c.key]||{};CAMERAS.push({type:'static',filename:`${c.key}.jpg`,name:info.name||c.name,loc:info.loc||c.loc,link:info.link||'#'});});
-      YT_FIXED.forEach(y=>CAMERAS.push({type:'youtube',ytId:y.id,name:y.name,loc:y.loc,ytUrl:y.ytUrl}));
-      // 国道グリッド描画
-      if(data.road_cameras&&data.road_cameras.length>0){
-        const rg=document.getElementById('road-grid');
-        rg.innerHTML=''; rg.className='cam-grid wide';
-        data.road_cameras.forEach((cam,i)=>{
-          const d=document.createElement('div'); d.className='card'; d.id='rcard-'+i;
-          const num=cam.key.replace('road-','');
-          d.innerHTML=`<div class="card-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="live-badge"><div class="live-dot"></div>10分更新</div></div>
-            <div class="card-img"><div class="state-ov" id="rld-${i}"><div class="spin"></div></div>
-            <div class="state-ov" id="rer-${i}" style="display:none"><div style="font-size:20px;opacity:.2">🚗</div><div class="state-txt">画像未取得</div></div>
-            <img class="cam-img" id="rimg-${i}" style="opacity:0;cursor:pointer" onload="rimgOK(${i})" onerror="rimgNG(${i})" onclick="openLbRoad(${i})"></div>
-            <div class="card-foot"><span class="foot-stamp" id="rst-${i}">—</span>
-            <a class="foot-link" href="https://www.dc.ogb.go.jp/nankoku/cctv/${num}.html" target="_blank">公式サイト↗</a></div>`;
-          rg.appendChild(d);
-          setTimeout(()=>{const img=document.getElementById('rimg-'+i);if(img)setImgNoCache(img,`img_cam/${cam.key}.jpg`);},i*200);
-        });
-      }
-      // 東村・大宜味村カメラグリッド描画（初回のみ）
-      function buildBousaiGrid(gridId, camList, label) {
-        const g = document.getElementById(gridId);
-        if (!g || !camList || camList.length === 0) {
-          if (g) g.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">${label}のカメラ画像を取得できませんでした（HTTPアクセス制限の可能性）</div>`;
-          return;
-        }
-        g.innerHTML = '';
-        camList.forEach((cam, i) => {
-          const uid = gridId + '-' + i;
-          const d = document.createElement('div');
-          d.className = 'card'; d.id = 'bc-' + uid;
-          d.innerHTML = `<div class="card-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="live-badge"><div class="live-dot"></div>10分更新</div></div>
-            <div class="card-img"><div class="state-ov" id="bld-${uid}"><div class="spin"></div></div>
-            <div class="state-ov" id="ber-${uid}" style="display:none"><div style="font-size:20px;opacity:.2">📡</div><div class="state-txt">画像未取得</div></div>
-            <img class="cam-img" id="bimg-${uid}" data-src="img_cam/${cam.key}.jpg" style="opacity:0;cursor:pointer" onload="bimgOK('${uid}')" onerror="bimgNG('${uid}')" onclick="openLbBousai('${uid}')"></div>
-            <div class="card-foot"><span class="foot-stamp" id="bst-${uid}">—</span></div>`;
-          g.appendChild(d);
-          setTimeout(() => {
-            const img = document.getElementById('bimg-' + uid);
-            if (img) setImgNoCache(img, `img_cam/${cam.key}.jpg`);
-          }, i * 200);
-        });
-      }
-
-      buildBousaiGrid('higashi-grid', data.higashi_cameras, '東村');
-      buildBousaiGrid('ogimi-grid',   data.ogimi_cameras,   '大宜味村');
-
-      render();
-    } else {
-      // ── 2回目以降：DOMを壊さず画像srcだけ静かに更新 ──
-      const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
-      for(let i=0;i<count;i++){
-        if(!CAMERAS[i]||CAMERAS[i].type!=='static') continue;
-        if(st[i]==='ok'){
-          const img=document.getElementById('img-'+i);
-          if(img) setImgNoCache(img, `img_cam/${CAMERAS[i].filename}`);
-        }
-      }
-      if(data.road_cameras) data.road_cameras.forEach((cam,i)=>{
-        const img=document.getElementById('rimg-'+i);
-        if(img&&img.style.opacity==='1') setImgNoCache(img, `img_cam/${cam.key}.jpg`);
-      });
-      // 防災カメラも静かに更新
-      document.querySelectorAll('[id^="bimg-"]').forEach(img=>{
-        if(img.style.opacity==='1'&&img.dataset.src) setImgNoCache(img, img.dataset.src);
-      });
-    }
-  } catch(e){
-    if(!initialized){
-      document.getElementById('fb-time').textContent='(未実行)';
-      document.getElementById('grid').innerHTML='<div class="loading-msg">cameras.json が見つかりません。Actions を実行してください。</div>';
-    }
-  }
-}
-
-function render(){
-  const grid=document.getElementById('grid'); grid.innerHTML='';
-  const modeMap={1:'g1',2:'g2',4:'g4',8:'g8',all:'gall'};
-  grid.className='grid '+(modeMap[mode]||'g4');
-  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
-  for(let i=0;i<count;i++){
-    const cam=CAMERAS[i]; if(!cam) continue;
-    if(cam.type==='youtube'){
-      const d=document.createElement('div'); d.className='yt-card'; d.id='card-'+i;
-      d.innerHTML=`<div class="yt-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="yt-badge"><div class="yt-badge-dot"></div>LIVE</div></div>
-        <div class="yt-wrap"><iframe src="https://www.youtube.com/embed/${cam.ytId}?autoplay=1&mute=1&controls=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe></div>
-        <div class="yt-foot"><span class="yt-foot-txt">YouTube ライブ</span><a class="foot-link" href="${cam.ytUrl}" target="_blank">YouTubeで開く↗</a></div>`;
-      grid.appendChild(d); st[i]='ok';
-    } else {
-      const d=document.createElement('div'); d.className='card'; d.id='card-'+i;
-      d.innerHTML=`<div class="card-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="live-badge"><div class="live-dot"></div>10分更新</div></div>
-        <div class="card-img">
-          <div class="state-ov" id="ld-${i}"><div class="spin"></div></div>
-          <div class="state-ov" id="er-${i}" style="display:none"><div style="font-size:20px;opacity:.2">📡</div>
-            <div class="state-txt">画像未取得<br><span style="color:rgba(245,158,11,.7)">${esc(cam.filename)}</span></div>
-            <button onclick="retry(${i})" style="margin-top:4px;padding:4px 12px;background:var(--teal3);border:1px solid rgba(45,212,191,.4);border-radius:5px;color:var(--teal);font-family:var(--mono);font-size:10px;cursor:pointer">↺ 再取得</button></div>
-          <img class="cam-img" id="img-${i}" style="opacity:0" onload="imgOK(${i})" onerror="imgNG(${i})" onclick="openLb(${i})">
-          <div class="img-bot"><span class="ov-time" id="ov-${i}">—</span><span class="ov-pid">${esc(cam.filename)}</span></div>
-        </div>
-        <div class="card-foot"><span class="foot-stamp" id="st-${i}">—</span>
-          <a class="foot-link" href="${cam.link}" target="_blank">公式サイト↗</a>
-          <button class="fav-btn" id="fav-${i}" onclick="toggleFav(${i})" title="お気に入り">${getFav(i)?'⭐':'☆'}</button>
-          <button class="foot-retry" onclick="retry(${i})">↺</button></div>`;
-      grid.appendChild(d); st[i]='loading';
-      setTimeout(()=>loadImg(i),i*150);
-    }
-  }
-  updateCounts();
-}
-
-function bimgOK(uid){const img=document.getElementById('bimg-'+uid),ld=document.getElementById('bld-'+uid),card=document.getElementById('bc-'+uid);if(img)img.style.opacity='1';if(ld)ld.style.display='none';if(card)card.className='card ok';const now=new Date(),s=document.getElementById('bst-'+uid);if(s)s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());}
-function bimgNG(uid){const img=document.getElementById('bimg-'+uid),ld=document.getElementById('bld-'+uid),er=document.getElementById('ber-'+uid),card=document.getElementById('bc-'+uid);if(ld)ld.style.display='none';if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';}
-function rimgOK(i){const img=document.getElementById('rimg-'+i),ld=document.getElementById('rld-'+i),card=document.getElementById('rcard-'+i);if(img)img.style.opacity='1';if(ld)ld.style.display='none';if(card)card.className='card ok';const now=new Date(),s=document.getElementById('rst-'+i);if(s)s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());}
-function rimgNG(i){const img=document.getElementById('rimg-'+i),ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(ld)ld.style.display='none';if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';}
-function loadImg(i){const img=document.getElementById('img-'+i);if(img)setImgNoCache(img,`img_cam/${CAMERAS[i].filename}`);}
-function imgOK(i){
-  const img=document.getElementById('img-'+i),ld=document.getElementById('ld-'+i),card=document.getElementById('card-'+i);
-  if(img)img.style.opacity='1';if(ld)ld.style.display='none';if(card)card.className='card ok';
-  st[i]='ok';
-  const now=new Date(),ov=document.getElementById('ov-'+i),s=document.getElementById('st-'+i);
-  if(ov)ov.textContent=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
-  if(s)s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());
-  updateCounts();
-}
-function imgNG(i){const ld=document.getElementById('ld-'+i);if(ld)ld.style.display='none';if(st[i]==='ok')return;const img=document.getElementById('img-'+i),er=document.getElementById('er-'+i),card=document.getElementById('card-'+i);if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';st[i]='error';updateCounts();}
-function retry(i){
-  if(!CAMERAS[i]||CAMERAS[i].type==='youtube') return;
-  const img=document.getElementById('img-'+i),ld=document.getElementById('ld-'+i),er=document.getElementById('er-'+i),card=document.getElementById('card-'+i);
-  if(er)er.style.display='none';if(ld)ld.style.display='flex';
-  if(img){img.style.display='block';img.style.opacity='0';}
-  if(card)card.className='card';st[i]='loading';updateCounts();loadImg(i);
-}
-function reloadAll(){const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++)if(CAMERAS[i]&&CAMERAS[i].type!=='youtube')retry(i);nextAt=Date.now()+10*60*1000;}
-function reloadRoad(){document.querySelectorAll('[id^="rimg-"]').forEach((img,i)=>{const ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>setImgNoCache(img,img.src.split('?')[0]),i*200);});}
-function reloadBousai(){document.querySelectorAll('[id^="bimg-"]').forEach((img,i)=>{const uid=img.id.replace('bimg-',''),ld=document.getElementById('bld-'+uid),er=document.getElementById('ber-'+uid),card=document.getElementById('bc-'+uid);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>setImgNoCache(img,img.src.split('?')[0].replace(/^blob:.+/,img.dataset.src||'')),i*200);});}
-function updateCounts(){let ok=0,err=0;const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++){if(st[i]==='ok')ok++;if(st[i]==='error')err++;}document.getElementById('cnt-ok').textContent=ok;document.getElementById('cnt-err').textContent=err;}
-function setMode(n){mode=n;['1','2','4','8','all'].forEach(v=>document.getElementById('btn'+v).classList.toggle('active',v==String(n)));Object.keys(st).forEach(k=>delete st[k]);render();}
-// ── ライトボックス（河川・道路・防災 共通）──
-let lbMode=null, lbList=[], lbIdx=null;
-
-async function openLbGeneric(list, idx){
-  if(idx<0||idx>=list.length) return;
-  const item=list[idx];
-  const img=document.getElementById(item.imgId);
-  if(!img||img.style.opacity!=='1') return;
-  const lbImg=document.getElementById('lb-img');
-  document.getElementById('lb-cap').textContent=item.name+' — '+item.loc;
-  document.getElementById('lb').classList.add('open');
-  lbList=list; lbIdx=idx;
-  // data-srcがあれば最新を再fetch、なければ現在のsrcをそのまま使用
-  const src=img.dataset.src||img.src;
-  if(img.dataset.src){
-    try{
-      const res=await fetch(img.dataset.src+'?t='+Date.now(),{cache:'no-store'});
-      if(res.ok){const blob=await res.blob();lbImg.src=URL.createObjectURL(blob);return;}
-    }catch(e){}
-  }
-  lbImg.src=img.src;
-}
-function openLb(i){
-  if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube') return;
-  const img=document.getElementById('img-'+i);
-  const list=CAMERAS.slice(0, mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length))
-    .map((c,n)=>({imgId:'img-'+n, name:c.name||'', loc:c.loc||''}))
-    .filter((_,n)=>st[n]==='ok');
-  const idx=list.findIndex(x=>x.imgId==='img-'+i);
-  if(idx<0){
-    document.getElementById('lb-img').src=img.src;
-    document.getElementById('lb-cap').textContent=CAMERAS[i].name+' — '+CAMERAS[i].loc;
-    document.getElementById('lb').classList.add('open');
-    lbList=[{imgId:'img-'+i,name:CAMERAS[i].name,loc:CAMERAS[i].loc}]; lbIdx=0;
-    return;
-  }
-  openLbGeneric(list, idx);
-}
-function openLbRoad(i){
-  const imgs=[...document.querySelectorAll('[id^="rimg-"]')];
-  const list=imgs.map((img,n)=>{
-    const card=document.getElementById('rcard-'+n);
-    const name=card?card.querySelector('.card-river')?.textContent||'道路'+n:'道路'+n;
-    const loc=card?card.querySelector('.card-loc')?.textContent||'':'';
-    return {imgId:'rimg-'+n, name, loc};
-  }).filter((_,n)=>{const img=imgs[n];return img&&img.style.opacity==='1';});
-  const idx=list.findIndex(x=>x.imgId==='rimg-'+i);
-  openLbGeneric(list, idx<0?0:idx);
-}
-function openLbBousai(uid){
-  const imgs=[...document.querySelectorAll('[id^="bimg-"]')];
-  const list=imgs.map(img=>{
-    const u=img.id.replace('bimg-','');
-    const card=document.getElementById('bc-'+u);
-    const name=card?card.querySelector('.card-river')?.textContent||u:u;
-    const loc=card?card.querySelector('.card-loc')?.textContent||'':'';
-    return {imgId:'bimg-'+u, name, loc};
-  }).filter(item=>{const img=document.getElementById(item.imgId);return img&&img.style.opacity==='1';});
-  const idx=list.findIndex(x=>x.imgId==='bimg-'+uid);
-  openLbGeneric(list, idx<0?0:idx);
-}
-function closeLb(){document.getElementById('lb').classList.remove('open');lbIdx=null;lbList=[];}
-function openInfo(){document.getElementById('info-modal').style.display='block';}
-function closeInfo(){document.getElementById('info-modal').style.display='none';}
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeInfo();closeLb();}
-  if(lbIdx===null||!lbList.length) return;
-  if(e.key==='ArrowRight') openLbGeneric(lbList,(lbIdx+1)%lbList.length);
-  if(e.key==='ArrowLeft')  openLbGeneric(lbList,(lbIdx-1+lbList.length)%lbList.length);
-});
-
-// スワイプ対応
-let _touchX=null;
-const lb=document.getElementById('lb');
-lb.addEventListener('touchstart',e=>{_touchX=e.touches[0].clientX;},{passive:true});
-lb.addEventListener('touchend',e=>{
-  if(_touchX===null) return;
-  const dx=e.changedTouches[0].clientX-_touchX;
-  _touchX=null;
-  if(Math.abs(dx)<40||lbIdx===null||!lbList.length) return;
-  if(dx<0) openLbGeneric(lbList,(lbIdx+1)%lbList.length);
-  else     openLbGeneric(lbList,(lbIdx-1+lbList.length)%lbList.length);
-},{passive:true});
-
-function tick(){const n=new Date();document.getElementById('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());document.getElementById('hdate').textContent=n.getFullYear()+' / '+pad(n.getMonth()+1)+' / '+pad(n.getDate());if(nextAt){const s=Math.max(0,Math.round((nextAt-Date.now())/1000));document.getElementById('foot-r').textContent='次回更新: '+pad(Math.floor(s/60))+':'+pad(s%60);}}
-
-function setTheme(t){
-  document.documentElement.setAttribute('data-theme', t==='dark'?'':t);
-  ['dark','light'].forEach(n=>document.getElementById('theme-'+n).classList.toggle('active',n===t));
-  try{localStorage.setItem('theme',t);}catch(e){}
-}
-// 起動時に保存済みテーマを適用
-(function(){try{const t=localStorage.getItem('theme');if(t)setTheme(t);}catch(e){}})();
-
-// ── お気に入り ──
-function getFav(i){try{const f=JSON.parse(localStorage.getItem('favs')||'[]');return f.includes(i);}catch(e){return false;}}
-function toggleFav(i){
-  try{
-    let f=JSON.parse(localStorage.getItem('favs')||'[]');
-    if(f.includes(i)) f=f.filter(x=>x!==i); else f.push(i);
-    localStorage.setItem('favs',JSON.stringify(f));
-    const btn=document.getElementById('fav-'+i);
-    if(btn) btn.textContent=f.includes(i)?'⭐':'☆';
-  }catch(e){}
-}
-
-// ── 気象警報・台風情報 ──
-const WARNING_COLORS={
-  '大雨特別警報':'#ff0000','洪水特別警報':'#ff0000','暴風特別警報':'#ff0000','暴風雪特別警報':'#ff0000','高潮特別警報':'#ff0000','波浪特別警報':'#ff0000',
-  '大雨警報':'#f97316','洪水警報':'#f97316','暴風警報':'#f87171','高潮警報':'#f87171','波浪警報':'#f87171',
-  '大雨注意報':'#fbbf24','洪水注意報':'#fbbf24','強風注意報':'#fbbf24','高潮注意報':'#fbbf24','波浪注意報':'#fbbf24',
-};
-const AREA_NAMES={
-  '110':'那覇市','120':'宜野湾市','130':'石垣市','140':'浦添市','150':'名護市',
-  '160':'糸満市','170':'沖縄市','180':'豊見城市','190':'うるま市','200':'宮古島市',
-  '210':'南城市','301':'国頭村','302':'大宜味村','303':'東村','306':'今帰仁村',
-  '308':'本部町','310':'恩納村','312':'宜野座村','313':'金武町','314':'伊江村',
-  '321':'読谷村','322':'嘉手納町','323':'北谷町','324':'北中城村','325':'中城村',
-  '326':'西原町','331':'与那原町','332':'南風原町','333':'八重瀬町',
-  '341':'渡嘉敷村','342':'座間味村','343':'粟国村','344':'渡名喜村','345':'南大東村',
-  '346':'北大東村','347':'伊平屋村','348':'伊是名村','349':'久米島町','350':'八重山郡','999':'沖縄県全域'
-};
-
-let bousaiInfoLoaded=false;
-// ── 河川水位タブ ──
-let kasenLoaded = false;
-let kasenHistSno = null;
-
-async function loadKasen(){
-  if(kasenLoaded) return;
-  kasenLoaded = true;
-  const el = document.getElementById('kasen-inner');
-  if(!el) return;
-  try {
-    const res = await fetch('river.json?_='+Math.floor(Date.now()/300000));
-    if(!res.ok){ el.innerHTML='<p style="color:#666;padding:16px">データなし</p>'; return; }
-    const data = await res.json();
-    renderKasenNow(data);
-  } catch(e){ console.warn('river.json取得失敗',e); }
-}
-
-function renderKasenNow(data){
-  const el = document.getElementById('kasen-inner');
-  const stns = data.stations || [];
-  const hist = data.history  || [];
-
-  // 色定義（明るい配色）
-  const AC = {'-1':'#888', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
-  const AB = {'-1':'#eee', 0:'#fff',  1:'#fff9c4', 2:'#ffe0b2', 3:'#ffcdd2', 4:'#b71c1c'};
-  const AL = {'-1':'欠測', 0:'–',     1:'注意',    2:'警戒',    3:'危険',    4:'氾濫危険'};
-  const ARROWS = {up:'↑', down:'↓', stay:'→', '':''};
-
-  // ヘッダー
-  const header = `<div style="background:#1565c0;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-    <div style="font-weight:700;font-size:14px">🌊 河川水位情報（沖縄県）</div>
-    <div style="font-size:12px;opacity:.85">観測時刻: ${data.updated||''} &nbsp;
-      <button onclick="kasenLoaded=false;loadKasen()" style="background:#1976d2;border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:11px">↺ 更新</button>
-    </div>
-  </div>`;
-
-  // 総括表
-  const nowRows = stns.map(s => {
-    const c = AC[s.alm]??'#333', bg = AB[s.alm]??'#fff';
-    const lv = (!s.level || s.level==='-' || s.level==='欠測') ? '欠測' : s.level+'m';
-    const isMissing = lv==='欠測';
-    const dangerStr = s.danger  != null ? s.danger+'m'  : '－';
-    const cautStr   = s.caution != null ? s.caution+'m' : '－';
-    const almBadge  = s.alm > 0
-      ? `<span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]}</span>`
-      : `<span style="color:#aaa;font-size:11px">${AL[0]}</span>`;
-    const histLink = hist.find(h=>h.sno===s.sno)
-      ? `<a href="#" onclick="event.preventDefault();showKasenHist(${s.sno})" style="font-size:11px;color:#1565c0">経過表</a>`
-      : '';
-    return `<tr style="background:${bg};border-bottom:1px solid #ddd">
-      <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:600;white-space:nowrap">${s.stn}</td>
-      <td style="padding:6px 10px;color:#555;font-size:12px;white-space:nowrap">${s.river}</td>
-      <td style="padding:6px 10px;font-size:14px;font-weight:700;text-align:right;font-family:monospace;color:${isMissing?'#aaa':c}">${lv}</td>
-      <td style="padding:6px 10px;color:#c62828;font-size:12px;text-align:right;font-family:monospace">${dangerStr}</td>
-      <td style="padding:6px 10px;color:#e65100;font-size:12px;text-align:right;font-family:monospace">${cautStr}</td>
-      <td style="padding:6px 10px;text-align:center">${almBadge}</td>
-      <td style="padding:6px 10px;text-align:center">${histLink}</td>
-    </tr>`;
-  }).join('');
-
-  const nowTable = `<div style="overflow-x:auto;margin-bottom:16px">
-    <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #ccc">
-      <thead>
-        <tr style="background:#1565c0">
-          <th colspan="7" style="padding:8px 12px;color:#fff;text-align:left;font-size:13px">水位総括表</th>
-        </tr>
-        <tr style="background:#e3f2fd">
-          <th style="padding:7px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">観測所</th>
-          <th style="padding:7px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">河川</th>
-          <th style="padding:7px 10px;text-align:right;color:#333;font-size:12px;border-bottom:2px solid #1565c0">現在水位</th>
-          <th style="padding:7px 10px;text-align:right;color:#c62828;font-size:12px;border-bottom:2px solid #1565c0">氾濫危険</th>
-          <th style="padding:7px 10px;text-align:right;color:#e65100;font-size:12px;border-bottom:2px solid #1565c0">護岸天端</th>
-          <th style="padding:7px 10px;text-align:center;color:#333;font-size:12px;border-bottom:2px solid #1565c0">状態</th>
-          <th style="padding:7px 10px;text-align:center;color:#333;font-size:12px;border-bottom:2px solid #1565c0">経過</th>
-        </tr>
-      </thead>
-      <tbody>${nowRows}</tbody>
-    </table>
-  </div>`;
-
-  // 凡例
-  const legend = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:11px">
-    ${[{l:1,t:'注意（護岸天端超え）'},{l:2,t:'警戒（氾濫危険超え）'},{l:3,t:'危険'}].map(x=>
-      `<div style="display:flex;align-items:center;gap:5px">
-        <div style="width:14px;height:14px;border-radius:2px;background:${AB[x.l]};border:1px solid ${AC[x.l]}"></div>
-        <span style="color:#555">${x.t}</span>
-      </div>`).join('')}
-    <a href="http://bousai-kasen.pref.okinawa.jp/river/kasen/now.html?g=22&k=4&a=0" target="_blank" style="margin-left:auto;color:#1565c0;font-size:11px">↗ 沖縄県河川情報システム（公式）</a>
-  </div>`;
-
-  el.innerHTML = header +
-    `<div style="padding:16px;background:#f5f8ff">` +
-    legend + nowTable +
-    `<div id="kasen-hist-area"></div></div>`;
-}
-
-function showKasenHist(sno){
-  const el = document.getElementById('kasen-hist-area');
-  if(!el) return;
-  fetch('river.json?_='+Math.floor(Date.now()/300000)).then(r=>r.json()).then(data=>{
-    const h = (data.history||[]).find(x=>x.sno===sno);
-    if(!h){ el.innerHTML=''; return; }
-    const AC2 = {'-1':'#aaa', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
-    const AB2 = {'-1':'#eee', 0:'#fff',  1:'#fff9c4', 2:'#ffe0b2', 3:'#ffcdd2', 4:'#b71c1c'};
-    const TR  = {up:'↑',down:'↓',stay:'→','':'→'};
-    const rows = h.records.map(r=>{
-      const c=AC2[r.alm]??'#333', bg=AB2[r.alm]??'#fff';
-      const lv = (!r.level||r.level==='-'||r.level==='欠測') ? '欠測' : r.level+'m';
-      return `<tr style="background:${bg};border-bottom:1px solid #ddd">
-        <td style="padding:5px 10px;font-family:monospace;font-size:12px;color:#555;white-space:nowrap">${r.time}</td>
-        <td style="padding:5px 10px;font-family:monospace;font-size:13px;font-weight:600;text-align:right;color:${c}">${lv}</td>
-        <td style="padding:5px 10px;text-align:center;font-size:14px;color:${c}">${TR[r.trend]||'→'}</td>
-      </tr>`;
-    }).join('');
-    el.innerHTML = `<div style="overflow-x:auto">
-      <table style="width:100%;max-width:400px;border-collapse:collapse;background:#fff;border:1px solid #ccc">
-        <thead>
-          <tr style="background:#1565c0">
-            <th colspan="3" style="padding:8px 12px;color:#fff;text-align:left;font-size:13px">水位経過表 — ${h.stn}（${h.river}）
-              <button onclick="document.getElementById('kasen-hist-area').innerHTML=''" style="float:right;background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:11px">✕ 閉じる</button>
-            </th>
-          </tr>
-          ${h.danger!=null||h.caution!=null ? `<tr style="background:#ffebee"><td colspan="3" style="padding:4px 12px;font-size:11px;color:#c62828">氾濫危険水位: ${h.danger!=null?h.danger+'m':'－'} ／ 護岸天端: ${h.caution!=null?h.caution+'m':'－'}</td></tr>` : ''}
-          <tr style="background:#e3f2fd">
-            <th style="padding:6px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">日時</th>
-            <th style="padding:6px 10px;text-align:right;color:#333;font-size:12px;border-bottom:2px solid #1565c0">水位</th>
-            <th style="padding:6px 10px;text-align:center;color:#333;font-size:12px;border-bottom:2px solid #1565c0">傾向</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-  });
-}
-
-// ── 河川水位 ──
-async function loadRiver(){
-  const el = document.getElementById('river-panel');
-  const tu = document.getElementById('river-updated');
-  if(!el) return;
-  try {
-    const res = await fetch('river.json?_='+Math.floor(Date.now()/300000));
-    if(!res.ok){ el.innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">データなし</div>'; return; }
-    const data = await res.json();
-    if(tu) tu.textContent = data.updated ? '観測: '+data.updated : '';
-    const stns = data.stations || [];
-    if(!stns.length){
-      el.innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">データなし</div>';
-      return;
-    }
-    // alm色
-    const AC = {'-1':'#334155', 0:'#e2e8f0', 1:'#facc15', 2:'#fb923c', 3:'#f87171', 4:'#ffffff'};
-    const AB = {'-1':'#0f172a', 0:'#0f172a', 1:'#1c1600', 2:'#1c0800', 3:'#1c0000', 4:'#7f1d1d'};
-    const AL = {'-1':'欠測',    0:'平常',    1:'注意',    2:'警戒',   3:'危険',   4:'氾濫危険'};
-
-    // 警戒以上を上に
-    const sorted = [...stns].sort((a,b)=> b.alm - a.alm);
-    const alerts = sorted.filter(s=>s.alm>=2);
-
-    const rows = sorted.map(s => {
-      const c = AC[s.alm]??AC[0], bg = AB[s.alm]??AB[0];
-      const lv = s.level==='-'||s.level==='欠測'||s.level===null ? '–' : s.level+'m';
-      const dangerStr = s.danger != null ? s.danger+'m' : '–';
-      const cautStr   = s.caution != null ? s.caution+'m' : '–';
-      return `<tr style="border-bottom:1px solid #1e293b;background:${bg}">
-        <td style="padding:6px 10px;color:${c};font-size:12px;white-space:nowrap">${s.stn}</td>
-        <td style="padding:6px 10px;color:#64748b;font-size:11px;white-space:nowrap">${s.river}</td>
-        <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:700;text-align:right;font-family:var(--mono)">${lv}</td>
-        <td style="padding:6px 10px;color:#475569;font-size:11px;text-align:right;font-family:var(--mono)">${dangerStr}</td>
-        <td style="padding:6px 10px;color:#334155;font-size:11px;text-align:right;font-family:var(--mono)">${cautStr}</td>
-        <td style="padding:6px 8px;text-align:center"><span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]??'–'}</span></td>
-      </tr>`;
-    }).join('');
-
-    el.innerHTML = `
-      ${alerts.length ? `<div style="background:#450a0a;border:1px solid #dc2626;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#fca5a5;font-family:var(--mono)">⚠ 警戒以上: ${alerts.map(s=>s.stn).join('・')}</div>` : ''}
-      <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;background:#0f172a;border:1px solid #1e293b;border-radius:8px;overflow:hidden">
-          <thead><tr style="background:#0a0f1e">
-            <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">観測所</th>
-            <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">河川</th>
-            <th style="padding:8px 10px;text-align:right;color:#475569;font-size:11px;font-weight:400">現在水位</th>
-            <th style="padding:8px 10px;text-align:right;color:#f87171;font-size:11px;font-weight:400">氾濫危険</th>
-            <th style="padding:8px 10px;text-align:right;color:#fb923c;font-size:11px;font-weight:400">護岸天端</th>
-            <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">状態</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <div style="text-align:right;margin-top:4px">
-        <a href="http://bousai-kasen.pref.okinawa.jp/river/kasen/now.html?g=22&k=4&a=0" target="_blank" style="font-size:11px;color:#60a5fa;text-decoration:none">↗ 沖縄県河川情報システムで詳細を見る</a>
-      </div>`;
-  } catch(e){ console.warn('river.json取得失敗',e); }
-}
-
-// ── 地震情報 ──
-async function loadEarthquake(){
-  const el = document.getElementById('earthquake-panel');
-  if(!el) return;
-  try {
-    const res = await fetch('earthquake.json?_='+Math.floor(Date.now()/300000));
-    if(!res.ok){ el.innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">データなし</div>'; return; }
-    const data = await res.json();
-    const eqs = data.earthquakes || [];
-    if(!eqs.length){
-      el.innerHTML = `<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px 16px;color:#475569;font-family:var(--mono);font-size:12px">
-        ✅ 直近24時間以内に沖縄周辺での地震は記録されていません
-        <span style="float:right;font-size:10px;color:#334155">取得: ${data.fetched_jst||''}</span>
-      </div>`;
-      return;
-    }
-    const MAXI_COLOR = {
-      '1':'#64748b','2':'#64748b','3':'#60a5fa','4':'#facc15',
-      '5弱':'#fb923c','5強':'#f87171','6弱':'#dc2626','6強':'#b91c1c','7':'#7f1d1d'
-    };
-    const rows = eqs.map(q => {
-      const mc = MAXI_COLOR[q.maxi] || '#475569';
-      const maxiStr = q.maxi && q.maxi !== '-' ? `<span style="color:${mc};font-weight:700">震度${q.maxi}</span>` : '<span style="color:#334155">震度不明</span>';
-      return `<tr style="border-bottom:1px solid #1e293b">
-        <td style="padding:6px 10px;color:#94a3b8;font-size:11px;white-space:nowrap;font-family:var(--mono)">${q.time}</td>
-        <td style="padding:6px 10px;color:#e2e8f0;font-size:12px">${q.loc}</td>
-        <td style="padding:6px 10px;color:#7dd3fc;font-size:12px;text-align:center;white-space:nowrap">M${q.mag}</td>
-        <td style="padding:6px 10px;text-align:center;white-space:nowrap">${maxiStr}</td>
-        <td style="padding:6px 10px;color:#475569;font-size:11px;text-align:center;white-space:nowrap">${q.depth !== '-' ? q.depth+'km' : '–'}</td>
-      </tr>`;
-    }).join('');
-    el.innerHTML = `<div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;background:#0f172a;border:1px solid #1e293b;border-radius:8px;overflow:hidden">
-        <thead><tr style="background:#0a0f1e">
-          <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">日時</th>
-          <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">震源地</th>
-          <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">規模</th>
-          <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">最大震度</th>
-          <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">深さ</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div style="text-align:right;color:#334155;font-size:10px;font-family:var(--mono);margin-top:4px">気象庁 地震情報 ― 取得: ${data.fetched_jst||''}</div>
-    </div>`;
-  } catch(e){ console.warn('earthquake.json取得失敗',e); }
-}
-
-// ── キキクル危険度分布アラート ──
-const KIKU_COLORS = {
-  0: null,
-  1: {bg:'#1c1600', border:'#ca8a04', text:'#fde047', emoji:'🟡'},
-  2: {bg:'#1c0000', border:'#dc2626', text:'#fca5a5', emoji:'🔴'},
-  3: {bg:'#1a0030', border:'#9333ea', text:'#d8b4fe', emoji:'🟣'},
-  4: {bg:'#000000', border:'#6b7280', text:'#e5e7eb', emoji:'⚫'},
-};
-const KIKU_ELEM_LABELS = {inund:'浸水害', land:'土砂', flood:'洪水'};
-
-async function loadKikukuru(){
-  const el = document.getElementById('kikukuru-banner');
-  if(!el) return;
-  try {
-    const res = await fetch('kikukuru.json?_='+Math.floor(Date.now()/300000));
-    if(!res.ok) return;
-    const data = await res.json();
-    if(!data.has_alert){
-      el.innerHTML = `<div style="background:#052e16;border:1px solid #166534;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:4px">
-        <span style="font-size:16px">✅</span>
-        <div>
-          <span style="color:#4ade80;font-size:13px;font-weight:700">キキクル（危険度分布）― 現在、沖縄県内に危険域なし</span>
-          <span style="color:#166534;font-size:10px;font-family:var(--mono);margin-left:10px">取得: ${data.fetched_jst||''}</span>
-        </div>
-        <a href="https://www.jma.go.jp/bosai/risk/#lat:26.6/lon:127.96/zoom:8/elements:inund" target="_blank" style="margin-left:auto;font-size:11px;color:#4ade80;text-decoration:none">↗ キキクルを開く</a>
-      </div>`;
-      return;
-    }
-    // アラートあり
-    const alerts = Object.entries(data.elements||{})
-      .filter(([,v])=>v.has_alert)
-      .map(([k,v])=>{
-        const c = KIKU_COLORS[v.level]||KIKU_COLORS[1];
-        return `<span style="background:${c.bg};border:1px solid ${c.border};color:${c.text};padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap">${c.emoji} ${KIKU_ELEM_LABELS[k]||k}：${v.label}</span>`;
-      }).join('');
-    const mc = KIKU_COLORS[data.max_level]||KIKU_COLORS[1];
-    el.innerHTML = `<div style="background:${mc.bg};border:1px solid ${mc.border};border-radius:8px;padding:12px 16px;margin-bottom:4px">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="font-size:18px">${mc.emoji}</span>
-        <span style="color:${mc.text};font-size:14px;font-weight:700">沖縄県内にキキクル（${data.max_label}）あり</span>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">${alerts}</div>
-        <a href="https://www.jma.go.jp/bosai/risk/#lat:26.6/lon:127.96/zoom:8/elements:inund" target="_blank" style="margin-left:auto;font-size:11px;color:${mc.text};opacity:.8;text-decoration:none;white-space:nowrap">↗ キキクルを開く</a>
-      </div>
-      <div style="color:${mc.border};font-size:10px;font-family:var(--mono);margin-top:6px">気象庁 危険度分布タイル解析 ― 取得: ${data.fetched_jst||''}</div>
-    </div>`;
-  } catch(e){ console.warn('kikukuru.json取得失敗',e); }
-}
-
-async function loadBousaiInfo(){
-  // GitHub Actionsが生成したwarning.jsonから取得
-  try{
-    const res=await fetch('warning.json?t='+Date.now());
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    if(data.warnings) renderWarnings(data.warnings);
-    if(data.typhoons !== undefined) renderTyphoon(data.typhoons);
-    const updated=document.getElementById('warning-updated');
-    if(updated && data.fetched_jst) updated.textContent='（'+data.fetched_jst+' 取得）';
-  }catch(e){
-    // warning.jsonがまだない場合はリンクのみ表示
-    document.getElementById('warning-area').innerHTML=`
-      <div style="grid-column:1/-1;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:14px 16px">
-        <div style="font-size:12px;color:var(--amber);margin-bottom:8px;font-family:var(--mono)">⚠ 警報データ未取得（Actions実行後に反映されます）</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <a class="ext-link" href="https://www.jma.go.jp/bosai/warning/#area_type=offices&area_code=471000" target="_blank">
-            <span class="ext-link-name">気象庁 沖縄県の警報・注意報</span><span class="ext-link-arr">↗</span>
-          </a>
-          <a class="ext-link" href="https://www.jma-net.go.jp/okinawa/" target="_blank">
-            <span class="ext-link-name">沖縄気象台</span><span class="ext-link-arr">↗</span>
-          </a>
-        </div>
-      </div>`;
-    document.getElementById('typhoon-area').innerHTML=`
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <a class="ext-link" href="https://www.jma.go.jp/bosai/typhoon/" target="_blank">
-          <span style="font-size:16px">🌀</span><span class="ext-link-name">気象庁 台風情報</span><span class="ext-link-arr">↗</span>
-        </a>
-      </div>`;
-  }
-}
-
-function renderWarnings(warningData){
-  const el=document.getElementById('warning-area');
-  // warningData = [{area_name, warnings:[{type, status}]}]
-  const active=(warningData||[]).filter(a=>(a.warnings||[]).some(w=>w.status==='発表'));
-  if(!active.length){
-    el.innerHTML=`<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:10px;grid-column:1/-1">
-      <span style="font-size:22px">✅</span>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:#4ade80">現在、沖縄県内に発表中の警報・注意報はありません</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px">気象庁（<span id="warning-updated"></span>）</div>
-      </div>
-    </div>`;
-    return;
-  }
-  el.innerHTML=active.map(area=>{
-    const name=area.area_name||'';
-    const items=(area.warnings||[]).filter(w=>w.status==='発表').map(w=>{
-      const col=WARNING_COLORS[w.type]||(w.type.includes('特別警報')?'#ff0000':w.type.includes('警報')?'#f97316':'#fbbf24');
-      return `<span style="display:inline-block;background:${col}22;border:1px solid ${col}66;color:${col};font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;margin:2px">${w.type}</span>`;
-    }).join('');
-    return `<div style="background:var(--card);border:1px solid var(--edge);border-radius:8px;padding:10px 12px">
-      <div style="font-size:12px;font-weight:700;color:var(--bright);margin-bottom:6px">${name}</div>
-      <div>${items}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderTyphoon(data){
-  const el=document.getElementById('typhoon-area');
-  const active=(data||[]).filter(t=>t.active);
-  if(!active.length){
-    el.innerHTML=`<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px">
-      <span style="font-size:20px">🌀</span>
-      <div style="font-size:13px;font-weight:700;color:#4ade80">現在、発生中の台風はありません</div>
-    </div>`;
-    return;
-  }
-  el.innerHTML=active.map(t=>`
-    <div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.4);border-radius:8px;padding:12px 16px;min-width:220px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <span style="font-size:20px">🌀</span>
-        <div style="font-size:13px;font-weight:700;color:#f87171">${t.name_ja||t.name||'台風'} ${t.number?t.number+'号':''}</div>
-      </div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--text);line-height:1.8">
-        ${t.category?`<div>強度: ${t.category}</div>`:''}
-        ${t.pressure?`<div>中心気圧: ${t.pressure} hPa</div>`:''}
-        ${t.wind_speed_max?`<div>最大風速: ${t.wind_speed_max} m/s</div>`:''}
-      </div>
-    </div>`).join('');
-}
-
-// ── 防災ダッシュボード ──
-setTimeout(()=>location.reload(),10*60*1000);
-nextAt=Date.now()+10*60*1000;
-loadCameras(); loadKikukuru(); loadBousaiInfo(); loadRiver(); loadEarthquake(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
-</script>
-</body>
-</html>
+name: 河川カメラ画像取得
+
+on:
+  schedule:
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 * * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: 画像取得
+        run: |
+          mkdir -p img_cam
+
+          # ── 沖縄県河川カメラ（p-01〜p-99 自動スキャン）──
+          BASE="http://bousai-kasen.pref.okinawa.jp/river/kasen/img_cam"
+          for N in $(seq 1 99); do
+            PID=$(echo $N | awk '{printf "%02d", $1}')
+            curl -sf --max-time 10 --retry 1 \
+              -H "Referer: http://bousai-kasen.pref.okinawa.jp/" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/p-${PID}.jpg" \
+              "${BASE}/p-${PID}.jpg" && echo "OK: p-${PID}" || rm -f "img_cam/p-${PID}.jpg"
+          done
+
+          # ── 沖縄市水位監視カメラ ──
+          curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
+            -o "img_cam/okinawa-city-hija.jpg" \
+            "https://www.city.okinawa.okinawa.jp/suiikanshi/hijacam/hijacam.jpg" \
+            && echo "OK: 比謝川" || echo "NG: 比謝川"
+          curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
+            -o "img_cam/okinawa-city-awase1.jpg" \
+            "https://www.city.okinawa.okinawa.jp/suiikanshi/awasecam01/TRIFORA.jpg" \
+            && echo "OK: 泡瀬1" || echo "NG: 泡瀬1"
+          curl -sf --max-time 15 --retry 2 -H "User-Agent: Mozilla/5.0" \
+            -o "img_cam/okinawa-city-awase2.jpg" \
+            "https://www.city.okinawa.okinawa.jp/suiikanshi/awasecam02/TRIFORA.jpg" \
+            && echo "OK: 泡瀬2" || echo "NG: 泡瀬2"
+
+          # ── 南部国道事務所 道路カメラ ──
+          for N in 01 02 03 04 05; do
+            curl -sf --max-time 15 --retry 2 \
+              -H "Referer: https://www.dc.ogb.go.jp/nankoku/cctv/${N}.html" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/road-${N}.jpg" \
+              "https://www.dc.ogb.go.jp/nankoku/cctv/images/${N}.jpg" \
+              && echo "OK: 国道${N}" || echo "NG: 国道${N}"
+          done
+
+          # ── 東村 防災監視カメラ ──
+          HIGASHI_BASE="http://www2.vill.higashi.okinawa.jp"
+          for CAM in \
+            "takae-school:高江小学校" \
+            "takae-school-seimon:高江小学校正門" \
+            "higashi-port:東漁港" \
+            "fkc-park:福地川海浜公園" \
+            "center-pbh:中央公民館" \
+            "hirugi:慶佐次ふれあいヒルギ公園" \
+            "arime-school:有銘小学校グラウンド" \
+            "higashi-school:東小中学校"; do
+            KEY="${CAM%%:*}"
+            LABEL="${CAM##*:}"
+            curl -sf --max-time 20 --retry 3 --retry-delay 2 \
+              --insecure \
+              -H "Referer: ${HIGASHI_BASE}/${KEY}.html" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/higashi-${KEY}.jpg" \
+              "${HIGASHI_BASE}/photo/${KEY}.jpg" \
+              && echo "OK: 東村 ${LABEL}" || echo "NG: 東村 ${LABEL}"
+          done
+
+          # ── 大宜味村 防災ネットワークカメラ ──
+          OGIMI_BASE="http://www-camera.vill.ogimi.lg.jp"
+          for CAM in \
+            "nousonic:農村環境改善センター" \
+            "takazatocc:田嘉里公民館" \
+            "ogimiej:大宜味小中学校" \
+            "tuhacc:津波公民館" \
+            "taihocc:大保公民館" \
+            "shioya:旧塩屋小学校" \
+            "ogimiejgrd:旧大宜味小学校グラウンド"; do
+            KEY="${CAM%%:*}"
+            LABEL="${CAM##*:}"
+            curl -sf --max-time 20 --retry 3 --retry-delay 2 \
+              --insecure \
+              -H "Referer: ${OGIMI_BASE}/${KEY}.html" \
+              -H "User-Agent: Mozilla/5.0" \
+              -o "img_cam/ogimi-${KEY}.jpg" \
+              "${OGIMI_BASE}/photo/${KEY}.jpg" \
+              && echo "OK: 大宜味村 ${LABEL}" || echo "NG: 大宜味村 ${LABEL}"
+          done
+
+      - name: キキクル危険度分布取得（タイル色解析）
+        run: pip install Pillow --break-system-packages -q
+      - name: キキクル危険度分布取得（タイル色解析）
+        shell: python3 {0}
+        run: |
+          import json, math, urllib.request, io
+          from datetime import datetime, timezone, timedelta
+          from PIL import Image
+
+          JST = timezone(timedelta(hours=9))
+
+          def fetch_tile(url):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Referer': 'https://www.jma.go.jp/bosai/risk/',
+              })
+              with urllib.request.urlopen(req, timeout=10) as r:
+                  return r.read()
+
+          def rgb_to_hsv(r, g, b):
+              r, g, b = r/255, g/255, b/255
+              mx, mn = max(r,g,b), min(r,g,b)
+              df = mx - mn
+              v = mx
+              if mx == 0: return 0, 0, 0
+              s = df / mx
+              if df == 0: return 0, s, v
+              if mx == r: h = (60 * ((g-b)/df)) % 360
+              elif mx == g: h = 60 * ((b-r)/df) + 120
+              else: h = 60 * ((r-g)/df) + 240
+              return h, s, v
+
+          def classify_pixel(r, g, b, a):
+              """0=平常 1=注意(黄) 2=警戒(赤) 3=危険(紫) 4=災害切迫(黒)"""
+              if a < 40: return 0
+              h, s, v = rgb_to_hsv(r, g, b)
+              if v < 0.25 and s < 0.4: return 4  # 黒=災害切迫
+              if 250 <= h <= 320 and s > 0.3 and v > 0.2: return 3  # 紫=危険
+              if ((h <= 25 or h >= 335) and s > 0.5 and v > 0.3): return 2  # 赤=警戒
+              if 40 <= h <= 85 and s > 0.4 and v > 0.4: return 1  # 黄=注意
+              return 0
+
+          def lat_lon_to_tile(lat, lon, zoom):
+              x = int((lon + 180) / 360 * (2**zoom))
+              lat_r = math.radians(lat)
+              y = int((1 - math.log(math.tan(lat_r) + 1/math.cos(lat_r)) / math.pi) / 2 * (2**zoom))
+              return x, y
+
+          ZOOM = 7
+          # 沖縄全域タイル範囲
+          X_MIN, X_MAX = 107, 110
+          Y_MIN, Y_MAX = 53, 55
+
+          ELEM_LABELS = {'inund': '浸水', 'land': '土砂', 'flood': '洪水'}
+          LEVEL_LABELS = {0: '平常', 1: '注意', 2: '警戒', 3: '危険', 4: '災害切迫'}
+
+          result = {
+              'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
+              'has_alert': False,
+              'max_level': 0,
+              'max_label': '平常',
+              'elements': {},
+          }
+
+          try:
+              tt = json.loads(fetch_tile('https://www.jma.go.jp/bosai/jmatile/data/risk/targetTimes.json'))
+              latest = tt[0]
+              bt = latest['basetime']
+              vt = latest['validtime']
+              mb = latest.get('member', 'none')
+              print(f"キキクル時刻: bt={bt} member={mb}")
+          except Exception as e:
+              print(f"targetTimes NG: {e}")
+              bt = vt = mb = None
+
+          if bt:
+              for elem, label in ELEM_LABELS.items():
+                  elem_max = 0
+                  tile_count = 0
+                  alert_tiles = 0
+                  for tx in range(X_MIN, X_MAX + 1):
+                      for ty in range(Y_MIN, Y_MAX + 1):
+                          url = f'https://www.jma.go.jp/bosai/jmatile/data/risk/{bt}/{vt}/{mb}/{elem}/surf/{ZOOM}/{tx}/{ty}.png'
+                          try:
+                              raw = fetch_tile(url)
+                              img = Image.open(io.BytesIO(raw)).convert('RGBA')
+                              pixels = list(img.getdata())
+                              tile_max = 0
+                              for px in pixels:
+                                  lv = classify_pixel(*px)
+                                  if lv > tile_max:
+                                      tile_max = lv
+                              if tile_max > 0:
+                                  alert_tiles += 1
+                              elem_max = max(elem_max, tile_max)
+                              tile_count += 1
+                          except Exception as e:
+                              pass  # 海など存在しないタイルは無視
+                  result['elements'][elem] = {
+                      'label_jp': label,
+                      'level': elem_max,
+                      'label': LEVEL_LABELS.get(elem_max, '平常'),
+                      'has_alert': elem_max > 0,
+                  }
+                  if elem_max > 0:
+                      result['has_alert'] = True
+                  result['max_level'] = max(result['max_level'], elem_max)
+                  print(f"キキクル{label}({elem}): 最大レベル={elem_max}({LEVEL_LABELS.get(elem_max,'平常')}) タイル={tile_count}枚 警戒以上={alert_tiles}枚")
+
+          result['max_label'] = LEVEL_LABELS.get(result['max_level'], '平常')
+          with open('kikukuru.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          print(f"kikukuru.json 生成完了: has_alert={result['has_alert']} max={result['max_label']}")
+
+      - name: earthquake.json 生成（沖縄周辺 直近24時間）
+        shell: python3 {0}
+        run: |
+          import json, urllib.request, gzip
+          from datetime import datetime, timezone, timedelta
+
+          JST = timezone(timedelta(hours=9))
+          UTC = timezone.utc
+          now_utc = datetime.now(UTC)
+
+          def fetch(url):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Accept-Encoding': 'gzip, deflate',
+              })
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  raw = r.read()
+              if raw[:2] == b'\x1f\x8b':
+                  raw = gzip.decompress(raw)
+              return raw
+
+          # 沖縄・周辺に関連するキーワード
+          OKINAWA_KEYWORDS = [
+              '沖縄', '琉球', '宮古', '八重山', '石垣', '先島', '西表',
+              '与那国', '奄美', '南西諸島', 'トカラ', '口永良部',
+          ]
+
+          result = {
+              'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
+              'earthquakes': [],
+          }
+
+          try:
+              list_data = json.loads(fetch('https://www.jma.go.jp/bosai/quake/data/list.json'))
+              print(f"地震リスト総件数: {len(list_data)}")
+              if list_data:
+                  print(f"サンプルキー: {list(list_data[0].keys())}")
+                  print(f"サンプル: {list_data[0]}")
+
+              cutoff = now_utc - timedelta(hours=24)
+              count = 0
+              for q in list_data:
+                  # 時刻: 'at' or 'rdt' フィールド (例: "2026-03-12T13:40:00+00:00")
+                  at_str = q.get('at') or q.get('rdt') or ''
+                  try:
+                      at_dt = datetime.fromisoformat(at_str.replace('Z', '+00:00'))
+                      if at_dt.tzinfo is None:
+                          at_dt = at_dt.replace(tzinfo=UTC)
+                  except:
+                      continue
+                  if at_dt < cutoff:
+                      continue
+
+                  # 震源地: 'anm' フィールド
+                  loc = q.get('anm') or q.get('en_anm') or ''
+                  # 沖縄関連かチェック
+                  if not any(k in loc for k in OKINAWA_KEYWORDS):
+                      continue
+
+                  mag   = q.get('mag', '-')
+                  maxi  = q.get('maxi') or q.get('mxint') or '-'
+                  depth = q.get('dep') or q.get('depth') or '-'
+                  at_jst = at_dt.astimezone(JST).strftime('%m/%d %H:%M')
+
+                  result['earthquakes'].append({
+                      'time':  at_jst,
+                      'loc':   loc,
+                      'mag':   mag,
+                      'depth': depth,
+                      'maxi':  maxi,
+                  })
+                  count += 1
+
+              print(f"沖縄周辺地震（24時間）: {count}件")
+              if count == 0 and list_data:
+                  # デバッグ: 最新5件の震源地を出力
+                  for q in list_data[:5]:
+                      print(f"  anm={q.get('anm','?')} at={q.get('at','?')} mag={q.get('mag','?')}")
+
+          except Exception as e:
+              import traceback; traceback.print_exc()
+              print(f"地震情報 NG: {e}")
+
+          with open('earthquake.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          print(f"earthquake.json 生成完了: {len(result['earthquakes'])}件")
+
+      - name: 河川水位データ生成（沖縄県河川情報システム）
+        run: |
+          echo 'aW1wb3J0IGpzb24sIHJlLCB1cmxsaWIucmVxdWVzdApmcm9tIGRhdGV0aW1lIGltcG9ydCBkYXRldGltZSwgdGltZXpvbmUsIHRpbWVkZWx0YQpKU1QgPSB0aW1lem9uZSh0aW1lZGVsdGEoaG91cnM9OSkpCkJBU0UgPSAnaHR0cDovL2JvdXNhaS1rYXNlbi5wcmVmLm9raW5hd2EuanAvcml2ZXIva2FzZW4vJwoKZGVmIGZldGNoKHVybCk6CiAgICByZXEgPSB1cmxsaWIucmVxdWVzdC5SZXF1ZXN0KHVybCwgaGVhZGVycz17J1VzZXItQWdlbnQnOidNb3ppbGxhLzUuMCcsJ1JlZmVyZXInOkJBU0V9KQogICAgd2l0aCB1cmxsaWIucmVxdWVzdC51cmxvcGVuKHJlcSwgdGltZW91dD0yMCkgYXMgcjoKICAgICAgICByYXcgPSByLnJlYWQoKQogICAgZm9yIGVuYyBpbiAoJ3V0Zi04JywnZXVjLWpwJywnc2hpZnQtamlzJyk6CiAgICAgICAgdHJ5OiByZXR1cm4gcmF3LmRlY29kZShlbmMpCiAgICAgICAgZXhjZXB0OiBwYXNzCiAgICByZXR1cm4gcmF3LmRlY29kZSgndXRmLTgnLCBlcnJvcnM9J3JlcGxhY2UnKQoKZGVmIGd2KGxpbmUsIGtleSk6CiAgICBtID0gcmUuc2VhcmNoKGtleSArIHIiOlxzKlsnXCJdKFteJ1wiXSopWydcIl0iLCBsaW5lKQogICAgcmV0dXJuIG0uZ3JvdXAoMSkgaWYgbSBlbHNlICcnCgpkZWYgZ24obGluZSwga2V5KToKICAgIG0gPSByZS5zZWFyY2goa2V5ICsgcic6XHMqKFtcZC5cLV0rKScsIGxpbmUpCiAgICByZXR1cm4gZmxvYXQobS5ncm91cCgxKSkgaWYgbSBlbHNlIE5vbmUKCnJlc3VsdCA9IHsKICAgICdmZXRjaGVkX2pzdCc6IGRhdGV0aW1lLm5vdyhKU1QpLnN0cmZ0aW1lKCclWS0lbS0lZCAlSDolTScpLAogICAgJ3VwZGF0ZWQnOiAnJywgJ3N0YXRpb25zJzogW10sICdoaXN0b3J5JzogW10KfQoKaW5mX2pzID0gZmV0Y2goQkFTRSArICdkYXRfanMvREJEQVRfaW5mLmpzJykKZGF0X2pzID0gZmV0Y2goQkFTRSArICdkYXRfanMvREJEQVRfZGF0LmpzJykKCiMg5pu05paw5pmC5Yi7CmZvciBsaW5lIGluIGRhdF9qcy5zcGxpdGxpbmVzKCk6CiAgICBpZiAna2luZDogNCcgaW4gbGluZSBhbmQgJ2RzcDonIGluIGxpbmU6CiAgICAgICAgcmVzdWx0Wyd1cGRhdGVkJ10gPSBndihsaW5lLCAnZHNwJykKICAgICAgICBicmVhawpwcmludChmIuabtOaWsOaZguWIuzoge3Jlc3VsdFsndXBkYXRlZCddfSIpCgojIOims+a4rOaJgOODnuOCueOCvyAoa2luZDo0KQpzdG5fbWFwID0ge30KZm9yIGxpbmUgaW4gaW5mX2pzLnNwbGl0bGluZXMoKToKICAgIGlmICdraW5kOjQnIG5vdCBpbiBsaW5lLnJlcGxhY2UoJyAnLCcnKSBvciAnc25vOicgbm90IGluIGxpbmU6IGNvbnRpbnVlCiAgICBtID0gcmUuc2VhcmNoKHInc25vOlxzKihcZCspJywgbGluZSkKICAgIGlmIG5vdCBtOiBjb250aW51ZQogICAgc25vID0gaW50KG0uZ3JvdXAoMSkpCiAgICBzdG5fbWFwW3Nub10gPSB7J3N0bic6IGd2KGxpbmUsJ3N0bicpLCAncml2ZXInOiBndihsaW5lLCdrc24nKX0KcHJpbnQoZiLoprPmuKzmiYDjg57jgrnjgr86IHtsZW4oc3RuX21hcCl95bGAIikKCiMg5Z+65rqW5rC05L2N44Oe44K544K/IChhbG1faW5m5YaF44Gua2luZDo0KQphbG1fbWFwID0ge30KaW5fYWxtID0gRmFsc2UKZm9yIGxpbmUgaW4gaW5mX2pzLnNwbGl0bGluZXMoKToKICAgIGlmICdhbG1faW5mOicgaW4gbGluZTogaW5fYWxtID0gVHJ1ZQogICAgaWYgbm90IGluX2FsbTogY29udGludWUKICAgIGlmICdraW5kOjQnIG5vdCBpbiBsaW5lLnJlcGxhY2UoJyAnLCcnKSBvciAnc25vOicgbm90IGluIGxpbmU6IGNvbnRpbnVlCiAgICBtID0gcmUuc2VhcmNoKHInc25vOlxzKihcZCspJywgbGluZSkKICAgIGlmIG5vdCBtOiBjb250aW51ZQogICAgc25vID0gaW50KG0uZ3JvdXAoMSkpCiAgICBhbG1fbWFwW3Nub10gPSB7J2Rhbmdlcic6IGduKGxpbmUsJ2ExJyksICdjYXV0aW9uJzogZ24obGluZSwnYTInKX0KcHJpbnQoZiLln7rmupbmsLTkvY3jg57jgrnjgr86IHtsZW4oYWxtX21hcCl95bGAIikKCiMg54++5Zyo5rC05L2NIChub3dkdCkKaW5fbm93ID0gRmFsc2UKZm9yIGxpbmUgaW4gZGF0X2pzLnNwbGl0bGluZXMoKToKICAgIGlmICdub3dkdDonIGluIGxpbmU6IGluX25vdyA9IFRydWUKICAgIGlmIG5vdCBpbl9ub3c6IGNvbnRpbnVlCiAgICBpZiBub3QgcmUuc2VhcmNoKHIna2luZDpccyo0W14wLTldJywgbGluZSk6IGNvbnRpbnVlCiAgICBpZiAnc25vOicgbm90IGluIGxpbmU6IGNvbnRpbnVlCiAgICBtID0gcmUuc2VhcmNoKHInc25vOlxzKihcZCspJywgbGluZSkKICAgIGlmIG5vdCBtOiBjb250aW51ZQogICAgc25vID0gaW50KG0uZ3JvdXAoMSkpCiAgICBpZiBzbm8gbm90IGluIHN0bl9tYXA6IGNvbnRpbnVlCiAgICBsdl9tICA9IHJlLnNlYXJjaChyIml0ZW0xMDpccypce1xzKmRhdDpccypbJ1wiXShbXidcIl0qKVsnXCJdIiwgbGluZSkKICAgIGFsbV9tID0gcmUuc2VhcmNoKHInaXRlbTEwOlxzKlx7W159XSphbG06XHMqKC0/XGQrKScsIGxpbmUpCiAgICByZXN1bHRbJ3N0YXRpb25zJ10uYXBwZW5kKHsKICAgICAgICAnc25vJzogc25vLCAnc3RuJzogc3RuX21hcFtzbm9dWydzdG4nXSwgJ3JpdmVyJzogc3RuX21hcFtzbm9dWydyaXZlciddLAogICAgICAgICdsZXZlbCc6IGx2X20uZ3JvdXAoMSkgaWYgbHZfbSBlbHNlICctJywKICAgICAgICAnYWxtJzogaW50KGFsbV9tLmdyb3VwKDEpKSBpZiBhbG1fbSBlbHNlIDAsCiAgICAgICAgJ2Rhbmdlcic6ICBhbG1fbWFwLmdldChzbm8se30pLmdldCgnZGFuZ2VyJyksCiAgICAgICAgJ2NhdXRpb24nOiBhbG1fbWFwLmdldChzbm8se30pLmdldCgnY2F1dGlvbicpLAogICAgfSkKcHJpbnQoZiLnj77lnKjmsLTkvY06IHtsZW4ocmVzdWx0WydzdGF0aW9ucyddKX3lsYAiKQoKIyDmsLTkvY3ntYzpgY7ooaggKHJlcGR0KSAtIOaZguezu+WIl+ODh+ODvOOCvwojIOani+mAoDogcmVwZHQ6IFsge2tpbmQ6NCwgc25vOlgsIHJlcDpbIHtkdDpbLi4uXSwgaXRlbTEwOntkYXQ6J1gnLGFsbTowfSwgdHJlbmQ6J3VwJ30sIC4uLiBdfSBdCmluX3JlcCA9IEZhbHNlCnJlcF9jb3VudCA9IDAKbGluZXMgPSBkYXRfanMuc3BsaXRsaW5lcygpCmkgPSAwCmN1cnJlbnRfc25vID0gTm9uZQpjdXJyZW50X3JlcHMgPSBbXQoKd2hpbGUgaSA8IGxlbihsaW5lcyk6CiAgICBsaW5lID0gbGluZXNbaV0KICAgIGlmICdyZXBkdDonIGluIGxpbmU6IGluX3JlcCA9IFRydWUKICAgIGlmIG5vdCBpbl9yZXA6CiAgICAgICAgaSArPSAxCiAgICAgICAgY29udGludWUKICAgICMg5paw44GX44GE6Kaz5ris5omA44Ko44Oz44OI44Oq6ZaL5aeLCiAgICBpZiByZS5zZWFyY2gocidraW5kOlxzKjRbXjAtOV0nLCBsaW5lKSBhbmQgJ3NubzonIGluIGxpbmU6CiAgICAgICAgIyDliY3jga7oprPmuKzmiYDjgpLkv53lrZgKICAgICAgICBpZiBjdXJyZW50X3NubyBpcyBub3QgTm9uZSBhbmQgY3VycmVudF9zbm8gaW4gc3RuX21hcCBhbmQgY3VycmVudF9yZXBzOgogICAgICAgICAgICByZXN1bHRbJ2hpc3RvcnknXS5hcHBlbmQoewogICAgICAgICAgICAgICAgJ3Nubyc6IGN1cnJlbnRfc25vLAogICAgICAgICAgICAgICAgJ3N0bic6IHN0bl9tYXBbY3VycmVudF9zbm9dWydzdG4nXSwKICAgICAgICAgICAgICAgICdyaXZlcic6IHN0bl9tYXBbY3VycmVudF9zbm9dWydyaXZlciddLAogICAgICAgICAgICAgICAgJ2Rhbmdlcic6ICBhbG1fbWFwLmdldChjdXJyZW50X3Nubyx7fSkuZ2V0KCdkYW5nZXInKSwKICAgICAgICAgICAgICAgICdjYXV0aW9uJzogYWxtX21hcC5nZXQoY3VycmVudF9zbm8se30pLmdldCgnY2F1dGlvbicpLAogICAgICAgICAgICAgICAgJ3JlY29yZHMnOiBjdXJyZW50X3JlcHMsCiAgICAgICAgICAgIH0pCiAgICAgICAgICAgIHJlcF9jb3VudCArPSAxCiAgICAgICAgbSA9IHJlLnNlYXJjaChyJ3NubzpccyooXGQrKScsIGxpbmUpCiAgICAgICAgY3VycmVudF9zbm8gPSBpbnQobS5ncm91cCgxKSkgaWYgbSBlbHNlIE5vbmUKICAgICAgICBjdXJyZW50X3JlcHMgPSBbXQogICAgIyDmmYLns7vliJfjg6zjgrPjg7zjg4k6IGR06KGMCiAgICBlbGlmIGN1cnJlbnRfc25vIGFuZCAnZHQ6JyBpbiBsaW5lIGFuZCAnaXRlbTEwOicgaW4gbGluZToKICAgICAgICBkdF9tID0gcmUuc2VhcmNoKHInZHQ6XHMqXFtccyooXGQrKSxccyooXGQrKSxccyooXGQrKSxccyooXGQrKSxccyooXGQrKScsIGxpbmUpCiAgICAgICAgbHZfbSA9IHJlLnNlYXJjaChyIml0ZW0xMDpccypce1xzKmRhdDpccypbJ1wiXShbXidcIl0qKVsnXCJdIiwgbGluZSkKICAgICAgICBhbG1fbSA9IHJlLnNlYXJjaChyJ2l0ZW0xMDpccypce1tefV0qYWxtOlxzKigtP1xkKyknLCBsaW5lKQogICAgICAgIHRyX20gPSByZS5zZWFyY2gociJ0cmVuZDpccypbJ1wiXShbXidcIl0qKVsnXCJdIiwgbGluZSkKICAgICAgICBpZiBkdF9tOgogICAgICAgICAgICBZLE0sRCxoLG0yID0gaW50KGR0X20uZ3JvdXAoMSkpLGludChkdF9tLmdyb3VwKDIpKSxpbnQoZHRfbS5ncm91cCgzKSksaW50KGR0X20uZ3JvdXAoNCkpLGludChkdF9tLmdyb3VwKDUpKQogICAgICAgICAgICB0aW1lX3N0ciA9IGYie006MDJkfS97RDowMmR9IHtoOjAyZH06e20yOjAyZH0iCiAgICAgICAgICAgIGN1cnJlbnRfcmVwcy5hcHBlbmQoewogICAgICAgICAgICAgICAgJ3RpbWUnOiB0aW1lX3N0ciwKICAgICAgICAgICAgICAgICdsZXZlbCc6IGx2X20uZ3JvdXAoMSkgaWYgbHZfbSBlbHNlICctJywKICAgICAgICAgICAgICAgICdhbG0nOiBpbnQoYWxtX20uZ3JvdXAoMSkpIGlmIGFsbV9tIGVsc2UgMCwKICAgICAgICAgICAgICAgICd0cmVuZCc6IHRyX20uZ3JvdXAoMSkgaWYgdHJfbSBlbHNlICcnLAogICAgICAgICAgICB9KQogICAgaSArPSAxCgojIOacgOW+jOOBruims+a4rOaJgOOCkuS/neWtmAppZiBjdXJyZW50X3NubyBpcyBub3QgTm9uZSBhbmQgY3VycmVudF9zbm8gaW4gc3RuX21hcCBhbmQgY3VycmVudF9yZXBzOgogICAgcmVzdWx0WydoaXN0b3J5J10uYXBwZW5kKHsKICAgICAgICAnc25vJzogY3VycmVudF9zbm8sICdzdG4nOiBzdG5fbWFwW2N1cnJlbnRfc25vXVsnc3RuJ10sCiAgICAgICAgJ3JpdmVyJzogc3RuX21hcFtjdXJyZW50X3Nub11bJ3JpdmVyJ10sCiAgICAgICAgJ2Rhbmdlcic6ICBhbG1fbWFwLmdldChjdXJyZW50X3Nubyx7fSkuZ2V0KCdkYW5nZXInKSwKICAgICAgICAnY2F1dGlvbic6IGFsbV9tYXAuZ2V0KGN1cnJlbnRfc25vLHt9KS5nZXQoJ2NhdXRpb24nKSwKICAgICAgICAncmVjb3Jkcyc6IGN1cnJlbnRfcmVwcywKICAgIH0pCiAgICByZXBfY291bnQgKz0gMQoKcHJpbnQoZiLmsLTkvY3ntYzpgY46IHtyZXBfY291bnR95bGALCDmnIDliJ3jga7lsYDjga7jg6zjgrPjg7zjg4nmlbA6IHtsZW4ocmVzdWx0WydoaXN0b3J5J11bMF1bJ3JlY29yZHMnXSkgaWYgcmVzdWx0WydoaXN0b3J5J10gZWxzZSAwfSIpCmlmIHJlc3VsdFsnaGlzdG9yeSddOgogICAgcHJpbnQoZiIgIOOCteODs+ODl+ODqzoge3Jlc3VsdFsnaGlzdG9yeSddWzBdWydzdG4nXX0ge3Jlc3VsdFsnaGlzdG9yeSddWzBdWydyZWNvcmRzJ11bOjJdfSIpCgp3aXRoIG9wZW4oJ3JpdmVyLmpzb24nLCAndycsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICBqc29uLmR1bXAocmVzdWx0LCBmLCBlbnN1cmVfYXNjaWk9RmFsc2UsIGluZGVudD0yKQpwcmludChmInJpdmVyLmpzb27lrozkuoY6IOePvuWcqHtsZW4ocmVzdWx0WydzdGF0aW9ucyddKX3lsYAg57WM6YGOe2xlbihyZXN1bHRbJ2hpc3RvcnknXSl95bGAIikK' | base64 -d > /tmp/river.py
+          python3 /tmp/river.py
+
+      - name: YouTube ライブID取得 + cameras.json + warning.json 生成
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        shell: python3 {0}
+        run: |
+          import json, os, glob, urllib.request, urllib.parse
+          from datetime import datetime, timezone, timedelta
+
+          JST = timezone(timedelta(hours=9))
+          now = datetime.now(JST)
+          API_KEY = os.environ.get('YOUTUBE_API_KEY', '')
+
+          def yt_api(endpoint, params):
+              params['key'] = API_KEY
+              url = "https://www.googleapis.com/youtube/v3/" + endpoint + "?" + urllib.parse.urlencode(params)
+              try:
+                  with urllib.request.urlopen(url, timeout=10) as r:
+                      return json.loads(r.read())
+              except Exception as e:
+                  print(f"API error ({endpoint}): {e}")
+                  return {}
+
+          def get_channel_id(handle):
+              handle = handle.lstrip('@')
+              data = yt_api('channels', {'part': 'id', 'forHandle': handle})
+              items = data.get('items', [])
+              return items[0]['id'] if items else None
+
+          def get_live_video_id(channel_id, title_keywords=None):
+              data = yt_api('search', {
+                  'part': 'id,snippet',
+                  'channelId': channel_id,
+                  'eventType': 'live',
+                  'type': 'video',
+                  'maxResults': 10
+              })
+              items = data.get('items', [])
+              if not items:
+                  return None
+              if title_keywords:
+                  for item in items:
+                      title = item.get('snippet', {}).get('title', '')
+                      if any(kw in title for kw in title_keywords):
+                          return item['id']['videoId']
+                  return None  # キーワード一致なし
+              return items[0]['id']['videoId']
+
+          # チャンネルのみのカメラ（動画IDが定期的に変わるもの）
+          CHANNEL_CAMERAS = [
+              {'name': '那覇市古島',                    'loc': '那覇市古島',   'channel_id': 'UCsmhYj8SkM1cCcXekuaViAg'},
+              {'name': '石垣島730交差点',               'loc': '石垣市美崎町', 'handle': '-ishigakiisland-2224'},
+              {'name': '恩納村マリブビーチ',             'loc': '国頭郡恩納村', 'handle': 'now2352'},
+              {'name': 'かりゆしビーチリゾート',         'loc': '国頭郡恩納村', 'handle': 'Kariyushi.Hotels'},
+              {'name': '石垣島ユーグレナ離島ターミナル', 'loc': '石垣市美崎町', 'handle': '離島ターミナル側LIVEカメラ'},
+              {'name': '北谷町砂辺',                    'loc': '中頭郡北谷町', 'handle': 'オーシャンビュー北谷町砂辺宮'},
+              {'name': '豊見城市宜保',                  'loc': '豊見城市宜保', 'handle': '豊見城市宜保ライブ'},
+              {'name': '比地川（国頭村）',               'loc': '国頭郡国頭村', 'handle': 'jotsu_vision'},
+              {'name': '浦添市城間ライブ',               'loc': '浦添市城間',   'handle': '浦添市城間ライブ'},
+              {'name': '島尻郡南風原町ライブ',           'loc': '島尻郡南風原町', 'handle': '島尻郡南風原町ライブ'},
+              {'name': '沖縄県島尻郡ライブ',             'loc': '島尻郡南風原町', 'handle': '沖縄県島尻郡ライブ'},
+              {'name': '与那原ライブ',                   'loc': '島尻郡与那原町', 'handle': '与那原ライブ'},
+              {'name': 'うるま市州崎ライブカメラ',         'loc': 'うるま市洲崎',   'handle': 'うるま市州崎ライブカメラ'},
+              {'name': '那覇空港（日テレNews）',          'loc': '那覇市鏡水',     'handle': 'ntv_news',
+               'title_keywords': ['那覇', '沖縄', '空港', 'なは', 'Naha']},
+          ]
+
+          youtube_live = []
+          if API_KEY:
+              for cam in CHANNEL_CAMERAS:
+                  channel_id = cam.get('channel_id')
+                  if not channel_id:
+                      channel_id = get_channel_id(cam['handle'])
+                  if channel_id:
+                      video_id = get_live_video_id(channel_id, cam.get('title_keywords'))
+                      youtube_live.append({
+                          'name': cam['name'],
+                          'loc': cam['loc'],
+                          'channel_id': channel_id,
+                          'video_id': video_id
+                      })
+                      print(f"{cam['name']}: {'OK ' + video_id if video_id else '配信なし'}")
+                  else:
+                      youtube_live.append({'name': cam['name'], 'loc': cam['loc'], 'channel_id': None, 'video_id': None})
+                      print(f"{cam['name']}: チャンネルID取得失敗")
+
+          # 沖縄県河川カメラ
+          cameras = []
+          for f in sorted(glob.glob('img_cam/p-*.jpg')):
+              pid = os.path.basename(f).replace('p-','').replace('.jpg','')
+              if os.path.getsize(f) > 100:
+                  cameras.append({'pid': pid, 'size': os.path.getsize(f)})
+
+          # 沖縄市カメラ
+          extra_cameras = []
+          for cam in [
+              {'key': 'okinawa-city-hija',  'name': '比謝川',  'loc': '沖縄市（水位監視）'},
+              {'key': 'okinawa-city-awase1', 'name': '泡瀬川①', 'loc': '沖縄市（水位監視）'},
+              {'key': 'okinawa-city-awase2', 'name': '泡瀬川②', 'loc': '沖縄市（水位監視）'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  extra_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          # 国道カメラ
+          road_cameras = []
+          for cam in [
+              {'key': 'road-01', 'name': '①国道58号 読谷村比謝',    'loc': '中頭郡読谷村'},
+              {'key': 'road-02', 'name': '②国道329号 中城村久場',   'loc': '中頭郡中城村'},
+              {'key': 'road-03', 'name': '③国道329号 西原町小那覇', 'loc': '中頭郡西原町'},
+              {'key': 'road-04', 'name': '④国道331号 糸満市摩文仁', 'loc': '糸満市摩文仁'},
+              {'key': 'road-05', 'name': '⑤国道332号 那覇市安次嶺', 'loc': '那覇市安次嶺'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  road_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          # 東村カメラ
+          higashi_cameras = []
+          for cam in [
+              {'key': 'higashi-takae-school',        'name': '高江小学校',           'loc': '東村'},
+              {'key': 'higashi-takae-school-seimon', 'name': '高江小学校正門',       'loc': '東村'},
+              {'key': 'higashi-higashi-port',        'name': '東漁港',               'loc': '東村'},
+              {'key': 'higashi-fkc-park',            'name': '福地川海浜公園',       'loc': '東村'},
+              {'key': 'higashi-center-pbh',          'name': '中央公民館',           'loc': '東村'},
+              {'key': 'higashi-hirugi',              'name': '慶佐次ふれあいヒルギ公園', 'loc': '東村'},
+              {'key': 'higashi-arime-school',        'name': '有銘小学校グラウンド', 'loc': '東村'},
+              {'key': 'higashi-higashi-school',      'name': '東小中学校',           'loc': '東村'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  higashi_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          # 大宜味村カメラ
+          ogimi_cameras = []
+          for cam in [
+              {'key': 'ogimi-nousonic',    'name': '農村環境改善センター',     'loc': '大宜味村'},
+              {'key': 'ogimi-takazatocc',  'name': '田嘉里公民館',             'loc': '大宜味村'},
+              {'key': 'ogimi-ogimiej',     'name': '大宜味小中学校',           'loc': '大宜味村'},
+              {'key': 'ogimi-tuhacc',      'name': '津波公民館',               'loc': '大宜味村'},
+              {'key': 'ogimi-taihocc',     'name': '大保公民館',               'loc': '大宜味村'},
+              {'key': 'ogimi-shioya',      'name': '旧塩屋小学校',             'loc': '大宜味村'},
+              {'key': 'ogimi-ogimiejgrd',  'name': '旧大宜味小学校グラウンド', 'loc': '大宜味村'},
+          ]:
+              f = f"img_cam/{cam['key']}.jpg"
+              if os.path.exists(f) and os.path.getsize(f) > 100:
+                  ogimi_cameras.append({**cam, 'size': os.path.getsize(f)})
+
+          result = {
+              'last_fetch_jst': now.strftime('%Y-%m-%d %H:%M:%S'),
+              'camera_count': len(cameras),
+              'cameras': cameras,
+              'extra_cameras': extra_cameras,
+              'road_cameras': road_cameras,
+              'higashi_cameras': higashi_cameras,
+              'ogimi_cameras': ogimi_cameras,
+              'youtube_live': youtube_live
+          }
+          with open('cameras.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+          print(f"河川: {len(cameras)}台 / 沖縄市: {len(extra_cameras)}台 / 国道: {len(road_cameras)}台 / 東村: {len(higashi_cameras)}台 / 大宜味村: {len(ogimi_cameras)}台 / YouTube動的: {len(youtube_live)}件")
+
+          # 気象警報・台風情報の取得
+          import urllib.request
+          warning_result = {'fetched_jst': now.strftime('%Y-%m-%d %H:%M:%S'), 'warnings': [], 'typhoons': []}
+          try:
+              req = urllib.request.Request(
+                  'https://www.jma.go.jp/bosai/warning/data/warning/471000.json',
+                  headers={'User-Agent': 'Mozilla/5.0'}
+              )
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  jma = json.loads(r.read().decode())
+              areas = []
+              for at in (jma.get('areaTypes') or []):
+                  cands = [a for a in (at.get('areas') or []) if any(w.get('status')=='発表' for w in (a.get('warnings') or []))]
+                  if cands:
+                      areas = cands
+                      break
+              if not areas:
+                  for at in (jma.get('areaTypes') or []):
+                      areas.extend(at.get('areas') or [])
+              warning_result['warnings'] = [
+                  {'area_name': a.get('name',''), 'warnings': a.get('warnings',[])}
+                  for a in areas
+              ]
+              print(f"警報取得: {len(warning_result['warnings'])}地域")
+          except Exception as e:
+              print(f"警報取得失敗: {e}")
+
+          try:
+              req2 = urllib.request.Request(
+                  'https://www.jma.go.jp/bosai/typhoon/data/alltyphoon.json',
+                  headers={'User-Agent': 'Mozilla/5.0'}
+              )
+              with urllib.request.urlopen(req2, timeout=15) as r:
+                  typhoons_raw = json.loads(r.read().decode())
+              warning_result['typhoons'] = [t for t in (typhoons_raw or []) if t.get('active')]
+              print(f"台風取得: {len(warning_result['typhoons'])}件")
+          except Exception as e:
+              print(f"台風取得失敗: {e}")
+
+          with open('warning.json', 'w', encoding='utf-8') as f:
+              json.dump(warning_result, f, ensure_ascii=False, indent=2)
+
+      - name: コミット・プッシュ
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add img_cam/ cameras.json warning.json kikukuru.json earthquake.json river.json
+          git diff --staged --quiet || (git commit -m "🌊 カメラ更新 $(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M') JST" && git pull --rebase && git push)
