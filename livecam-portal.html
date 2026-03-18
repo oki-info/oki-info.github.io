@@ -358,6 +358,20 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
       <!-- キキクル危険度分布アラート -->
       <div style="grid-column:1/-1" id="kikukuru-banner"></div>
 
+      <!-- 河川水位 -->
+      <div style="grid-column:1/-1;text-align:left">
+        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+          <span>🌊 河川水位（沖縄県河川情報システム）</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="river-updated" style="font-family:var(--mono);font-size:10px;color:var(--muted)"></span>
+            <button class="tbtn" onclick="loadRiver()">↺ 更新</button>
+          </div>
+        </div>
+        <div id="river-panel">
+          <div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">読込中…</div>
+        </div>
+      </div>
+
       <!-- 地震情報 -->
       <div style="grid-column:1/-1;text-align:left">
         <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
@@ -647,7 +661,7 @@ function showTab(id){
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
   document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
-  if(id==='bousaiinfo'){ loadKikukuru(); loadBousaiInfo(); loadEarthquake(); }
+  if(id==='bousaiinfo'){ loadKikukuru(); loadBousaiInfo(); loadRiver(); loadEarthquake(); }
   // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
@@ -982,6 +996,66 @@ const AREA_NAMES={
 };
 
 let bousaiInfoLoaded=false;
+// ── 河川水位 ──
+async function loadRiver(){
+  const el = document.getElementById('river-panel');
+  const tu = document.getElementById('river-updated');
+  if(!el) return;
+  try {
+    const res = await fetch('river.json?_='+Math.floor(Date.now()/300000));
+    if(!res.ok){ el.innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">データなし</div>'; return; }
+    const data = await res.json();
+    if(tu) tu.textContent = data.updated ? '観測: '+data.updated : '';
+    const stns = data.stations || [];
+    if(!stns.length){
+      el.innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">データなし</div>';
+      return;
+    }
+    // alm色
+    const AC = {'-1':'#334155', 0:'#e2e8f0', 1:'#facc15', 2:'#fb923c', 3:'#f87171', 4:'#ffffff'};
+    const AB = {'-1':'#0f172a', 0:'#0f172a', 1:'#1c1600', 2:'#1c0800', 3:'#1c0000', 4:'#7f1d1d'};
+    const AL = {'-1':'欠測',    0:'平常',    1:'注意',    2:'警戒',   3:'危険',   4:'氾濫危険'};
+
+    // 警戒以上を上に
+    const sorted = [...stns].sort((a,b)=> b.alm - a.alm);
+    const alerts = sorted.filter(s=>s.alm>=2);
+
+    const rows = sorted.map(s => {
+      const c = AC[s.alm]??AC[0], bg = AB[s.alm]??AB[0];
+      const lv = s.level==='-'||s.level==='欠測'||s.level===null ? '–' : s.level+'m';
+      const dangerStr = s.danger != null ? s.danger+'m' : '–';
+      const cautStr   = s.caution != null ? s.caution+'m' : '–';
+      return `<tr style="border-bottom:1px solid #1e293b;background:${bg}">
+        <td style="padding:6px 10px;color:${c};font-size:12px;white-space:nowrap">${s.stn}</td>
+        <td style="padding:6px 10px;color:#64748b;font-size:11px;white-space:nowrap">${s.river}</td>
+        <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:700;text-align:right;font-family:var(--mono)">${lv}</td>
+        <td style="padding:6px 10px;color:#475569;font-size:11px;text-align:right;font-family:var(--mono)">${dangerStr}</td>
+        <td style="padding:6px 10px;color:#334155;font-size:11px;text-align:right;font-family:var(--mono)">${cautStr}</td>
+        <td style="padding:6px 8px;text-align:center"><span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]??'–'}</span></td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      ${alerts.length ? `<div style="background:#450a0a;border:1px solid #dc2626;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#fca5a5;font-family:var(--mono)">⚠ 警戒以上: ${alerts.map(s=>s.stn).join('・')}</div>` : ''}
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;background:#0f172a;border:1px solid #1e293b;border-radius:8px;overflow:hidden">
+          <thead><tr style="background:#0a0f1e">
+            <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">観測所</th>
+            <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">河川</th>
+            <th style="padding:8px 10px;text-align:right;color:#475569;font-size:11px;font-weight:400">現在水位</th>
+            <th style="padding:8px 10px;text-align:right;color:#f87171;font-size:11px;font-weight:400">氾濫危険</th>
+            <th style="padding:8px 10px;text-align:right;color:#fb923c;font-size:11px;font-weight:400">護岸天端</th>
+            <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">状態</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="text-align:right;margin-top:4px">
+        <a href="http://bousai-kasen.pref.okinawa.jp/river/kasen/now.html?g=22&k=4&a=0" target="_blank" style="font-size:11px;color:#60a5fa;text-decoration:none">↗ 沖縄県河川情報システムで詳細を見る</a>
+      </div>`;
+  } catch(e){ console.warn('river.json取得失敗',e); }
+}
+
 // ── 地震情報 ──
 async function loadEarthquake(){
   const el = document.getElementById('earthquake-panel');
@@ -1164,7 +1238,7 @@ function renderTyphoon(data){
 // ── 防災ダッシュボード ──
 setTimeout(()=>location.reload(),10*60*1000);
 nextAt=Date.now()+10*60*1000;
-loadCameras(); loadKikukuru(); loadBousaiInfo(); loadEarthquake(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
+loadCameras(); loadKikukuru(); loadBousaiInfo(); loadRiver(); loadEarthquake(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
 </script>
 </body>
 </html>
