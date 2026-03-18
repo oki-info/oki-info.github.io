@@ -753,6 +753,12 @@ body.fullscreen-mode #exitFullscreenBtn { display:block; }
       <button class="modal-close" onclick="closeOutputModal()">✕</button>
     </div>
 
+    <!-- タイトル入力 -->
+    <div class="out-section-title">▸ タイトル（印刷・PDF・ヘッダーに反映）</div>
+    <input type="text" id="mapTitleInput"
+      value="沖縄県 被害状況マップ"
+      style="width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--border);border-radius:4px;margin-bottom:14px;font-family:'Noto Sans JP',sans-serif;color:var(--text);">
+
     <!-- 画質選択 -->
     <div class="out-section-title">▸ 画質設定</div>
     <div style="display:flex;gap:8px;margin-bottom:14px;">
@@ -1886,13 +1892,15 @@ function refreshPhotoPanel() {
   panel.innerHTML = withPhoto.map((inc, idx) => {
     const col  = CATS[inc.cat]?.color || '#888';
     const num  = idx + 1;
-    const addr = inc.address || `${inc.lat.toFixed(4)}, ${inc.lng.toFixed(4)}`;
+    const addr = inc.address || '住所取得中…';
+    const coords = `${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}`;
     return `<div class="photo-card" onclick="selectIncident('${inc.id}')" style="cursor:pointer">
       <img src="${inc.imgUrl}" alt="写真${num}" loading="lazy">
       <div class="photo-card-info">
         <span class="photo-card-num" style="background:${col}">${num}</span>
         <span style="color:${col};font-weight:700">${inc.cat}</span><br>
-        <span style="color:var(--dim)">${addr}</span>
+        <span style="color:var(--dim)">${addr}</span><br>
+        <span style="color:var(--dim)">📍 ${coords}</span>
         ${inc.memo ? `<br><span style="font-style:italic">${inc.memo}</span>` : ''}
       </div>
     </div>`;
@@ -1940,88 +1948,79 @@ async function saveJpeg(mode = 'normal') {
     return;
   }
   const q     = getQuality();
-  const scale = q === 'high' ? 3 : 1.5;
-  showOutputMsg(`⏳ 画像を生成しています… (${q === 'high' ? '高画質' : '標準画質'})`);
+  const scale = q === 'high' ? 2 : 1.2;
+  showOutputMsg(`⏳ 地図タイルを準備中… (${q === 'high' ? '高画質' : '標準画質'})`);
   closeOutputModal();
-  await new Promise(r => setTimeout(r, 600));
+
+  // mapwrapの元サイズを記憶（flex由来なのでcomputedStyleで取得）
+  const mw    = document.getElementById('mapwrap');
+  const origW = mw.style.width;
+  const origH = mw.style.height;
+
+  // サイズ設定ヘルパー
+  const setSize = async (w, h, wait = 900) => {
+    mw.style.width  = w;
+    if (h) mw.style.height = h;
+    map.invalidateSize();
+    await new Promise(r => setTimeout(r, wait));
+  };
+  const resetSize = () => {
+    mw.style.width  = origW;
+    mw.style.height = origH;
+    map.invalidateSize();
+  };
+
   try {
-    if (mode === 'A2split') {
-      // A2分割：地図を2倍幅でキャプチャして左右に分割
-      const origW = document.getElementById('mapwrap').style.width;
-      document.getElementById('mapwrap').style.width = '200%';
-      map.invalidateSize();
-      await new Promise(r => setTimeout(r, 800));
-      const canvas = await html2canvas(document.getElementById('mapwrap'), {
-        useCORS:true, allowTaint:true, scale:scale, logging:false,
-      });
-      document.getElementById('mapwrap').style.width = origW || '';
-      map.invalidateSize();
+    let canvas;
+    if (mode === 'A3') {
+      await setSize('141%', null, 1000);
+      canvas = await html2canvas(mw, { useCORS:true, allowTaint:true, scale, logging:false });
+      resetSize();
+      const a = document.createElement('a');
+      a.download = `被害状況マップ_A3横_${new Date().toISOString().slice(0,10)}.jpg`;
+      a.href = canvas.toDataURL('image/jpeg', 0.92); a.click();
+
+    } else if (mode === 'A2split') {
+      await setSize('200%', null, 1200);
+      canvas = await html2canvas(mw, { useCORS:true, allowTaint:true, scale, logging:false });
+      resetSize();
       const half = Math.floor(canvas.width / 2);
-      for (const [side, sx] of [['左', 0], ['右', half]]) {
+      for (const [label, sx, sw] of [['左', 0, half], ['右', half, canvas.width - half]]) {
         const cv = document.createElement('canvas');
-        cv.width = half; cv.height = canvas.height;
-        cv.getContext('2d').drawImage(canvas, sx, 0, half, canvas.height, 0, 0, half, canvas.height);
+        cv.width = sw; cv.height = canvas.height;
+        cv.getContext('2d').drawImage(canvas, sx, 0, sw, canvas.height, 0, 0, sw, canvas.height);
         const a = document.createElement('a');
-        a.download = `被害状況マップ_A2${side}_${new Date().toISOString().slice(0,10)}.jpg`;
-        a.href = cv.toDataURL('image/jpeg', 0.92);
-        a.click();
-        await new Promise(r => setTimeout(r, 300));
+        a.download = `被害状況マップ_A2${label}_${new Date().toISOString().slice(0,10)}.jpg`;
+        a.href = cv.toDataURL('image/jpeg', 0.92); a.click();
+        await new Promise(r => setTimeout(r, 400));
       }
+
     } else if (mode === 'A1split') {
-      // A1分割：地図を2倍幅・2倍高さでキャプチャして2×2の4分割
-      const origW = document.getElementById('mapwrap').style.width;
-      const origH = document.getElementById('mapwrap').style.height;
-      document.getElementById('mapwrap').style.width  = '200%';
-      document.getElementById('mapwrap').style.height = '200vh';
-      map.invalidateSize();
-      await new Promise(r => setTimeout(r, 1000));
-      const canvas = await html2canvas(document.getElementById('mapwrap'), {
-        useCORS:true, allowTaint:true, scale:scale, logging:false,
-      });
-      document.getElementById('mapwrap').style.width  = origW || '';
-      document.getElementById('mapwrap').style.height = origH || '';
-      map.invalidateSize();
+      await setSize('200%', '200vh', 1500);
+      canvas = await html2canvas(mw, { useCORS:true, allowTaint:true, scale, logging:false });
+      resetSize();
       const hw = Math.floor(canvas.width  / 2);
       const hh = Math.floor(canvas.height / 2);
-      const parts = [
-        ['左上', 0,  0 ],
-        ['右上', hw, 0 ],
-        ['左下', 0,  hh],
-        ['右下', hw, hh],
-      ];
-      for (const [label, sx, sy] of parts) {
+      for (const [label, sx, sy] of [['左上',0,0],['右上',hw,0],['左下',0,hh],['右下',hw,hh]]) {
         const cv = document.createElement('canvas');
         cv.width = hw; cv.height = hh;
         cv.getContext('2d').drawImage(canvas, sx, sy, hw, hh, 0, 0, hw, hh);
         const a = document.createElement('a');
         a.download = `被害状況マップ_A1${label}_${new Date().toISOString().slice(0,10)}.jpg`;
-        a.href = cv.toDataURL('image/jpeg', 0.92);
-        a.click();
-        await new Promise(r => setTimeout(r, 300));
+        a.href = cv.toDataURL('image/jpeg', 0.92); a.click();
+        await new Promise(r => setTimeout(r, 400));
       }
+
     } else {
-      // 通常（A4）またはA3
-      const origW = document.getElementById('mapwrap').style.width;
-      if (mode === 'A3') {
-        // A3は幅を1.41倍（A4→A3の比率）に広げてキャプチャ
-        document.getElementById('mapwrap').style.width = '141%';
-        map.invalidateSize();
-        await new Promise(r => setTimeout(r, 600));
-      }
-      const canvas = await html2canvas(document.getElementById('mapwrap'), {
-        useCORS:true, allowTaint:true, scale:scale, logging:false,
-      });
-      if (mode === 'A3') {
-        document.getElementById('mapwrap').style.width = origW || '';
-        map.invalidateSize();
-      }
+      // 通常（A4相当）
+      await new Promise(r => setTimeout(r, 400));
+      canvas = await html2canvas(mw, { useCORS:true, allowTaint:true, scale, logging:false });
       const a = document.createElement('a');
-      const suffix = mode === 'A3' ? '_A3横' : '';
-      a.download = `被害状況マップ${suffix}_${new Date().toISOString().slice(0,10)}.jpg`;
-      a.href = canvas.toDataURL('image/jpeg', 0.92);
-      a.click();
+      a.download = `被害状況マップ_${new Date().toISOString().slice(0,10)}.jpg`;
+      a.href = canvas.toDataURL('image/jpeg', 0.92); a.click();
     }
   } catch(e) {
+    resetSize();
     alert('⚠️ 画像生成に失敗しました: ' + e.message);
   }
 }
@@ -2063,12 +2062,12 @@ function printMap(size) {
     hdr.style.cssText = 'display:none;position:absolute;top:0;left:0;right:0;z-index:2000;background:rgba(0,112,204,0.9);color:#fff;padding:5px 12px;align-items:center;gap:12px;font-size:11px;';
     document.getElementById('mapwrap').appendChild(hdr);
   }
-  hdr.innerHTML = `<strong>沖縄県 被害状況マップ</strong>
+  hdr.innerHTML = `<strong>${document.getElementById('mapTitleInput')?.value || '沖縄県 被害状況マップ'}</strong>
     <span>${new Date().toLocaleString('ja-JP')}</span>
     <span style="margin-left:auto">総件数：${incidents.length}件　` +
     Object.entries(CATS).filter(([c]) => incidents.some(i=>i.cat===c))
       .map(([c,v]) => `<span>${v.short}:${incidents.filter(i=>i.cat===c).length}</span>`)
-      .join(' ') + '</span>';
+      .join('　') + '</span>';
 
   // 印刷凡例
   let leg = document.getElementById('_pleg');
