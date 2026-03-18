@@ -1851,7 +1851,14 @@ function togglePhotoPanel() {
   const btn = document.getElementById('photoPanelBtn');
   btn.classList.toggle('primary', photoPanelOn);
   btn.textContent = photoPanelOn ? '📋 写真一覧 ON' : '📋 写真一覧';
-  refreshPhotoPanel();
+  if (photoPanelOn) {
+    // UTM座標表示のためproj4を事前読み込み
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js')
+      .then(() => refreshPhotoPanel())
+      .catch(() => refreshPhotoPanel()); // 読み込み失敗でも緯度経度だけ表示
+  } else {
+    refreshPhotoPanel();
+  }
   setTimeout(() => map.invalidateSize(), 80);
 }
 
@@ -1890,18 +1897,27 @@ function refreshPhotoPanel() {
   }
   panel.classList.add('open');
   panel.innerHTML = withPhoto.map((inc, idx) => {
-    const col  = CATS[inc.cat]?.color || '#888';
-    const num  = idx + 1;
-    const addr = inc.address || '住所取得中…';
-    const coords = `${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}`;
+    const col    = CATS[inc.cat]?.color || '#888';
+    const num    = idx + 1;
+    const addr   = inc.address || '住所取得中…';
+    const latLng = `${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}`;
+    // UTM座標を計算（proj4が読み込まれていれば使用、未読み込みの場合は省略）
+    let utmStr = '';
+    if (typeof proj4 !== 'undefined') {
+      const zone    = Math.floor((inc.lng + 180) / 6) + 1;
+      const projStr = `+proj=utm +zone=${zone} +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
+      const [e, n]  = proj4('WGS84', projStr, [inc.lng, inc.lat]);
+      utmStr = `Z${zone} E${Math.round(e).toLocaleString()} N${Math.round(n).toLocaleString()}`;
+    }
     return `<div class="photo-card" onclick="selectIncident('${inc.id}')" style="cursor:pointer">
       <img src="${inc.imgUrl}" alt="写真${num}" loading="lazy">
       <div class="photo-card-info">
         <span class="photo-card-num" style="background:${col}">${num}</span>
         <span style="color:${col};font-weight:700">${inc.cat}</span><br>
-        <span style="color:var(--dim)">${addr}</span><br>
-        <span style="color:var(--dim)">📍 ${coords}</span>
-        ${inc.memo ? `<br><span style="font-style:italic">${inc.memo}</span>` : ''}
+        <span style="color:var(--dim)">🏠 ${addr}</span><br>
+        <span style="color:var(--dim)">🌐 ${latLng}</span>
+        ${utmStr ? `<br><span style="color:var(--dim)">📐 ${utmStr}</span>` : ''}
+        ${inc.memo ? `<br><span style="font-style:italic;color:var(--text)">${inc.memo}</span>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -2086,15 +2102,15 @@ function printMap(size) {
   map.invalidateSize();
   setTimeout(() => {
     window.print();
-    setTimeout(() => { el.remove(); leg.remove(); map.invalidateSize(); }, 1200);
+    setTimeout(() => { el.remove(); hdr.remove(); leg.remove(); map.invalidateSize(); }, 1200);
   }, 600);
 }
 
 window.addEventListener('beforeprint', () => {
-  const e = document.getElementById('_pleg'); if (e) e.style.display='flex';
+  ['_phdr','_pleg'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display='flex'; });
 });
 window.addEventListener('afterprint', () => {
-  const e = document.getElementById('_pleg'); if (e) e.style.display='none';
+  ['_phdr','_pleg'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display='none'; });
 });
 
 // ── 全画面モード ──
