@@ -1,58 +1,58 @@
 {
-  "last_fetch_jst": "2026-03-18 22:46:11",
+  "last_fetch_jst": "2026-03-18 22:59:12",
   "camera_count": 42,
   "cameras": [
     {
       "pid": "01",
-      "size": 54373
+      "size": 55415
     },
     {
       "pid": "02",
-      "size": 56532
+      "size": 51386
     },
     {
       "pid": "03",
-      "size": 62045
+      "size": 60896
     },
     {
       "pid": "04",
-      "size": 45401
+      "size": 44915
     },
     {
       "pid": "05",
-      "size": 62334
+      "size": 58800
     },
     {
       "pid": "06",
-      "size": 35200
+      "size": 35298
     },
     {
       "pid": "07",
-      "size": 52040
+      "size": 53072
     },
     {
       "pid": "08",
-      "size": 44942
+      "size": 48180
     },
     {
       "pid": "09",
-      "size": 25572
+      "size": 25485
     },
     {
       "pid": "10",
-      "size": 43571
+      "size": 44147
     },
     {
       "pid": "11",
-      "size": 90402
+      "size": 91110
     },
     {
       "pid": "12",
-      "size": 61992
+      "size": 62936
     },
     {
       "pid": "13",
-      "size": 21974
+      "size": 22057
     },
     {
       "pid": "14",
@@ -60,27 +60,27 @@
     },
     {
       "pid": "15",
-      "size": 46585
+      "size": 48888
     },
     {
       "pid": "16",
-      "size": 81086
+      "size": 80661
     },
     {
       "pid": "17",
-      "size": 55418
+      "size": 54924
     },
     {
       "pid": "18",
-      "size": 27830
+      "size": 30062
     },
     {
       "pid": "19",
-      "size": 41412
+      "size": 41431
     },
     {
       "pid": "20",
-      "size": 40254
+      "size": 53162
     },
     {
       "pid": "21",
@@ -88,19 +88,19 @@
     },
     {
       "pid": "22",
-      "size": 51619
+      "size": 51450
     },
     {
       "pid": "23",
-      "size": 44931
+      "size": 44835
     },
     {
       "pid": "24",
-      "size": 56289
+      "size": 58486
     },
     {
       "pid": "25",
-      "size": 42239
+      "size": 42209
     },
     {
       "pid": "26",
@@ -120,11 +120,11 @@
     },
     {
       "pid": "41",
-      "size": 73210
+      "size": 72522
     },
     {
       "pid": "42",
-      "size": 50897
+      "size": 50489
     },
     {
       "pid": "43",
@@ -152,11 +152,11 @@
     },
     {
       "pid": "52",
-      "size": 42536
+      "size": 44194
     },
     {
       "pid": "53",
-      "size": 68271
+      "size": 68195
     },
     {
       "pid": "64",
@@ -176,19 +176,19 @@
       "key": "okinawa-city-hija",
       "name": "比謝川",
       "loc": "沖縄市（水位監視）",
-      "size": 40608
+      "size": 40573
     },
     {
       "key": "okinawa-city-awase1",
       "name": "泡瀬川①",
       "loc": "沖縄市（水位監視）",
-      "size": 23827
+      "size": 23842
     },
     {
       "key": "okinawa-city-awase2",
       "name": "泡瀬川②",
       "loc": "沖縄市（水位監視）",
-      "size": 24109
+      "size": 24401
     }
   ],
   "road_cameras": [
@@ -240,7 +240,7 @@
       "key": "higashi-higashi-port",
       "name": "東漁港",
       "loc": "東村",
-      "size": 44681
+      "size": 39735
     },
     {
       "key": "higashi-fkc-park",
@@ -278,43 +278,43 @@
       "key": "ogimi-nousonic",
       "name": "農村環境改善センター",
       "loc": "大宜味村",
-      "size": 30113
+      "size": 31403
     },
     {
       "key": "ogimi-takazatocc",
       "name": "田嘉里公民館",
       "loc": "大宜味村",
-      "size": 27665
+      "size": 27860
     },
     {
       "key": "ogimi-ogimiej",
       "name": "大宜味小中学校",
       "loc": "大宜味村",
-      "size": 31952
+      "size": 27048
     },
     {
       "key": "ogimi-tuhacc",
       "name": "津波公民館",
       "loc": "大宜味村",
-      "size": 29647
+      "size": 29700
     },
     {
       "key": "ogimi-taihocc",
       "name": "大保公民館",
       "loc": "大宜味村",
-      "size": 27337
+      "size": 27779
     },
     {
       "key": "ogimi-shioya",
       "name": "旧塩屋小学校",
       "loc": "大宜味村",
-      "size": 30625
+      "size": 30696
     },
     {
       "key": "ogimi-ogimiejgrd",
       "name": "旧大宜味小学校グラウンド",
       "loc": "大宜味村",
-      "size": 29822
+      "size": 30032
     }
   ],
   "youtube_live": [
