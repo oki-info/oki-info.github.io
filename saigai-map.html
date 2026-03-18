@@ -232,6 +232,7 @@ h1 span { color:var(--text); font-size:11px; display:block; letter-spacing:1px; 
 }
 .popup-btn-edit     { background:var(--accent); color:#fff; }
 .popup-btn-relocate { background:#f5a623; color:#fff; }
+.popup-btn-delete   { background:var(--danger); color:#fff; }
 
 /* ── ホームボタン ── */
 #homeBtn {
@@ -1421,6 +1422,7 @@ function buildPopup(inc) {
     <div class="popup-actions">
       <button class="popup-btn-edit"     onclick="openEditModal('${inc.id}')">✏️ 編集</button>
       <button class="popup-btn-relocate" onclick="startRelocateFromPopup('${inc.id}')">📍 場所修正</button>
+      <button class="popup-btn-delete"   onclick="confirmDelete('${inc.id}')">🗑️ 削除</button>
     </div>
   </div>`;
 }
@@ -1459,6 +1461,15 @@ function deleteIncident(id) {
   incidents = incidents.filter(i => i.id !== id);
   if (markers[id]) { map.removeLayer(markers[id]); delete markers[id]; }
   updateUI();
+}
+
+function confirmDelete(id) {
+  const inc = incidents.find(i => i.id === id);
+  if (!inc) return;
+  map.closePopup();
+  if (confirm(`「${inc.cat}」のデータを削除しますか？`)) {
+    deleteIncident(id);
+  }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━
