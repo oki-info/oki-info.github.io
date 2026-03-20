@@ -237,7 +237,24 @@ jobs:
           # 早期注意情報（警報級の可能性）
           # https://www.jma.go.jp/bosai/warning/data/early_warning/471000.json
           try:
-              raw = json.loads(fetch('https://www.jma.go.jp/bosai/warning/data/early_warning/471000.json'))
+              # 早期注意情報は forecast/471000.json の timeSeries に含まれる
+              # または probability ページから取得
+              for try_url in [
+                  'https://www.jma.go.jp/bosai/probability/data/probability/471000.json',
+                  'https://www.jma.go.jp/bosai/forecast/data/forecast/471000.json',
+                  'https://www.jma.go.jp/bosai/warning/data/early_warning/471000.json',
+              ]:
+                  try:
+                      raw_b = fetch(try_url)
+                      raw = json.loads(raw_b)
+                      print(f"早期注意情報URL成功: {try_url.split('bosai/')[1][:50]}")
+                      print(f"  型: {type(raw)}, キー: {list(raw.keys())[:6] if isinstance(raw,dict) else 'list len='+str(len(raw))}")
+                      if isinstance(raw, list) and raw:
+                          print(f"  [0]キー: {list(raw[0].keys())[:6]}")
+                      break
+                  except Exception as eu:
+                      print(f"URL失敗: {try_url.split('bosai/')[1][:50]} → {eu}")
+                      raw = None
               print(f"早期注意情報JSON型: {type(raw)}, キー: {list(raw.keys()) if isinstance(raw,dict) else 'list len='+str(len(raw))}")
               if isinstance(raw, dict):
                   print(f"サンプル: {str(raw)[:300]}")
