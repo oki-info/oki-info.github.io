@@ -336,6 +336,9 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
           <span class="ext-link-arr">↗</span>
         </a>
       </div>
+      <!-- 早期注意情報 -->
+      <div style="grid-column:1/-1" id="early-warning-wrap"></div>
+
       <!-- キキクル危険度分布アラート -->
       <div style="grid-column:1/-1">
         <div class="sec-title">🔴 キキクル（危険度分布）
@@ -1269,9 +1272,13 @@ function renderKasenNow(data){
     const isMissing = lv==='欠測';
     const dangerStr = s.danger  != null ? s.danger+'m'  : '－';
     const cautStr   = s.caution != null ? s.caution+'m' : '－';
-    const almBadge  = s.alm > 0
-      ? `<span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]}</span>`
-      : `<span style="color:#aaa;font-size:11px">${AL[0]}</span>`;
+    // 基準水位(氾濫危険・護岸天端)が未公開の場合は警戒状態を表示しない
+    const nothreshold = s.danger == null && s.caution == null;
+    const almBadge = nothreshold && s.alm > 0
+      ? `<span style="color:#94a3b8;font-size:11px;font-style:italic">閾値非公開</span>`
+      : s.alm > 0
+        ? `<span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]}</span>`
+        : `<span style="color:#aaa;font-size:11px">－</span>`;
     const histLink = hist.find(h=>h.sno===s.sno)
       ? `<a href="#" onclick="event.preventDefault();showKasenHist(${s.sno})" style="font-size:11px;color:#1565c0">経過表</a>`
       : '';
@@ -1398,7 +1405,13 @@ async function loadRiver(){
         <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:700;text-align:right;font-family:var(--mono)">${lv}</td>
         <td style="padding:6px 10px;color:#475569;font-size:11px;text-align:right;font-family:var(--mono)">${dangerStr}</td>
         <td style="padding:6px 10px;color:#334155;font-size:11px;text-align:right;font-family:var(--mono)">${cautStr}</td>
-        <td style="padding:6px 8px;text-align:center"><span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]??'–'}</span></td>
+        <td style="padding:6px 8px;text-align:center">${
+          (s.danger==null&&s.caution==null&&s.alm>0)
+            ? `<span style="color:#94a3b8;font-size:11px;font-style:italic">閾値非公開</span>`
+            : s.alm>0
+              ? `<span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]??'–'}</span>`
+              : `<span style="color:#aaa;font-size:11px">－</span>`
+        }</td>
       </tr>`;
     }).join('');
 
@@ -1470,6 +1483,38 @@ async function loadEarthquake(){
   } catch(e){ console.warn('earthquake.json取得失敗',e); }
 }
 
+// ── 早期注意情報（警報級の可能性）──
+function renderEarlyWarning(data){
+  const el = document.getElementById('early-warning-wrap');
+  if(!el) return;
+  if(!data || !data.length){
+    el.innerHTML = '';
+    return;
+  }
+  const rows = data.map(area => {
+    const items = (area.items||[]).map(it => {
+      const type = it.type || it.name || '';
+      const poss = it.status || it.possibility || '';
+      const col = poss.includes('高') ? '#dc2626' : poss.includes('中') ? '#ea580c' : '#d97706';
+      return `<span style="display:inline-flex;align-items:center;gap:4px;background:${col}18;border:1px solid ${col}66;color:${col};font-size:11px;padding:2px 8px;border-radius:4px;margin:2px">
+        ${type}${poss?'：'+poss:''}
+      </span>`;
+    }).join('');
+    return `<div style="background:#fff;border:1px solid #fde68a;border-radius:8px;padding:10px 12px">
+      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:5px">${area.area}</div>
+      <div>${items}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;padding:12px 16px;margin-bottom:4px">
+    <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:10px">
+      🔔 早期注意情報（警報級の可能性）
+      <span style="font-size:10px;font-weight:400;color:#b45309;margin-left:8px">明日・明後日の警報発表可能性</span>
+    </div>
+    <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">${rows}</div>
+  </div>`;
+}
+
 // ── 防災サマリーパネル ──
 async function renderSummary(){
   const el = document.getElementById('summary-panel-wrap');
@@ -1527,7 +1572,8 @@ async function renderSummary(){
   let riverLevel=0, riverAlerts=[];
   if(R){
     (R.stations||[]).forEach(s=>{
-      if(s.alm>=2){ riverAlerts.push(s.stn); riverLevel=Math.max(riverLevel,s.alm); }
+      // 基準水位が非公開の場合は警戒集計から除外
+      if(s.alm>=2 && (s.danger!=null||s.caution!=null)){ riverAlerts.push(s.stn); riverLevel=Math.max(riverLevel,s.alm); }
     });
   }
 
@@ -1676,6 +1722,7 @@ async function loadBousaiInfo(){
     const data=await res.json();
     if(data.warnings) renderWarnings(data.warnings);
     if(data.typhoons !== undefined) renderTyphoon(data.typhoons);
+    if(data.early_warning !== undefined) renderEarlyWarning(data.early_warning);
     const updated=document.getElementById('warning-updated');
     if(updated && data.fetched_jst) updated.textContent='（'+data.fetched_jst+' 取得）';
   }catch(e){
