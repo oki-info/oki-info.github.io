@@ -297,6 +297,98 @@ jobs:
 
       - name: 河川水位データ生成（沖縄県河川情報システム）
         run: |
+          echo 'aW1wb3J0IHVybGxpYi5yZXF1ZXN0CkJBU0UgPSAnaHR0cDovL2JvdXNhaS1rYXNlbi5wcmVmLm9raW5hd2EuanAvcml2ZXIva2FzZW4vJwoKZGVmIGZldGNoKHVybCk6CiAgICByZXEgPSB1cmxsaWIucmVxdWVzdC5SZXF1ZXN0KHVybCwgaGVhZGVycz17J1VzZXItQWdlbnQnOidNb3ppbGxhLzUuMCcsJ1JlZmVyZXInOkJBU0V9KQogICAgd2l0aCB1cmxsaWIucmVxdWVzdC51cmxvcGVuKHJlcSwgdGltZW91dD0yMCkgYXMgcjoKICAgICAgICByYXcgPSByLnJlYWQoKQogICAgZm9yIGVuYyBpbiAoJ3V0Zi04JywnZXVjLWpwJywnc2hpZnQtamlzJyk6CiAgICAgICAgdHJ5OiByZXR1cm4gcmF3LmRlY29kZShlbmMpCiAgICAgICAgZXhjZXB0OiBwYXNzCiAgICByZXR1cm4gcmF3LmRlY29kZSgndXRmLTgnLCBlcnJvcnM9J3JlcGxhY2UnKQoKaW5mX2pzID0gZmV0Y2goQkFTRSArICdkYXRfanMvREJEQVRfaW5mLmpzJykKYWxtX2lkeCA9IGluZl9qcy5maW5kKCdhbG1faW5mOicpCmlmIGFsbV9pZHggPj0gMDoKICAgIHByaW50KCJhbG1faW5m5YWI6aCtMTAwMOaWh+WtlzoiKQogICAgcHJpbnQoaW5mX2pzW2FsbV9pZHg6YWxtX2lkeCsxMDAwXSkKZWxzZToKICAgIHByaW50KCJhbG1faW5m44Gq44GXIikKICAgIHByaW50KCJpbmZfanPmnKvlsL41MDDmloflrZc6IikKICAgIHByaW50KGluZl9qc1stNTAwOl0pCg==' | base64 -d > /tmp/river.py
+          python3 /tmp/river.py
+
+      - name: earthquake.json 生成（沖縄周辺 直近24時間）
+        shell: python3 {0}
+        run: |
+          import json, urllib.request, gzip
+          from datetime import datetime, timezone, timedelta
+
+          JST = timezone(timedelta(hours=9))
+          UTC = timezone.utc
+          now_utc = datetime.now(UTC)
+
+          def fetch(url):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Accept-Encoding': 'gzip, deflate',
+              })
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  raw = r.read()
+              if raw[:2] == b'\x1f\x8b':
+                  raw = gzip.decompress(raw)
+              return raw
+
+          # 沖縄・周辺に関連するキーワード
+          OKINAWA_KEYWORDS = [
+              '沖縄', '琉球', '宮古', '八重山', '石垣', '先島', '西表',
+              '与那国', '奄美', '南西諸島', 'トカラ', '口永良部',
+          ]
+
+          result = {
+              'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
+              'earthquakes': [],
+          }
+
+          try:
+              list_data = json.loads(fetch('https://www.jma.go.jp/bosai/quake/data/list.json'))
+              print(f"地震リスト総件数: {len(list_data)}")
+              if list_data:
+                  print(f"サンプルキー: {list(list_data[0].keys())}")
+                  print(f"サンプル: {list_data[0]}")
+
+              cutoff = now_utc - timedelta(hours=24)
+              count = 0
+              for q in list_data:
+                  # 時刻: 'at' or 'rdt' フィールド (例: "2026-03-12T13:40:00+00:00")
+                  at_str = q.get('at') or q.get('rdt') or ''
+                  try:
+                      at_dt = datetime.fromisoformat(at_str.replace('Z', '+00:00'))
+                      if at_dt.tzinfo is None:
+                          at_dt = at_dt.replace(tzinfo=UTC)
+                  except:
+                      continue
+                  if at_dt < cutoff:
+                      continue
+
+                  # 震源地: 'anm' フィールド
+                  loc = q.get('anm') or q.get('en_anm') or ''
+                  # 沖縄関連かチェック
+                  if not any(k in loc for k in OKINAWA_KEYWORDS):
+                      continue
+
+                  mag   = q.get('mag', '-')
+                  maxi  = q.get('maxi') or q.get('mxint') or '-'
+                  depth = q.get('dep') or q.get('depth') or '-'
+                  at_jst = at_dt.astimezone(JST).strftime('%m/%d %H:%M')
+
+                  result['earthquakes'].append({
+                      'time':  at_jst,
+                      'loc':   loc,
+                      'mag':   mag,
+                      'depth': depth,
+                      'maxi':  maxi,
+                  })
+                  count += 1
+
+              print(f"沖縄周辺地震（24時間）: {count}件")
+              if count == 0 and list_data:
+                  # デバッグ: 最新5件の震源地を出力
+                  for q in list_data[:5]:
+                      print(f"  anm={q.get('anm','?')} at={q.get('at','?')} mag={q.get('mag','?')}")
+
+          except Exception as e:
+              import traceback; traceback.print_exc()
+              print(f"地震情報 NG: {e}")
+
+          with open('earthquake.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          print(f"earthquake.json 生成完了: {len(result['earthquakes'])}件")
+
+      - name: 河川水位データ生成（沖縄県河川情報システム）
+        run: |
           echo 'aW1wb3J0IGpzb24sIHJlLCB1cmxsaWIucmVxdWVzdApmcm9tIGRhdGV0aW1lIGltcG9ydCBkYXRldGltZSwgdGltZXpvbmUsIHRpbWVkZWx0YQpKU1QgPSB0aW1lem9uZSh0aW1lZGVsdGEoaG91cnM9OSkpCkJBU0UgPSAnaHR0cDovL2JvdXNhaS1rYXNlbi5wcmVmLm9raW5hd2EuanAvcml2ZXIva2FzZW4vJwoKZGVmIGZldGNoKHVybCk6CiAgICByZXEgPSB1cmxsaWIucmVxdWVzdC5SZXF1ZXN0KHVybCwgaGVhZGVycz17J1VzZXItQWdlbnQnOidNb3ppbGxhLzUuMCcsJ1JlZmVyZXInOkJBU0V9KQogICAgd2l0aCB1cmxsaWIucmVxdWVzdC51cmxvcGVuKHJlcSwgdGltZW91dD0yMCkgYXMgcjoKICAgICAgICByYXcgPSByLnJlYWQoKQogICAgZm9yIGVuYyBpbiAoJ3V0Zi04JywnZXVjLWpwJywnc2hpZnQtamlzJyk6CiAgICAgICAgdHJ5OiByZXR1cm4gcmF3LmRlY29kZShlbmMpCiAgICAgICAgZXhjZXB0OiBwYXNzCiAgICByZXR1cm4gcmF3LmRlY29kZSgndXRmLTgnLCBlcnJvcnM9J3JlcGxhY2UnKQoKZGVmIGd2KGxpbmUsIGtleSk6CiAgICBtID0gcmUuc2VhcmNoKGtleSArIHIiOlxzKlsnXCJdKFteJ1wiXSopWydcIl0iLCBsaW5lKQogICAgcmV0dXJuIG0uZ3JvdXAoMSkgaWYgbSBlbHNlICcnCgpkZWYgZ24obGluZSwga2V5KToKICAgIG0gPSByZS5zZWFyY2goa2V5ICsgcic6XHMqKFtcZC5cLV0rKScsIGxpbmUpCiAgICByZXR1cm4gZmxvYXQobS5ncm91cCgxKSkgaWYgbSBlbHNlIE5vbmUKCnJlc3VsdCA9IHsKICAgICdmZXRjaGVkX2pzdCc6IGRhdGV0aW1lLm5vdyhKU1QpLnN0cmZ0aW1lKCclWS0lbS0lZCAlSDolTScpLAogICAgJ3VwZGF0ZWQnOiAnJywgJ3N0YXRpb25zJzogW10sICdoaXN0b3J5JzogW10KfQoKaW5mX2pzID0gZmV0Y2goQkFTRSArICdkYXRfanMvREJEQVRfaW5mLmpzJykKZGF0X2pzID0gZmV0Y2goQkFTRSArICdkYXRfanMvREJEQVRfZGF0LmpzJykKCiMgYWxtX2luZuODluODreODg+OCr+OCkuODh+ODkOODg+OCsOWHuuWKmwphbG1faWR4ID0gaW5mX2pzLmZpbmQoJ2FsbV9pbmY6JykKcHJpbnQoZiJhbG1faW5m5L2N572uOiB7YWxtX2lkeH0iKQppZiBhbG1faWR4ID49IDA6CiAgICBwcmludCgiYWxtX2luZuWFiOmgrTUwMOaWh+WtlzoiKQogICAgcHJpbnQoaW5mX2pzW2FsbV9pZHg6YWxtX2lkeCs1MDBdKQo=' | base64 -d > /tmp/river.py
           python3 /tmp/river.py
 
