@@ -1,22 +1,76 @@
 {
-  "fetched_jst": "2026-03-21 02:59",
+  "fetched_jst": "2026-03-21 04:52",
   "flights": [
     {
-      "callsign": "THA661",
-      "lat": 25.8669,
-      "lon": 126.3226,
-      "alt_m": 11590.02,
-      "speed_ms": 195.55,
-      "heading": 227.67,
+      "callsign": "ANA892",
+      "lat": 27.347,
+      "lon": 128.921,
+      "alt_m": 8831.58,
+      "speed_ms": 255.06,
+      "heading": 40.5,
       "on_ground": false
     },
     {
-      "callsign": "HVN99",
-      "lat": 26.0642,
-      "lon": 126.5458,
-      "alt_m": 12192,
-      "speed_ms": 195.63,
-      "heading": 228.09,
+      "callsign": "VJC968",
+      "lat": 27.1155,
+      "lon": 122.6673,
+      "alt_m": 10668,
+      "speed_ms": 254.77,
+      "heading": 32.21,
+      "on_ground": false
+    },
+    {
+      "callsign": "TWB038",
+      "lat": 25.5457,
+      "lon": 122.5295,
+      "alt_m": 10058.4,
+      "speed_ms": 265.12,
+      "heading": 33.04,
+      "on_ground": false
+    },
+    {
+      "callsign": "AAR708",
+      "lat": 28.1836,
+      "lon": 127.2704,
+      "alt_m": 10668,
+      "speed_ms": 247.76,
+      "heading": 16.4,
+      "on_ground": false
+    },
+    {
+      "callsign": "CRK606",
+      "lat": 25.6838,
+      "lon": 122.71,
+      "alt_m": 10668,
+      "speed_ms": 269.35,
+      "heading": 49.65,
+      "on_ground": false
+    },
+    {
+      "callsign": "VJC821",
+      "lat": 26.6127,
+      "lon": 127.242,
+      "alt_m": 9151.62,
+      "speed_ms": 206.6,
+      "heading": 228.33,
+      "on_ground": false
+    },
+    {
+      "callsign": "ANA856",
+      "lat": 27.183,
+      "lon": 128.765,
+      "alt_m": 10668,
+      "speed_ms": 304.11,
+      "heading": 42.19,
+      "on_ground": false
+    },
+    {
+      "callsign": "JNA066",
+      "lat": 26.4218,
+      "lon": 126.9746,
+      "alt_m": 10668,
+      "speed_ms": 272.5,
+      "heading": 28.16,
       "on_ground": false
     }
   ],
