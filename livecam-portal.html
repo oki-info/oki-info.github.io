@@ -304,6 +304,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   <button class="tab"        id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
   <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
   <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
+  <button class="tab"        id="tab-amedas" onclick="showTab('amedas')">🌤 気象観測</button>
   <button class="tab"        id="tab-kasen"  onclick="showTab('kasen')">📊 河川水位</button>
   <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-bousai"   onclick="showTab('bousai')">🚨 防災カメラ <span class="tab-count">4</span></button>
@@ -337,6 +338,9 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 <div class="section active" id="sec-bousaiinfo">
   <div class="portal-body">
     <div style="display:grid;gap:16px;grid-template-columns:1fr 1fr;">
+
+      <!-- サマリーパネル -->
+      <div style="grid-column:1/-1" id="summary-panel-wrap"></div>
 
       <!-- 気象警報・注意報 -->
       <div style="grid-column:1/-1">
@@ -529,6 +533,14 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 </div>
 
 <!-- ④ 道路カメラ -->
+<div class="section" id="sec-amedas">
+  <div class="portal-body" style="background:#f0f7ff;min-height:400px">
+    <div id="amedas-inner">
+      <div style="color:#666;font-family:monospace;font-size:12px;padding:16px">読込中…</div>
+    </div>
+  </div>
+</div>
+
 <div class="section" id="sec-kasen">
   <div class="portal-body" style="background:#f0f4f8;min-height:400px">
     <div id="kasen-inner">
@@ -651,13 +663,14 @@ async function setImgNoCache(imgEl, url) {
 }
 
 function showTab(id){
-  ['river','bousaiinfo','youtube','kaiho','road','bousai','kasen'].forEach(t=>{
+  ['river','bousaiinfo','youtube','kaiho','road','bousai','kasen','amedas'].forEach(t=>{
     document.getElementById('sec-'+t).classList.toggle('active',t===id);
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
   document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
-  if(id==='bousaiinfo'){ loadKikukuru(); loadBousaiInfo(); loadEarthquake(); }
+  if(id==='bousaiinfo'){ renderSummary(); loadKikukuru(); loadBousaiInfo(); loadEarthquake(); }
   if(id==='kasen'){ loadKasen(); }
+  if(id==='amedas'){ loadAmedas(); }
   // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
@@ -992,6 +1005,114 @@ const AREA_NAMES={
 };
 
 let bousaiInfoLoaded=false;
+// ── AMeDAS気象観測タブ ──
+let amedasLoaded = false;
+
+async function loadAmedas(){
+  if(amedasLoaded) return;
+  amedasLoaded = true;
+  const el = document.getElementById('amedas-inner');
+  if(!el) return;
+  try {
+    const res = await fetch('amedas.json?_='+Math.floor(Date.now()/300000));
+    if(!res.ok){ el.innerHTML='<p style="color:#666;padding:16px">データなし</p>'; return; }
+    const data = await res.json();
+    renderAmedas(data);
+  } catch(e){ console.warn('amedas.json取得失敗',e); }
+}
+
+function renderAmedas(data){
+  const el = document.getElementById('amedas-inner');
+  const stns = data.stations || [];
+
+  // 雨量バー（最大80mm/hで正規化）
+  function rainBar(v){
+    if(v==null||v===0) return '<span style="color:#bbb;font-size:11px">0</span>';
+    const pct = Math.min(100, v/80*100);
+    const col = v>=50?'#dc2626':v>=30?'#ea580c':v>=10?'#2563eb':'#60a5fa';
+    return `<div style="display:flex;align-items:center;gap:6px">
+      <div style="flex:1;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${col};border-radius:4px"></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:${col};font-family:monospace;white-space:nowrap">${v}mm</span>
+    </div>`;
+  }
+
+  // 風速色
+  function windColor(v){
+    if(v==null) return '#94a3b8';
+    return v>=25?'#dc2626':v>=15?'#ea580c':v>=10?'#d97706':v>=5?'#2563eb':'#475569';
+  }
+
+  // 気温色
+  function tempColor(v){
+    if(v==null) return '#94a3b8';
+    return v>=35?'#dc2626':v>=30?'#ea580c':v>=25?'#d97706':v>=20?'#16a34a':v>=10?'#2563eb':'#7c3aed';
+  }
+
+  const cards = stns.map(s => {
+    const tc = tempColor(s.temp);
+    const wc = windColor(s.wind_spd);
+    const windStr = s.wind_dir&&s.wind_spd!=null
+      ? `${s.wind_dir} ${s.wind_spd}m/s` : '–';
+    const gustStr = s.gust!=null ? `(瞬間 ${s.gust}m/s)` : '';
+    const humStr  = s.humidity!=null ? `${s.humidity}%` : '–';
+    const presStr = s.pressure!=null ? `${s.pressure}hPa` : '–';
+
+    return `<div style="background:#fff;border:1px solid #dbeafe;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <span style="font-size:15px;font-weight:700;color:#1e3a5f">${s.name}</span>
+          <span style="font-size:11px;color:#94a3b8;margin-left:6px">${s.loc}</span>
+        </div>
+      </div>
+      <!-- 気温 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:11px;color:#64748b;width:48px">🌡 気温</span>
+        <span style="font-size:28px;font-weight:700;color:${tc};font-family:monospace;line-height:1">${s.temp!=null?s.temp+'°C':'–'}</span>
+      </div>
+      <!-- 雨量 -->
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px">
+          <span style="font-size:11px;color:#64748b">🌧 1時間雨量</span>
+        </div>
+        ${rainBar(s.rain1h)}
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:2px">24時間累計</div>
+        <span style="font-size:12px;font-weight:600;color:#2563eb;font-family:monospace">${s.rain24h!=null?s.rain24h+'mm':'–'}</span>
+      </div>
+      <!-- 風 -->
+      <div style="background:#f8fafc;border-radius:6px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div>
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:2px">💨 風向・風速</div>
+          <div style="font-size:13px;font-weight:700;color:${wc}">${windStr}</div>
+          <div style="font-size:10px;color:#94a3b8">${gustStr}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:2px">💧 湿度</div>
+          <div style="font-size:13px;font-weight:600;color:#0369a1">${humStr}</div>
+          <div style="font-size:10px;color:#94a3b8">${presStr}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="background:#1565c0;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:-16px -16px 16px">
+      <div style="font-weight:700;font-size:14px">🌤 アメダス気象観測（沖縄）</div>
+      <div style="font-size:12px;opacity:.85">観測時刻: ${data.updated||''}
+        <button onclick="amedasLoaded=false;loadAmedas()" style="background:#1976d2;border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:11px;margin-left:8px">↺ 更新</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
+      ${cards}
+    </div>
+    <div style="margin-top:12px;text-align:right">
+      <a href="https://www.jma.go.jp/bosai/amedas/" target="_blank" style="font-size:11px;color:#1565c0;text-decoration:none">↗ 気象庁 AMeDAS（全国）</a>
+    </div>`;
+}
+
 // ── 河川水位タブ ──
 let kasenLoaded = false;
 let kasenHistSno = null;
@@ -1234,6 +1355,156 @@ async function loadEarthquake(){
   } catch(e){ console.warn('earthquake.json取得失敗',e); }
 }
 
+// ── 防災サマリーパネル ──
+async function renderSummary(){
+  const el = document.getElementById('summary-panel-wrap');
+  if(!el) return;
+
+  // 各JSONを並行取得
+  const [warningData, kikuData, riverData, quakeData] = await Promise.allSettled([
+    fetch('warning.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
+    fetch('kikukuru.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
+    fetch('river.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
+    fetch('earthquake.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
+  ]);
+  const W = warningData.value,  K = kikuData.value;
+  const R = riverData.value,    Q = quakeData.value;
+
+  // ── 警報・注意報 集計 ──
+  let warnLevel=0, warnAreas=[], warnAlerts=[];
+  if(W){
+    (W.warnings||[]).forEach(area=>{
+      let areaMax=0;
+      (area.warnings||[]).filter(w=>w.status==='発表').forEach(w=>{
+        const lv = (w.code&&['10','11','12','16','17','37','38'].includes(String(w.code)))||
+                   (w.type&&w.type.includes('警報')&&!w.type.includes('注意報')) ? 3
+                 : 2;
+        areaMax = Math.max(areaMax, lv);
+      });
+      if(areaMax>0){ warnAreas.push({name:area.area_name||area.name||'', lv:areaMax}); }
+      warnLevel = Math.max(warnLevel, areaMax);
+    });
+    // 警報別にまとめる
+    const byType={};
+    (W.warnings||[]).forEach(area=>{
+      (area.warnings||[]).filter(w=>w.status==='発表').forEach(w=>{
+        const key=w.type||String(w.code);
+        if(!byType[key]) byType[key]={type:key,areas:[],lv:w.type&&w.type.includes('警報')&&!w.type.includes('注意報')?3:2};
+        byType[key].areas.push(area.area_name||area.name||'');
+      });
+    });
+    warnAlerts = Object.values(byType).sort((a,b)=>b.lv-a.lv);
+  }
+
+  // ── キキクル集計 ──
+  let kikuLevel=0, kikuDesc='';
+  if(K){
+    kikuLevel = K.max_level||0;
+    if(K.elements){
+      const parts=Object.entries(K.elements)
+        .filter(([,v])=>v.has_alert)
+        .map(([k,v])=>({inund:'浸水',land:'土砂',flood:'洪水'}[k]||k)+' '+v.label);
+      kikuDesc = parts.join('・')||'';
+    }
+  }
+
+  // ── 河川水位集計 ──
+  let riverLevel=0, riverAlerts=[];
+  if(R){
+    (R.stations||[]).forEach(s=>{
+      if(s.alm>=2){ riverAlerts.push(s.stn); riverLevel=Math.max(riverLevel,s.alm); }
+    });
+  }
+
+  // ── 地震集計 ──
+  let quakeDesc='記録なし', quakeCount=0;
+  if(Q){
+    quakeCount=(Q.earthquakes||[]).length;
+    if(quakeCount>0){
+      const latest=Q.earthquakes[0];
+      quakeDesc=`M${latest.mag} ${latest.loc}`;
+    }
+  }
+
+  // ── 総合レベル ──
+  const totalLevel = Math.max(warnLevel, kikuLevel>=3?3:kikuLevel>=1?1:0, riverLevel>=2?2:0);
+
+  const OV = {
+    0: {cls:'safe',    icon:'✅', title:'現在、沖縄県内に特段の危険情報はありません', sub:'各データは正常に取得されています'},
+    1: {cls:'caution', icon:'🟡', title:'沖縄県内に注意情報が発表されています',       sub:'最新情報をご確認ください'},
+    2: {cls:'caution', icon:'⚠️', title:'沖縄県内に警戒情報があります',               sub:'河川・土砂の状況に注意してください'},
+    3: {cls:'danger',  icon:'🚨', title:'沖縄県内に警報が発表されています',            sub:'身の安全を確保し、避難情報に従ってください'},
+  };
+  const ov = OV[Math.min(totalLevel,3)];
+
+  const OVC = {safe:'#052e16',caution:'#1c1600',danger:'#450a0a'};
+  const OVB = {safe:'#166534',caution:'#854d0e',danger:'#dc2626'};
+  const OVT = {safe:'#4ade80',caution:'#fbbf24',danger:'#f87171'};
+
+  // カード定義
+  function card(icon, label, level, valText, detail){
+    const CL={0:'#e2e8f0',1:'#fbbf24',2:'#fb923c',3:'#f87171'};
+    const CB={0:'#0f172a',1:'#1c1600',2:'#1c0800',3:'#1c0000'};
+    const EB={0:'#1e293b',1:'#854d0e',2:'#9a3412',3:'#991b1b'};
+    const lv=Math.min(level,3);
+    return `<div style="background:${CB[lv]};border:1px solid ${EB[lv]};border-radius:8px;padding:12px">
+      <div style="font-size:20px;margin-bottom:5px">${icon}</div>
+      <div style="font-size:10px;color:#475569;margin-bottom:3px;letter-spacing:.05em">${label}</div>
+      <div style="font-size:13px;font-weight:700;color:${CL[lv]}">${valText}</div>
+      <div style="font-size:10px;color:#334155;margin-top:2px;font-family:var(--mono)">${detail}</div>
+    </div>`;
+  }
+
+  const warnCard  = card('⚠️','気象警報・注意報', warnLevel,
+    warnLevel===0 ? '発表なし' : `${warnLevel>=3?'警報':'注意報'} ${warnAreas.length}市町村`,
+    warnLevel===0 ? '全市町村 平常' : warnAreas.slice(0,3).map(a=>a.name).join('・')+(warnAreas.length>3?'他':''));
+
+  const kikuCard  = card('🔴','キキクル危険度', kikuLevel>=3?3:kikuLevel>=1?1:0,
+    kikuLevel===0 ? '危険域なし' : ({1:'🟡 注意あり',2:'🟠 警戒あり',3:'🔴 危険あり',4:'🟣 非常に危険',5:'⚫ 災害切迫'}[kikuLevel]||'検知あり'),
+    kikuLevel===0 ? '浸水・土砂・洪水 平常' : (kikuDesc||'詳細はキキクルへ'));
+
+  const riverCard = card('🌊','河川水位', riverLevel>=3?3:riverLevel>=2?2:0,
+    riverLevel===0 ? '警戒なし' : `⚠ ${riverAlerts.length}観測所 警戒`,
+    riverLevel===0 ? `${(R&&R.stations||[]).length}観測所 平常` : riverAlerts.slice(0,3).join('・')+(riverAlerts.length>3?'他':''));
+
+  const quakeCard = card('🌏','地震（24時間）', 0,
+    quakeCount===0 ? '記録なし' : `${quakeCount}件`,
+    quakeCount===0 ? '沖縄周辺' : quakeDesc);
+
+  // アラートリスト
+  const alertRows = warnAlerts.map(a=>{
+    const isWarning = a.lv>=3;
+    const bc = isWarning?'#991b1b':'#854d0e';
+    const tc = isWarning?'#f87171':'#fbbf24';
+    const bg = isWarning?'#1c0000':'#1c1600';
+    return `<div style="display:flex;align-items:flex-start;gap:10px;background:${bg};border:1px solid ${bc};border-radius:6px;padding:8px 12px">
+      <span style="background:${bg};border:1px solid ${bc};color:${tc};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;white-space:nowrap">${a.type}</span>
+      <span style="flex:1;font-size:12px;color:#cbd5e1">${[...new Set(a.areas)].join('・')}</span>
+    </div>`;
+  }).join('');
+
+  const now = new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+
+  el.innerHTML = `
+    <div style="margin-bottom:4px">
+      <!-- 総合ステータス -->
+      <div style="background:${OVC[ov.cls]};border:1px solid ${OVB[ov.cls]};border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:12px">
+        <div style="font-size:30px">${ov.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;color:${OVT[ov.cls]};margin-bottom:2px">${ov.title}</div>
+          <div style="font-size:11px;color:#64748b">${ov.sub}</div>
+        </div>
+        <div style="font-size:10px;color:#334155;font-family:var(--mono);white-space:nowrap">更新 ${now}</div>
+      </div>
+      <!-- 4カード -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:${warnAlerts.length?'12px':'0'}">
+        ${warnCard}${kikuCard}${riverCard}${quakeCard}
+      </div>
+      <!-- アラートリスト -->
+      ${warnAlerts.length ? `<div style="display:flex;flex-direction:column;gap:6px">${alertRows}</div>` : ''}
+    </div>`;
+}
+
 // ── キキクル危険度分布アラート ──
 const KIKU_COLORS = {
   0: null,
@@ -1369,7 +1640,7 @@ function renderTyphoon(data){
 // ── 防災ダッシュボード ──
 setTimeout(()=>location.reload(),10*60*1000);
 nextAt=Date.now()+10*60*1000;
-loadCameras(); loadKikukuru(); loadBousaiInfo(); loadEarthquake(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
+loadCameras(); renderSummary(); loadKikukuru(); loadBousaiInfo(); loadEarthquake(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
 </script>
 </body>
 </html>
