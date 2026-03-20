@@ -304,7 +304,8 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   <button class="tab"        id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
   <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
   <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
-  <button class="tab"        id="tab-amedas" onclick="showTab('amedas')">🌤 気象観測</button>
+  <button class="tab"        id="tab-amedas"  onclick="showTab('amedas')">🌤 気象観測</button>
+  <button class="tab"        id="tab-flight" onclick="showTab('flight')">✈ フライト・船舶</button>
   <button class="tab"        id="tab-kasen"  onclick="showTab('kasen')">📊 河川水位</button>
   <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-bousai"   onclick="showTab('bousai')">🚨 防災カメラ <span class="tab-count">4</span></button>
@@ -533,6 +534,14 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 </div>
 
 <!-- ④ 道路カメラ -->
+<div class="section" id="sec-flight">
+  <div class="portal-body" style="background:#f0f7ff;min-height:400px">
+    <div id="flight-inner">
+      <div style="color:#666;font-family:monospace;font-size:12px;padding:16px">読込中…</div>
+    </div>
+  </div>
+</div>
+
 <div class="section" id="sec-amedas">
   <div class="portal-body" style="background:#f0f7ff;min-height:400px">
     <div id="amedas-inner">
@@ -663,7 +672,7 @@ async function setImgNoCache(imgEl, url) {
 }
 
 function showTab(id){
-  ['river','bousaiinfo','youtube','kaiho','road','bousai','kasen','amedas'].forEach(t=>{
+  ['river','bousaiinfo','youtube','kaiho','road','bousai','kasen','amedas','flight'].forEach(t=>{
     document.getElementById('sec-'+t).classList.toggle('active',t===id);
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
@@ -671,6 +680,7 @@ function showTab(id){
   if(id==='bousaiinfo'){ renderSummary(); loadKikukuru(); loadBousaiInfo(); loadEarthquake(); }
   if(id==='kasen'){ loadKasen(); }
   if(id==='amedas'){ loadAmedas(); }
+  if(id==='flight'){ loadFlight(); }
   // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
@@ -1005,6 +1015,103 @@ const AREA_NAMES={
 };
 
 let bousaiInfoLoaded=false;
+// ── フライト・船舶タブ ──
+let flightLoaded = false;
+
+async function loadFlight(){
+  if(flightLoaded) return;
+  flightLoaded = true;
+  const el = document.getElementById('flight-inner');
+  if(!el) return;
+  try {
+    const res = await fetch('flight.json?_='+Math.floor(Date.now()/300000));
+    if(!res.ok){ el.innerHTML='<p style="color:#666;padding:16px">データなし</p>'; return; }
+    const data = await res.json();
+    renderFlight(data);
+  } catch(e){ console.warn('flight.json取得失敗',e); }
+}
+
+function renderFlight(data){
+  const el = document.getElementById('flight-inner');
+  const flights = (data.flights||[]);
+  const ships   = (data.ships||[]);
+
+  // 機首方向 → 矢印
+  function hdgArrow(h){
+    if(h==null) return '?';
+    const dirs=['↑','↗','→','↘','↓','↙','←','↖'];
+    return dirs[Math.round(h/45)%8];
+  }
+
+  // 高度で色分け
+  function altColor(alt, onGround){
+    if(onGround) return '#16a34a';
+    if(alt==null) return '#94a3b8';
+    return alt < 1000 ? '#ea580c' : alt < 5000 ? '#2563eb' : '#475569';
+  }
+
+  // フライトテーブル
+  const flightRows = flights.length
+    ? flights.map(f => {
+        const alt    = f.alt_m   != null ? Math.round(f.alt_m)+'m'   : '–';
+        const spd    = f.speed_ms != null ? Math.round(f.speed_ms*3.6)+'km/h' : '–';
+        const ac     = altColor(f.alt_m, f.on_ground);
+        const status = f.on_ground ? '<span style="color:#16a34a;font-weight:700">地上</span>'
+                     : `<span style="color:#2563eb">${alt}</span>`;
+        return `<tr style="border-bottom:1px solid #dbeafe">
+          <td style="padding:7px 10px;font-weight:700;font-family:monospace;font-size:13px;color:#1e3a5f">${f.callsign}</td>
+          <td style="padding:7px 10px;text-align:center;font-size:16px">${hdgArrow(f.heading)}</td>
+          <td style="padding:7px 10px;font-family:monospace;font-size:12px;color:${ac}">${status}</td>
+          <td style="padding:7px 10px;font-family:monospace;font-size:12px;color:#475569">${spd}</td>
+          <td style="padding:7px 10px;font-size:11px;color:#94a3b8">${f.lat!=null?f.lat.toFixed(2)+'°N':''} ${f.lon!=null?f.lon.toFixed(2)+'°E':''}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8;font-size:12px">現在、沖縄周辺に取得できた航空機情報はありません</td></tr>`;
+
+  // 船舶カード
+  const shipCards = ships.length
+    ? ships.map(s => `
+        <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:14px">
+          <div style="font-weight:700;color:#1e3a5f;margin-bottom:6px">⛴ ${s.operator}</div>
+          <div style="font-size:12px;color:#374151;line-height:1.7">${s.info||'–'}</div>
+          <a href="${s.url}" target="_blank" style="font-size:11px;color:#2563eb;text-decoration:none;display:inline-block;margin-top:6px">↗ 公式サイトで確認</a>
+        </div>`).join('')
+    : '<div style="color:#94a3b8;font-size:12px">船舶情報なし</div>';
+
+  el.innerHTML = `
+    <div style="background:#1565c0;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:-16px -16px 16px">
+      <div style="font-weight:700;font-size:14px">✈ フライト・船舶情報（沖縄周辺）</div>
+      <div style="font-size:12px;opacity:.85">取得: ${data.fetched_jst||''}
+        <button onclick="flightLoaded=false;loadFlight()" style="background:#1976d2;border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:11px;margin-left:8px">↺ 更新</button>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:8px">✈ 那覇空港周辺の航空機（OpenSky Network）</div>
+    <div style="overflow-x:auto;margin-bottom:20px">
+      <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #bfdbfe;border-radius:8px;overflow:hidden">
+        <thead><tr style="background:#dbeafe">
+          <th style="padding:8px 10px;text-align:left;color:#1e3a5f;font-size:12px">便名</th>
+          <th style="padding:8px 10px;text-align:center;color:#1e3a5f;font-size:12px">方向</th>
+          <th style="padding:8px 10px;text-align:left;color:#1e3a5f;font-size:12px">高度</th>
+          <th style="padding:8px 10px;text-align:left;color:#1e3a5f;font-size:12px">速度</th>
+          <th style="padding:8px 10px;text-align:left;color:#1e3a5f;font-size:12px">位置</th>
+        </tr></thead>
+        <tbody>${flightRows}</tbody>
+      </table>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:20px">
+      ⚠ OpenSky Networkのリアルタイムデータを使用。5分ごとに更新。ADS-B受信局の電波状況により一部表示されない場合があります。
+    </div>
+
+    <div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:8px">⛴ 離島フェリー運航情報</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px">
+      ${shipCards}
+    </div>
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:8px 12px;font-size:11px;color:#0369a1">
+      ℹ 船舶情報は各村・船社の公式サイトから取得しています。詳細・最新情報は各公式サイトでご確認ください。
+    </div>`;
+}
+
 // ── AMeDAS気象観測タブ ──
 let amedasLoaded = false;
 
