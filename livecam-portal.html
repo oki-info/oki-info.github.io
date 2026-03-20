@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -7,12 +7,12 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
 :root {
-  --ink:   #f8fafc;
-  --deep:  #f1f5f9;
+  --ink:   #f0f4f8;   /* ページ背景: 薄いスレートブルー */
+  --deep:  #e2e8f0;
   --panel: #ffffff;
   --card:  #f8fafc;
-  --edge:  rgba(0,0,0,.08);
-  --edge2: rgba(0,0,0,.13);
+  --edge:  rgba(0,0,0,.10);
+  --edge2: rgba(0,0,0,.16);
   --teal:  #0d9488;
   --teal3: rgba(13,148,136,.09);
   --amber: #b45309;
@@ -348,6 +348,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
       <div style="grid-column:1/-1;text-align:left">
         <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
           <span>🌏 地震情報（沖縄周辺 直近24時間）</span>
+          <a href="https://www.jma.go.jp/bosai/quake/" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁</a>
           <a href="https://www.jma.go.jp/bosai/quake/" target="_blank" class="tbtn">↗ 気象庁</a>
           <button class="tbtn" onclick="loadEarthquake()">↺ 更新</button>
         </div>
@@ -358,7 +359,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 
       <!-- 台風情報 -->
       <div style="grid-column:1/-1">
-        <div class="sec-title">台風情報</div>
+        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">台風情報<a href="https://www.jma.go.jp/bosai/typhoon/" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁</a></div>
         <div id="typhoon-area" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
           <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
         </div>
@@ -1080,6 +1081,14 @@ function renderFlight(data){
       ⚠ OpenSky Networkのリアルタイムデータを使用。5分ごとに更新。ADS-B受信局の電波状況により一部表示されない場合があります。
     </div>
     <div style="margin-bottom:20px">
+      <a href="https://www.naha-airport.co.jp/flight/today/" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#1565c0;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700">
+        ✈ 那覇空港 本日の出発・到着フライト一覧（公式）↗
+      </a>
+      <div style="font-size:11px;color:#64748b;margin-top:6px">那覇空港公式サイトで正確なフライトスケジュール・遅延情報を確認できます</div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:20px;display:none">
+    </div>
+    <div style="margin-bottom:20px">
       <a href="https://www.naha-airport.co.jp/flight/today/" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#1e40af;color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">
         ✈ 那覇空港 本日の出発・到着便（公式）↗
       </a>
@@ -1439,7 +1448,7 @@ async function loadEarthquake(){
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <div style="text-align:right;color:#334155;font-size:10px;font-family:var(--mono);margin-top:4px">気象庁 地震情報 ― 取得: ${data.fetched_jst||''}</div>
+      <div style="text-align:right;color:#334155;font-size:10px;font-family:var(--mono);margin-top:4px">気象庁 地震情報 ― 取得: ${data.fetched_jst||''} &nbsp;<a href='https://www.jma.go.jp/bosai/quake/' target='_blank' style='color:#60a5fa;text-decoration:none'>↗ 気象庁</a></div>
     </div>`;
   } catch(e){ console.warn('earthquake.json取得失敗',e); }
 }
@@ -1532,9 +1541,9 @@ async function renderSummary(){
 
   // カード定義
   function card(icon, label, level, valText, detail){
-    const CL={0:'#e2e8f0',1:'#fbbf24',2:'#fb923c',3:'#f87171'};
-    const CB={0:'#0f172a',1:'#1c1600',2:'#1c0800',3:'#1c0000'};
-    const EB={0:'#1e293b',1:'#854d0e',2:'#9a3412',3:'#991b1b'};
+    const CL={0:'#1e293b',1:'#92400e',2:'#9a3412',3:'#b91c1c'};
+    const CB={0:'#fff',1:'#fffbeb',2:'#fff7ed',3:'#fef2f2'};
+    const EB={0:'#e2e8f0',1:'#d97706',2:'#ea580c',3:'#dc2626'};
     const lv=Math.min(level,3);
     return `<div style="background:${CB[lv]};border:1px solid ${EB[lv]};border-radius:8px;padding:12px">
       <div style="font-size:20px;margin-bottom:5px">${icon}</div>
