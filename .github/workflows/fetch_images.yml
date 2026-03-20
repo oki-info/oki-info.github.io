@@ -208,6 +208,62 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           print(f"kikukuru.json 生成完了: has_alert={result['has_alert']} max={result['max_label']}")
 
+      - name: 早期注意情報取得（warning.jsonに追記）
+        shell: python3 {0}
+        run: |
+          import json, urllib.request, gzip
+          from datetime import datetime, timezone, timedelta
+          JST = timezone(timedelta(hours=9))
+
+          def fetch(url):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Referer': 'https://www.jma.go.jp/bosai/warning/',
+              })
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  raw = r.read()
+              if raw[:2] == b'\x1f\x8b':
+                  import gzip as gz; raw = gz.decompress(raw)
+              return raw.decode('utf-8', errors='replace')
+
+          # 既存のwarning.jsonを読み込む
+          try:
+              with open('warning.json', encoding='utf-8') as f:
+                  w = json.load(f)
+          except:
+              w = {'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
+                   'warnings': [], 'typhoons': []}
+
+          # 早期注意情報（警報級の可能性）
+          # https://www.jma.go.jp/bosai/warning/data/early_warning/471000.json
+          try:
+              raw = json.loads(fetch('https://www.jma.go.jp/bosai/warning/data/early_warning/471000.json'))
+              print(f"早期注意情報JSON型: {type(raw)}, キー: {list(raw.keys()) if isinstance(raw,dict) else 'list len='+str(len(raw))}")
+              if isinstance(raw, dict):
+                  print(f"サンプル: {str(raw)[:300]}")
+              early = []
+              # areaTypes形式の場合
+              for at in (raw.get('areaTypes') or []):
+                  for area in (at.get('areas') or []):
+                      name = area.get('name','')
+                      items = area.get('items') or area.get('warnings') or []
+                      active = [i for i in items if (i.get('status') or i.get('possibility','')) not in ('','なし','なし（注意）')]
+                      if active:
+                          early.append({'area': name, 'items': active})
+              # 直接リスト形式の場合
+              if not early and isinstance(raw, list):
+                  for item in raw[:5]:
+                      print(f"リストアイテム: {str(item)[:200]}")
+              w['early_warning'] = early
+              print(f"早期注意情報: {len(early)}エリア")
+          except Exception as e:
+              w['early_warning'] = []
+              print(f"早期注意情報NG: {type(e).__name__}: {e}")
+
+          with open('warning.json', 'w', encoding='utf-8') as f:
+              json.dump(w, f, ensure_ascii=False, indent=2)
+          print("warning.json更新完了")
+
       - name: earthquake.json 生成（沖縄周辺 直近24時間）
         shell: python3 {0}
         run: |
