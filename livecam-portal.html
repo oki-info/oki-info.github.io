@@ -1047,14 +1047,15 @@ function renderFlight(data){
     : `<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8;font-size:12px">現在、沖縄周辺に取得できた航空機情報はありません</td></tr>`;
 
   // 船舶カード
-  const shipCards = ships.length
-    ? ships.map(s => `
-        <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:14px">
-          <div style="font-weight:700;color:#1e3a5f;margin-bottom:6px">⛴ ${s.operator}</div>
-          <div style="font-size:12px;color:#374151;line-height:1.7">${s.info||'–'}</div>
-          <a href="${s.url}" target="_blank" style="font-size:11px;color:#2563eb;text-decoration:none;display:inline-block;margin-top:6px">↗ 公式サイトで確認</a>
-        </div>`).join('')
-    : '<div style="color:#94a3b8;font-size:12px">船舶情報なし</div>';
+  const shipCards = `<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ マルエーフェリー（A-LINE）</span><a href="https://www.aline-ferry.com/status/" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ マリックスライン</span><a href="https://marixline.com/service/" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ 琉球海運</span><a href="https://www.rkkline.co.jp/navigation/" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ フェリーざまみ（座間味村）</span><a href="https://www.vill.zamami.okinawa.jp/" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ 久米商船</span><a href="http://www.kumeline.com" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ 伊是名村フェリー</span><a href="https://vill.izena.okinawa.jp" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ マリンライナーとかしき（渡嘉敷村）</span><a href="https://www.vill.tokashiki.okinawa.jp/" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ 渡嘉敷フェリーポータル</span><a href="https://tokashiki-ferry.jp/Senpaku/portal" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>
+<div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e3a5f;font-weight:600">⛴ おきなわ物語 高速船・フェリー</span><a href="https://www.okinawastory.jp/access/info/ship" target="_blank" style="font-size:12px;color:#1565c0;text-decoration:none;white-space:nowrap;margin-left:12px">↗ 公式サイト</a></div>`;
 
   el.innerHTML = `
     <div style="background:#1565c0;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:-16px -16px 16px">
@@ -1207,7 +1208,7 @@ function renderAmedas(data){
       ${cards}
     </div>
     <div style="margin-top:12px;text-align:right">
-      <a href="https://www.jma.go.jp/bosai/amedas/" target="_blank" style="font-size:11px;color:#1565c0;text-decoration:none">↗ 気象庁 AMeDAS（全国）</a>
+      <a href="https://www.jma.go.jp/bosai/amedas/#area_type=offices&area_code=471000&elems=5361c" target="_blank" style="font-size:11px;color:#1565c0;text-decoration:none">↗ 気象庁 AMeDAS（全国）</a>
     </div>`;
 }
 
@@ -1234,7 +1235,7 @@ function renderKasenNow(data){
   const hist = data.history  || [];
 
   // 色定義（明るい配色）
-  const AC = {'-1':'#888', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
+  const AC = {'-1':'#888', 0:'#1e293b', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#7f1d1d'};
   const AB = {'-1':'#eee', 0:'#fff',  1:'#fff9c4', 2:'#ffe0b2', 3:'#ffcdd2', 4:'#b71c1c'};
   const AL = {'-1':'欠測', 0:'–',     1:'注意',    2:'警戒',    3:'危険',    4:'氾濫危険'};
   const ARROWS = {up:'↑', down:'↓', stay:'→', '':''};
@@ -1263,6 +1264,7 @@ function renderKasenNow(data){
     return `<tr style="background:${bg};border-bottom:1px solid #ddd">
       <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:600;white-space:nowrap">${s.stn}</td>
       <td style="padding:6px 10px;color:#555;font-size:12px;white-space:nowrap">${s.river}</td>
+      <td style="padding:6px 10px;color:#888;font-size:11px;white-space:nowrap;font-family:monospace">${data.updated||'–'}</td>
       <td style="padding:6px 10px;font-size:14px;font-weight:700;text-align:right;font-family:monospace;color:${isMissing?'#aaa':c}">${lv}</td>
       <td style="padding:6px 10px;color:#c62828;font-size:12px;text-align:right;font-family:monospace">${dangerStr}</td>
       <td style="padding:6px 10px;color:#e65100;font-size:12px;text-align:right;font-family:monospace">${cautStr}</td>
@@ -1275,11 +1277,12 @@ function renderKasenNow(data){
     <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #ccc">
       <thead>
         <tr style="background:#1565c0">
-          <th colspan="7" style="padding:8px 12px;color:#fff;text-align:left;font-size:13px">水位総括表</th>
+          <th colspan="8" style="padding:8px 12px;color:#fff;text-align:left;font-size:13px">水位総括表</th>
         </tr>
         <tr style="background:#e3f2fd">
           <th style="padding:7px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">観測所</th>
           <th style="padding:7px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">河川</th>
+          <th style="padding:7px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">観測時刻</th>
           <th style="padding:7px 10px;text-align:right;color:#333;font-size:12px;border-bottom:2px solid #1565c0">現在水位</th>
           <th style="padding:7px 10px;text-align:right;color:#c62828;font-size:12px;border-bottom:2px solid #1565c0">氾濫危険</th>
           <th style="padding:7px 10px;text-align:right;color:#e65100;font-size:12px;border-bottom:2px solid #1565c0">護岸天端</th>
@@ -1363,7 +1366,7 @@ async function loadRiver(){
     }
     // alm色
     const AC = {'-1':'#334155', 0:'#e2e8f0', 1:'#facc15', 2:'#fb923c', 3:'#f87171', 4:'#ffffff'};
-    const AB = {'-1':'#0f172a', 0:'#0f172a', 1:'#1c1600', 2:'#1c0800', 3:'#1c0000', 4:'#7f1d1d'};
+    const AB = {'-1':'#f1f5f9', 0:'#fff',    1:'#fffde7', 2:'#fff3e0', 3:'#ffebee', 4:'#ffcdd2'};
     const AL = {'-1':'欠測',    0:'平常',    1:'注意',    2:'警戒',   3:'危険',   4:'氾濫危険'};
 
     // 警戒以上を上に
@@ -1386,10 +1389,10 @@ async function loadRiver(){
     }).join('');
 
     el.innerHTML = `
-      ${alerts.length ? `<div style="background:#450a0a;border:1px solid #dc2626;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#fca5a5;font-family:var(--mono)">⚠ 警戒以上: ${alerts.map(s=>s.stn).join('・')}</div>` : ''}
+      ${alerts.length ? `<div style="background:#fef2f2;border:1px solid #dc2626;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#fca5a5;font-family:var(--mono)">⚠ 警戒以上: ${alerts.map(s=>s.stn).join('・')}</div>` : ''}
       <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;background:#0f172a;border:1px solid #1e293b;border-radius:8px;overflow:hidden">
-          <thead><tr style="background:#0a0f1e">
+        <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #bfdbfe;border-radius:8px;overflow:hidden">
+          <thead><tr style="background:#dbeafe">
             <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">観測所</th>
             <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">河川</th>
             <th style="padding:8px 10px;text-align:right;color:#475569;font-size:11px;font-weight:400">現在水位</th>
@@ -1416,7 +1419,7 @@ async function loadEarthquake(){
     const data = await res.json();
     const eqs = data.earthquakes || [];
     if(!eqs.length){
-      el.innerHTML = `<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px 16px;color:#475569;font-family:var(--mono);font-size:12px">
+      el.innerHTML = `<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 16px;color:#0369a1569;font-family:var(--mono);font-size:12px">
         ✅ 直近24時間以内に沖縄周辺での地震は記録されていません
         <span style="float:right;font-size:10px;color:#334155">取得: ${data.fetched_jst||''}</span>
       </div>`;
@@ -1438,8 +1441,8 @@ async function loadEarthquake(){
       </tr>`;
     }).join('');
     el.innerHTML = `<div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;background:#0f172a;border:1px solid #1e293b;border-radius:8px;overflow:hidden">
-        <thead><tr style="background:#0a0f1e">
+      <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #bfdbfe;border-radius:8px;overflow:hidden">
+        <thead><tr style="background:#dbeafe">
           <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">日時</th>
           <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">震源地</th>
           <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">規模</th>
@@ -1535,7 +1538,7 @@ async function renderSummary(){
   };
   const ov = OV[Math.min(totalLevel,3)];
 
-  const OVC = {safe:'#052e16',caution:'#1c1600',danger:'#450a0a'};
+  const OVC = {safe:'#f0fdf4',caution:'#fffbeb',danger:'#fef2f2'};
   const OVB = {safe:'#166534',caution:'#854d0e',danger:'#dc2626'};
   const OVT = {safe:'#4ade80',caution:'#fbbf24',danger:'#f87171'};
 
@@ -1574,7 +1577,7 @@ async function renderSummary(){
     const isWarning = a.lv>=3;
     const bc = isWarning?'#991b1b':'#854d0e';
     const tc = isWarning?'#f87171':'#fbbf24';
-    const bg = isWarning?'#1c0000':'#1c1600';
+    const bg = isWarning?'#fef2f2':'#fffbeb';
     return `<div style="display:flex;align-items:flex-start;gap:10px;background:${bg};border:1px solid ${bc};border-radius:6px;padding:8px 12px">
       <span style="background:${bg};border:1px solid ${bc};color:${tc};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;white-space:nowrap">${a.type}</span>
       <span style="flex:1;font-size:12px;color:#cbd5e1">${[...new Set(a.areas)].join('・')}</span>
@@ -1606,9 +1609,9 @@ async function renderSummary(){
 // ── キキクル危険度分布アラート ──
 const KIKU_COLORS = {
   0: null,
-  1: {bg:'#1c1600', border:'#ca8a04', text:'#fde047', emoji:'🟡'},
-  2: {bg:'#1c0000', border:'#dc2626', text:'#fca5a5', emoji:'🔴'},
-  3: {bg:'#1a0030', border:'#9333ea', text:'#d8b4fe', emoji:'🟣'},
+  1: {bg:'#fffbeb', border:'#d97706', text:'#92400e', emoji:'🟡'},
+  2: {bg:'#fef2f2', border:'#dc2626', text:'#b91c1c', emoji:'🔴'},
+  3: {bg:'#faf5ff', border:'#9333ea', text:'#d8b4fe', emoji:'🟣'},
   4: {bg:'#000000', border:'#6b7280', text:'#e5e7eb', emoji:'⚫'},
 };
 const KIKU_ELEM_LABELS = {inund:'浸水害', land:'土砂', flood:'洪水'};
@@ -1621,11 +1624,11 @@ async function loadKikukuru(){
     if(!res.ok) return;
     const data = await res.json();
     if(!data.has_alert){
-      el.innerHTML = `<div style="background:#052e16;border:1px solid #166534;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      el.innerHTML = `<div style="background:#f0fdf4;border:1px solid #16a34a;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:4px">
         <span style="font-size:16px">✅</span>
         <div>
-          <span style="color:#4ade80;font-size:13px;font-weight:700">キキクル（危険度分布）― 現在、沖縄県内に危険域なし</span>
-          <span style="color:#166534;font-size:10px;font-family:var(--mono);margin-left:10px">取得: ${data.fetched_jst||''}</span>
+          <span style="color:#15803d;font-size:13px;font-weight:700">キキクル（危険度分布）― 現在、沖縄県内に危険域なし</span>
+          <span style="color:#15803d;font-size:10px;font-family:var(--mono);margin-left:10px">取得: ${data.fetched_jst||''}</span>
         </div>
         <a href="https://www.jma.go.jp/bosai/risk/#lat:26.6/lon:127.96/zoom:8/elements:inund" target="_blank" style="margin-left:auto;font-size:11px;color:#4ade80;text-decoration:none">↗ キキクルを開く</a>
       </div>`;
