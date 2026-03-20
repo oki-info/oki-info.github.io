@@ -1,22 +1,22 @@
 {
-  "fetched_jst": "2026-03-21 01:11",
+  "fetched_jst": "2026-03-21 02:59",
   "flights": [
     {
-      "callsign": "SIA34",
-      "lat": 25.7946,
-      "lon": 127.3854,
-      "alt_m": 11277.6,
-      "speed_ms": 312.86,
-      "heading": 45.67,
+      "callsign": "THA661",
+      "lat": 25.8669,
+      "lon": 126.3226,
+      "alt_m": 11590.02,
+      "speed_ms": 195.55,
+      "heading": 227.67,
       "on_ground": false
     },
     {
-      "callsign": "SAZ73",
-      "lat": 25.9669,
-      "lon": 126.445,
-      "alt_m": 10965.18,
-      "speed_ms": 178.46,
-      "heading": 227.8,
+      "callsign": "HVN99",
+      "lat": 26.0642,
+      "lon": 126.5458,
+      "alt_m": 12192,
+      "speed_ms": 195.63,
+      "heading": 228.09,
       "on_ground": false
     }
   ],
