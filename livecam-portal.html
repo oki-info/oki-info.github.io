@@ -348,9 +348,10 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
       <div style="grid-column:1/-1;text-align:left">
         <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
           <span>🌏 地震情報（沖縄周辺 直近24時間）</span>
-          <a href="https://www.jma.go.jp/bosai/quake/" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁</a>
-          <a href="https://www.jma.go.jp/bosai/quake/" target="_blank" class="tbtn">↗ 気象庁</a>
-          <button class="tbtn" onclick="loadEarthquake()">↺ 更新</button>
+          <div style="display:flex;gap:6px;align-items:center">
+            <a href="https://www.data.jma.go.jp/multi/quake/index.html?lang=jp" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁 地震情報</a>
+            <button class="tbtn" onclick="loadEarthquake()">↺ 更新</button>
+          </div>
         </div>
         <div id="earthquake-panel">
           <div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">読込中…</div>
@@ -977,9 +978,22 @@ function toggleFav(i){
 
 // ── 気象警報・台風情報 ──
 const WARNING_COLORS={
-  '大雨特別警報':'#ff0000','洪水特別警報':'#ff0000','暴風特別警報':'#ff0000','暴風雪特別警報':'#ff0000','高潮特別警報':'#ff0000','波浪特別警報':'#ff0000',
-  '大雨警報':'#f97316','洪水警報':'#f97316','暴風警報':'#f87171','高潮警報':'#f87171','波浪警報':'#f87171',
-  '大雨注意報':'#fbbf24','洪水注意報':'#fbbf24','強風注意報':'#fbbf24','高潮注意報':'#fbbf24','波浪注意報':'#fbbf24',
+  // 特別警報（紫・最上位）
+  '大雨特別警報':'#c026d3','大雪特別警報':'#c026d3','暴風特別警報':'#c026d3',
+  '暴風雪特別警報':'#c026d3','波浪特別警報':'#c026d3','高潮特別警報':'#c026d3',
+  // 警報（赤・橙）
+  '大雨警報':'#dc2626','洪水警報':'#ea580c','大雪警報':'#2563eb',
+  '暴風警報':'#dc2626','暴風雪警報':'#7c3aed','波浪警報':'#0369a1',
+  '高潮警報':'#dc2626','濃霧警報':'#6b7280','雷警報':'#ca8a04',
+  // 注意報（黄・緑）
+  '大雨注意報':'#d97706','洪水注意報':'#d97706','大雪注意報':'#2563eb',
+  '強風注意報':'#16a34a','風雪注意報':'#7c3aed','波浪注意報':'#0369a1',
+  '高潮注意報':'#b45309','濃霧注意報':'#6b7280','雷注意報':'#ca8a04',
+  '霜注意報':'#0891b2','低温注意報':'#0891b2','乾燥注意報':'#92400e',
+  '融雪注意報':'#0891b2','雪崩注意報':'#7c3aed','着氷注意報':'#0891b2',
+  '着雪注意報':'#0891b2',
+  // 特殊情報
+  '竜巻注意情報':'#7c3aed','記録的短時間大雨情報':'#dc2626',
 };
 const AREA_NAMES={
   '110':'那覇市','120':'宜野湾市','130':'石垣市','140':'浦添市','150':'名護市',
@@ -1426,32 +1440,32 @@ async function loadEarthquake(){
       return;
     }
     const MAXI_COLOR = {
-      '1':'#64748b','2':'#64748b','3':'#60a5fa','4':'#facc15',
-      '5弱':'#fb923c','5強':'#f87171','6弱':'#dc2626','6強':'#b91c1c','7':'#7f1d1d'
+      '1':'#94a3b8','2':'#64748b','3':'#2563eb','4':'#d97706',
+      '5弱':'#ea580c','5強':'#dc2626','6弱':'#b91c1c','6強':'#7f1d1d','7':'#450a0a'
     };
     const rows = eqs.map(q => {
       const mc = MAXI_COLOR[q.maxi] || '#475569';
       const maxiStr = q.maxi && q.maxi !== '-' ? `<span style="color:${mc};font-weight:700">震度${q.maxi}</span>` : '<span style="color:#334155">震度不明</span>';
       return `<tr style="border-bottom:1px solid #1e293b">
-        <td style="padding:6px 10px;color:#94a3b8;font-size:11px;white-space:nowrap;font-family:var(--mono)">${q.time}</td>
-        <td style="padding:6px 10px;color:#e2e8f0;font-size:12px">${q.loc}</td>
-        <td style="padding:6px 10px;color:#7dd3fc;font-size:12px;text-align:center;white-space:nowrap">M${q.mag}</td>
+        <td style="padding:6px 10px;color:#374151;font-size:12px;white-space:nowrap;font-family:monospace">${q.time}</td>
+        <td style="padding:6px 10px;color:#111827;font-size:13px;font-weight:500">${q.loc}</td>
+        <td style="padding:6px 10px;color:#1d4ed8;font-size:13px;font-weight:700;text-align:center;white-space:nowrap;font-family:monospace">M${q.mag}</td>
         <td style="padding:6px 10px;text-align:center;white-space:nowrap">${maxiStr}</td>
-        <td style="padding:6px 10px;color:#475569;font-size:11px;text-align:center;white-space:nowrap">${q.depth !== '-' ? q.depth+'km' : '–'}</td>
+        <td style="padding:6px 10px;color:#374151;font-size:12px;text-align:center;white-space:nowrap">${q.depth !== '-' ? q.depth+'km' : '–'}</td>
       </tr>`;
     }).join('');
     el.innerHTML = `<div style="overflow-x:auto">
       <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #bfdbfe;border-radius:8px;overflow:hidden">
         <thead><tr style="background:#dbeafe">
-          <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">日時</th>
-          <th style="padding:8px 10px;text-align:left;color:#475569;font-size:11px;font-weight:400">震源地</th>
-          <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">規模</th>
-          <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">最大震度</th>
-          <th style="padding:8px 10px;text-align:center;color:#475569;font-size:11px;font-weight:400">深さ</th>
+          <th style="padding:8px 10px;text-align:left;color:#1e3a5f;font-size:12px;font-weight:600">日時</th>
+          <th style="padding:8px 10px;text-align:left;color:#1e3a5f;font-size:12px;font-weight:600">震源地</th>
+          <th style="padding:8px 10px;text-align:center;color:#1e3a5f;font-size:12px;font-weight:600">規模</th>
+          <th style="padding:8px 10px;text-align:center;color:#1e3a5f;font-size:12px;font-weight:600">最大震度</th>
+          <th style="padding:8px 10px;text-align:center;color:#1e3a5f;font-size:12px;font-weight:600">深さ</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <div style="text-align:right;color:#334155;font-size:10px;font-family:var(--mono);margin-top:4px">気象庁 地震情報 ― 取得: ${data.fetched_jst||''} &nbsp;<a href='https://www.jma.go.jp/bosai/quake/' target='_blank' style='color:#60a5fa;text-decoration:none'>↗ 気象庁</a></div>
+      <div style="text-align:right;color:#334155;font-size:10px;font-family:var(--mono);margin-top:4px">気象庁 地震情報 ― 取得: ${data.fetched_jst||''}</div>
     </div>`;
   } catch(e){ console.warn('earthquake.json取得失敗',e); }
 }
@@ -1689,29 +1703,63 @@ async function loadBousaiInfo(){
 
 function renderWarnings(warningData){
   const el=document.getElementById('warning-area');
-  // warningData = [{area_name, warnings:[{type, status}]}]
   const active=(warningData||[]).filter(a=>(a.warnings||[]).some(w=>w.status==='発表'));
   if(!active.length){
-    el.innerHTML=`<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:10px;grid-column:1/-1">
+    el.innerHTML=`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:10px;grid-column:1/-1">
       <span style="font-size:22px">✅</span>
       <div>
-        <div style="font-size:13px;font-weight:700;color:#4ade80">現在、沖縄県内に発表中の警報・注意報はありません</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px">気象庁（<span id="warning-updated"></span>）</div>
+        <div style="font-size:13px;font-weight:700;color:#15803d">現在、沖縄県内に発表中の警報・注意報はありません</div>
+        <div style="font-family:var(--mono);font-size:10px;color:#64748b;margin-top:3px">気象庁（<span id="warning-updated"></span>）</div>
       </div>
     </div>`;
     return;
   }
-  el.innerHTML=active.map(area=>{
-    const name=area.area_name||'';
+  // 種別ごとに集約：特別警報→警報→注意報→その他
+  const byType={};
+  active.forEach(area=>{
+    const name=area.area_name||area.name||'';
+    (area.warnings||[]).filter(w=>w.status==='発表').forEach(w=>{
+      const t=w.type||String(w.code||'');
+      if(!byType[t]) byType[t]={type:t,areas:[]};
+      byType[t].areas.push(name);
+    });
+  });
+  const entries=Object.values(byType).sort((a,b)=>{
+    const rank=t=>t.includes('特別警報')?0:t.includes('警報')&&!t.includes('注意報')?1:t.includes('注意報')?2:3;
+    return rank(a.type)-rank(b.type);
+  });
+
+  // 市町村カードも残す
+  const areaCards=active.map(area=>{
+    const name=area.area_name||area.name||'';
     const items=(area.warnings||[]).filter(w=>w.status==='発表').map(w=>{
-      const col=WARNING_COLORS[w.type]||(w.type.includes('特別警報')?'#ff0000':w.type.includes('警報')?'#f97316':'#fbbf24');
-      return `<span style="display:inline-block;background:${col}22;border:1px solid ${col}66;color:${col};font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;margin:2px">${w.type}</span>`;
+      const t=w.type||String(w.code||'');
+      const col=WARNING_COLORS[t]||(t.includes('特別警報')?'#c026d3':t.includes('警報')&&!t.includes('注意報')?'#dc2626':'#d97706');
+      return `<span style="display:inline-block;background:${col}18;border:1px solid ${col}88;color:${col};font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;margin:2px;font-weight:600">${t}</span>`;
     }).join('');
-    return `<div style="background:var(--card);border:1px solid var(--edge);border-radius:8px;padding:10px 12px">
-      <div style="font-size:12px;font-weight:700;color:var(--bright);margin-bottom:6px">${name}</div>
+    if(!items) return '';
+    return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px">
+      <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px">${name}</div>
       <div>${items}</div>
     </div>`;
+  }).filter(Boolean).join('');
+
+  // 上部サマリー
+  const summary=entries.map(e=>{
+    const col=WARNING_COLORS[e.type]||(e.type.includes('特別警報')?'#c026d3':e.type.includes('警報')&&!e.type.includes('注意報')?'#dc2626':'#d97706');
+    const uniq=[...new Set(e.areas)];
+    return `<div style="background:#fff;border-left:4px solid ${col};border-radius:0 6px 6px 0;padding:8px 12px;margin-bottom:6px;border:1px solid ${col}44;border-left:4px solid ${col}">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-weight:700;color:${col};font-size:13px">${e.type}</span>
+        <span style="font-size:11px;color:#475569">${uniq.slice(0,5).join('・')}${uniq.length>5?'他'+(uniq.length-5)+'市町村':''}</span>
+      </div>
+    </div>`;
   }).join('');
+
+  el.innerHTML=`<div style="grid-column:1/-1">
+    <div style="margin-bottom:12px">${summary}</div>
+    <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">${areaCards}</div>
+  </div>`;
 }
 
 function renderTyphoon(data){
