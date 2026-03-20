@@ -501,12 +501,306 @@ jobs:
           except Exception as e:
               print(f"台風取得失敗: {e}")
 
+
+          # ── 津波情報 ──────────────────────────────────────────
+          try:
+              tsunami_list = json.loads(fetch('https://www.jma.go.jp/bosai/tsunami/data/list.json'))
+              # 直近の津波情報を取得（activeなもの）
+              active_tsunamis = []
+              for t in (tsunami_list if isinstance(tsunami_list, list) else [])[:5]:
+                  report_id = t.get('json') or t.get('report_id') or ''
+                  if not report_id:
+                      continue
+                  try:
+                      detail = json.loads(fetch(f'https://www.jma.go.jp/bosai/tsunami/data/{report_id}'))
+                      # 沖縄関連エリアを抽出
+                      areas = detail.get('areas') or detail.get('regions') or []
+                      okinawa_areas = []
+                      for area in areas:
+                          name = area.get('name') or area.get('region') or ''
+                          grade = area.get('grade') or area.get('category') or ''
+                          if any(k in name for k in ['沖縄','琉球','宮古','八重山','先島']):
+                              okinawa_areas.append({'name': name, 'grade': grade})
+                      if okinawa_areas:
+                          active_tsunamis.append({
+                              'time': t.get('at') or t.get('report_datetime') or '',
+                              'areas': okinawa_areas,
+                              'max_grade': max((a['grade'] for a in okinawa_areas), default=''),
+                          })
+                  except Exception as te:
+                      print(f"津波詳細取得NG: {te}")
+                  if active_tsunamis:
+                      break  # 最新1件で十分
+              warning_result['tsunami'] = active_tsunamis
+              print(f"津波情報: {len(active_tsunamis)}件 (沖縄関連)")
+              if active_tsunamis:
+                  print(f"  最新: {active_tsunamis[0]}")
+              else:
+                  # list構造をデバッグ出力
+                  if tsunami_list:
+                      print(f"  津波リストサンプル: {str(tsunami_list[0])[:200]}")
+          except Exception as e:
+              warning_result['tsunami'] = []
+              print(f"津波情報NG: {type(e).__name__}: {e}")
+
+          # ── 南海トラフ地震関連情報 ──────────────────────────────
+          try:
+              # JMA 南海トラフ地震関連情報
+              nankai_url = 'https://www.jma.go.jp/bosai/earthquake_map/data/list.json'
+              nankai_list = json.loads(fetch(nankai_url))
+              nankai_active = []
+              for item in (nankai_list if isinstance(nankai_list, list) else [])[:10]:
+                  title = item.get('title') or item.get('ttl') or ''
+                  if '南海トラフ' in title:
+                      nankai_active.append({
+                          'title': title,
+                          'time':  item.get('at') or item.get('report_datetime') or '',
+                      })
+              warning_result['nankai'] = nankai_active
+              print(f"南海トラフ情報: {len(nankai_active)}件")
+              if not nankai_active and nankai_list:
+                  print(f"  リストサンプル: {str(nankai_list[0])[:200]}")
+          except Exception as e:
+              warning_result['nankai'] = []
+              print(f"南海トラフNG: {type(e).__name__}: {e}")
+
+          # ── 停電情報（沖縄電力）デバッグ ──────────────────────
+          try:
+              for teiden_url in [
+                  'https://www.okiden.co.jp/emergency/index.html',
+                  'https://www.okiden.co.jp/service/teiden/',
+                  'https://www.okiden.co.jp/teiden/',
+              ]:
+                  try:
+                      raw = fetch(teiden_url)
+                      print(f"停電URL成功: {teiden_url}")
+                      # 停電関連キーワードを検索
+                      for kw in ['停電', '件', '戸', '市', '町', '村']:
+                          idxkw = raw.find(kw)
+                          if idxkw > 0:
+                              print(f"  キーワード'{kw}'位置{idxkw}: ...{raw[max(0,idxkw-30):idxkw+60]}...")
+                              break
+                      print(f"  先頭300chars: {raw[:300]}")
+                      break
+                  except Exception as eu:
+                      print(f"停電URL失敗: {teiden_url} → {eu}")
+              warning_result['outage'] = []
+          except Exception as e:
+              warning_result['outage'] = []
+              print(f"停電情報NG: {e}")
+
           with open('warning.json', 'w', encoding='utf-8') as f:
               json.dump(warning_result, f, ensure_ascii=False, indent=2)
+
+      - name: amedas.json 生成（沖縄主要観測点）
+        shell: python3 {0}
+        run: |
+          import json, urllib.request, gzip
+          from datetime import datetime, timezone, timedelta
+
+          JST = timezone(timedelta(hours=9))
+
+          def fetch(url):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Referer': 'https://www.jma.go.jp/bosai/amedas/',
+              })
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  raw = r.read()
+              if raw[:2] == b'\x1f\x8b':
+                  import gzip as gz
+                  raw = gz.decompress(raw)
+              return raw.decode('utf-8', errors='replace')
+
+          STATIONS = {
+              '91197': {'name': '那覇',    'loc': '那覇市'},
+              '91068': {'name': '名護',    'loc': '名護市'},
+              '93012': {'name': '久米島',  'loc': '久米島町'},
+              '94081': {'name': '宮古島',  'loc': '宮古島市'},
+              '95002': {'name': '石垣島',  'loc': '石垣市'},
+              '91136': {'name': '与那国島','loc': '与那国町'},
+              '94021': {'name': '南大東島','loc': '南大東村'},
+          }
+          WIND_DIR = ['','北','北北東','北東','東北東','東','東南東','南東','南南東',
+                      '南','南南西','南西','西南西','西','西北西','北西','北北西']
+
+          result = {
+              'fetched_jst': datetime.now(JST).strftime('%Y-%m-%d %H:%M'),
+              'updated': '',
+              'stations': [],
+          }
+
+          try:
+              latest_raw = fetch('https://www.jma.go.jp/bosai/amedas/data/latest_time.txt').strip()
+              from datetime import datetime as DT
+              if 'T' in latest_raw:
+                  dt_obj = DT.fromisoformat(latest_raw)
+              else:
+                  dt_obj = DT.strptime(latest_raw[:14], '%Y%m%d%H%M%S').replace(tzinfo=JST)
+              ts = dt_obj.strftime('%Y%m%d_%H%M%S')
+              result['updated'] = dt_obj.strftime('%Y/%m/%d %H:%M')
+              print(f"AMeDAS時刻: {ts}")
+
+              for code, info in STATIONS.items():
+                  try:
+                      raw = json.loads(fetch(
+                          f'https://www.jma.go.jp/bosai/amedas/data/point/{code}/{ts}.json'
+                      ))
+                      obs = list(raw.values())[0] if raw else {}
+                      def v(key):
+                          d = obs.get(key)
+                          return d[0] if isinstance(d,list) and len(d)>=2 and d[1]==0 else None
+                      wd = v('windDirection')
+                      wind_dir = WIND_DIR[int(wd)] if wd is not None and 1<=int(wd)<=16 else '–'
+                      wind_spd = v('wind')
+                      gust     = v('gustSpeed') or v('gust')
+                      result['stations'].append({
+                          'code':        code,
+                          'name':        info['name'],
+                          'loc':         info['loc'],
+                          'temp':        v('temp'),
+                          'rain1h':      v('precipitation1h') or 0,
+                          'rain24h':     v('precipitation24h') or 0,
+                          'wind_dir':    wind_dir,
+                          'wind_spd':    wind_spd,
+                          'gust':        gust,
+                          'humidity':    v('humidity'),
+                          'pressure':    v('pressure'),
+                          'visibility':  v('visibility'),
+                          'snow':        v('snow'),
+                      })
+                      print(f"  {info['name']}: {v('temp')}°C 雨{v('precipitation1h') or 0}mm 風{wind_dir}{wind_spd}m/s")
+                  except Exception as e:
+                      print(f"  {info['name']} NG: {e}")
+              print(f"AMeDAS完了: {len(result['stations'])}局")
+          except Exception as e:
+              import traceback; traceback.print_exc()
+              print(f"AMeDAS NG: {e}")
+
+          with open('amedas.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+      - name: Jアラート・Lアラートデバッグ
+        shell: python3 {0}
+        run: |
+          import urllib.request, json, gzip
+
+          def fetch(url, timeout=15):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Referer': 'https://www.j-alert.go.jp/',
+              })
+              with urllib.request.urlopen(req, timeout=timeout) as r:
+                  raw = r.read()
+              if raw[:2] == b'\x1f\x8b':
+                  raw = gzip.decompress(raw)
+              return raw.decode('utf-8', errors='replace')
+
+          print("=== Jアラート関連 ===")
+          for url in [
+              # JMAの緊急地震速報・津波等
+              'https://www.jma.go.jp/bosai/quake/data/list.json',
+              'https://www.jma.go.jp/bosai/tsunami/data/list.json',
+              # 内閣官房 国民保護情報
+              'https://www.kokuminhogo.go.jp/kumiminfo/rss.xml',
+              'https://www.j-alert.go.jp/rss/jalert_rss.xml',
+              # J-ALERT公式API（消防庁）
+              'https://www.fdma.go.jp/disaster_info/json/jalert.json',
+          ]:
+              try:
+                  raw = fetch(url, timeout=10)
+                  print(f"OK ({len(raw)}chars): {url.split('//')[-1][:60]}")
+                  print(f"  先頭200: {raw[:200]}")
+              except Exception as e:
+                  print(f"NG: {url.split('//')[-1][:60]} → {e}")
+
+          print("\n=== Lアラート（地方公共団体情報）===")
+          for url in [
+              # L-ALERT公式
+              'https://www.lasdec.or.jp/lalert/',
+              # 内閣府避難情報API
+              'https://www.bousai.go.jp/index.html',
+              # 沖縄県防災ポータル
+              'https://bousai-okinawa.my.salesforce-sites.com/',
+              # Yahoo!防災速報のAPI
+              'https://typhoon.yahoo.co.jp/weather/jp/47/news.json',
+          ]:
+              try:
+                  raw = fetch(url, timeout=10)
+                  print(f"OK ({len(raw)}chars): {url.split('//')[-1][:60]}")
+                  # 避難・警戒キーワードを探す
+                  for kw in ['避難', '警戒', '指示', 'evacuation', 'warning']:
+                      idx = raw.find(kw)
+                      if idx > 0:
+                          print(f"  '{kw}'発見: {raw[max(0,idx-10):idx+40]}")
+                          break
+              except Exception as e:
+                  print(f"NG: {url.split('//')[-1][:60]} → {e}")
+
+      - name: フライト・船舶情報デバッグ
+        shell: python3 {0}
+        run: |
+          import urllib.request, json, time
+
+          def fetch(url, timeout=15):
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'Mozilla/5.0',
+                  'Accept': 'application/json,text/html,*/*',
+              })
+              with urllib.request.urlopen(req, timeout=timeout) as r:
+                  return r.read().decode('utf-8', errors='replace')
+
+          # ── OpenSky Network（那覇空港 ROAH）────────────────────
+          print("=== フライト情報 ===")
+          now = int(time.time())
+          begin = now - 3600  # 直近1時間
+          for url in [
+              f'https://opensky-network.org/api/flights/arrival?airport=ROAH&begin={begin}&end={now}',
+              f'https://opensky-network.org/api/flights/departure?airport=ROAH&begin={begin}&end={now}',
+              'https://opensky-network.org/api/states/all?lamin=26.0&lomin=127.5&lamax=26.4&lomax=128.0',
+          ]:
+              try:
+                  raw = fetch(url)
+                  data = json.loads(raw)
+                  name = url.split('?')[0].split('/')[-1]
+                  if isinstance(data, list):
+                      print(f"{name}: {len(data)}件")
+                      if data: print(f"  サンプル: {str(data[0])[:200]}")
+                  elif isinstance(data, dict):
+                      print(f"{name}: keys={list(data.keys())[:5]}")
+                      if data.get('states'):
+                          print(f"  states: {len(data['states'])}機")
+                          if data['states']: print(f"  サンプル: {data['states'][0]}")
+              except Exception as e:
+                  print(f"NG {url.split('org')[1][:50]}: {e}")
+
+          # ── 船舶情報（各種サイト確認）──────────────────────────
+          print("\n=== 船舶情報 ===")
+          ship_urls = [
+              ('那覇港管理組合', 'https://www.naha-port.co.jp/'),
+              ('泊ふ頭', 'https://tomariport.jp/'),
+              ('マルエーフェリー', 'https://www.aline-ferry.com/ryukyu/'),
+              ('琉球海運', 'https://www.ryukyu-kaiun.co.jp/'),
+              ('マリックスライン', 'https://www.marix-line.co.jp/'),
+              ('フェリーざまみ', 'https://www.vill.zamami.okinawa.jp/'),
+              ('渡嘉敷村フェリー', 'https://www.vill.tokashiki.okinawa.jp/'),
+          ]
+          for name, url in ship_urls:
+              try:
+                  raw = fetch(url, timeout=10)
+                  print(f"{name} ({len(raw)}chars): OK")
+                  # 運休・欠航キーワードを探す
+                  for kw in ['欠航', '運休', '運航', '出港', '入港', '時刻', '運行']:
+                      idx = raw.find(kw)
+                      if idx > 0:
+                          print(f"  '{kw}'発見: ...{raw[max(0,idx-20):idx+40]}...")
+                          break
+              except Exception as e:
+                  print(f"{name}: NG → {e}")
 
       - name: コミット・プッシュ
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add img_cam/ cameras.json warning.json kikukuru.json earthquake.json river.json
+          git add img_cam/ cameras.json warning.json kikukuru.json earthquake.json river.json amedas.json
           git diff --staged --quiet || (git commit -m "🌊 カメラ更新 $(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M') JST" && git pull --rebase && git push)
