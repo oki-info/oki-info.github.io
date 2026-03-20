@@ -1,31 +1,22 @@
 {
-  "fetched_jst": "2026-03-20 23:48",
+  "fetched_jst": "2026-03-20 23:57",
   "flights": [
     {
       "callsign": "JNA065",
-      "lat": 27.0698,
-      "lon": 126.439,
+      "lat": 26.5584,
+      "lon": 126.1791,
       "alt_m": 11582.4,
-      "speed_ms": 181.42,
-      "heading": 204.46,
+      "speed_ms": 183.5,
+      "heading": 204.34,
       "on_ground": false
     },
     {
       "callsign": "JJP81",
-      "lat": 27.2012,
-      "lon": 128.7543,
-      "alt_m": 9144,
-      "speed_ms": 211.04,
-      "heading": 211.44,
-      "on_ground": false
-    },
-    {
-      "callsign": "FDX5601",
-      "lat": 27.4191,
-      "lon": 129.234,
-      "alt_m": 10058.4,
-      "speed_ms": 276.81,
-      "heading": 47.86,
+      "lat": 26.2789,
+      "lon": 128.1591,
+      "alt_m": 10104.12,
+      "speed_ms": 191.57,
+      "heading": 208.91,
       "on_ground": false
     }
   ],
