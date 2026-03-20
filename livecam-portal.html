@@ -7,60 +7,36 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
 :root {
-  --ink:   #080e17;
-  --deep:  #0d1520;
-  --panel: #111c2b;
-  --card:  #162233;
-  --edge:  rgba(255,255,255,.07);
-  --edge2: rgba(255,255,255,.12);
-  --teal:  #2dd4bf;
-  --teal3: rgba(45,212,191,.08);
-  --amber: #fbbf24;
-  --red:   #f87171;
-  --green: #4ade80;
-  --muted: #7a9ab8;    /* 明るめに変更 */
-  --text:  #e2edf7;    /* より明るく */
-  --bright:#f5faff;
+  --ink:   #f8fafc;
+  --deep:  #f1f5f9;
+  --panel: #ffffff;
+  --card:  #f8fafc;
+  --edge:  rgba(0,0,0,.08);
+  --edge2: rgba(0,0,0,.13);
+  --teal:  #0d9488;
+  --teal3: rgba(13,148,136,.09);
+  --amber: #b45309;
+  --red:   #dc2626;
+  --green: #15803d;
+  --muted: #64748b;
+  --text:  #1e293b;
+  --bright:#0f172a;
   --mono:  'JetBrains Mono', monospace;
   --sans:  'Noto Sans JP', sans-serif;
 }
 /* ── ライトテーマ ── */
-[data-theme="light"] {
-  --ink:   #f0f4f8;
-  --deep:  #e2eaf3;
-  --panel: #d8e4f0;
-  --card:  #ffffff;
-  --edge:  rgba(0,0,0,.08);
-  --edge2: rgba(0,0,0,.15);
-  --teal:  #0d7a70;
-  --teal3: rgba(13,122,112,.08);
-  --muted: #4a6e8a;
-  --text:  #1a3448;
-  --bright:#0d1e2e;
-  --green: #16a34a;
-  --red:   #dc2626;
-}
-[data-theme="light"] .seg-btn{color:#111;}
-[data-theme="light"] .seg-btn.active{background:rgba(13,122,112,.15);color:#0d7a70;}
-[data-theme="light"] .tbtn{color:#111;}
-[data-theme="light"] .tbtn:hover{color:#0d7a70;}
-[data-theme="light"] body::before{display:none;}
-[data-theme="light"] header{background:rgba(240,244,248,.97);}
 .theme-btn{padding:4px 8px;background:transparent;border:1px solid var(--edge2);border-radius:5px;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
 .theme-btn:hover,.theme-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal3);}
 .theme-switcher{display:flex;gap:3px;align-items:center;flex-shrink:0;}
 /* PC: ボタンにラベルを付加 */
-@media(min-width:641px){
-  #theme-dark::after{content:' ダーク';}
-  #theme-light::after{content:' ライト';}
-  .info-btn::after{content:' このサイトについて';}
+@media(min-width:641px){  .info-btn::after{content:' このサイトについて';}
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);}
+body::before{display:none}
 
-header{position:sticky;top:0;z-index:200;background:rgba(8,14,23,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--edge2);padding:0 8px;display:flex;align-items:center;gap:5px;height:54px;flex-shrink:0;}
+header{position:sticky;top:0;z-index:200;background:rgba(240,244,248,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--edge2);padding:0 8px;display:flex;align-items:center;gap:5px;height:54px;flex-shrink:0;}
 .logo{display:flex;align-items:center;gap:7px;min-width:0;flex-shrink:1;overflow:hidden;}
 .logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#0d9488,#0891b2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .logo-title{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--teal);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -279,8 +255,6 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   </div>
   <div class="theme-switcher">
     <button class="theme-btn info-btn" onclick="openInfo()">？</button>
-    <button class="theme-btn active" id="theme-dark"  onclick="setTheme('dark')">🌑</button>
-    <button class="theme-btn"        id="theme-light" onclick="setTheme('light')">☀️</button>
   </div>
   <div class="h-right">
     <div class="hclock" id="clock">--:--:--</div>
@@ -346,7 +320,8 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
       <!-- 気象警報・注意報 -->
       <div style="grid-column:1/-1">
         <div class="sec-title">気象警報・注意報 <span style="font-size:11px;font-weight:400;letter-spacing:0">（沖縄県 — 気象庁）</span>
-          <button class="tbtn" style="margin-left:auto" onclick="loadBousaiInfo()">↺ 更新</button>
+          <a href="https://www.jma.go.jp/bosai/warning/#area_type=class20s&area_code=471000" target="_blank" class="tbtn" style="margin-left:auto">↗ 気象庁</a>
+          <button class="tbtn" onclick="loadBousaiInfo()">↺ 更新</button>
         </div>
         <div id="warning-area" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
           <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
@@ -362,12 +337,18 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
         </a>
       </div>
       <!-- キキクル危険度分布アラート -->
-      <div style="grid-column:1/-1" id="kikukuru-banner"></div>
+      <div style="grid-column:1/-1">
+        <div class="sec-title">🔴 キキクル（危険度分布）
+          <a href="https://www.jma.go.jp/bosai/risk/#lat:26.6/lon:127.96/zoom:8/elements:inund" target="_blank" class="tbtn" style="margin-left:auto">↗ 気象庁 キキクル</a>
+        </div>
+        <div id="kikukuru-banner"></div>
+      </div>
 
       <!-- 地震情報 -->
       <div style="grid-column:1/-1;text-align:left">
         <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
           <span>🌏 地震情報（沖縄周辺 直近24時間）</span>
+          <a href="https://www.jma.go.jp/bosai/quake/" target="_blank" class="tbtn">↗ 気象庁</a>
           <button class="tbtn" onclick="loadEarthquake()">↺ 更新</button>
         </div>
         <div id="earthquake-panel">
@@ -977,11 +958,7 @@ lb.addEventListener('touchend',e=>{
 
 function tick(){const n=new Date();document.getElementById('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());document.getElementById('hdate').textContent=n.getFullYear()+' / '+pad(n.getMonth()+1)+' / '+pad(n.getDate());if(nextAt){const s=Math.max(0,Math.round((nextAt-Date.now())/1000));document.getElementById('foot-r').textContent='次回更新: '+pad(Math.floor(s/60))+':'+pad(s%60);}}
 
-function setTheme(t){
-  document.documentElement.setAttribute('data-theme', t==='dark'?'':t);
-  ['dark','light'].forEach(n=>document.getElementById('theme-'+n).classList.toggle('active',n===t));
-  try{localStorage.setItem('theme',t);}catch(e){}
-}
+
 // 起動時に保存済みテーマを適用
 (function(){try{const t=localStorage.getItem('theme');if(t)setTheme(t);}catch(e){}})();
 
@@ -1099,8 +1076,13 @@ function renderFlight(data){
         <tbody>${flightRows}</tbody>
       </table>
     </div>
-    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:20px">
+    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:8px">
       ⚠ OpenSky Networkのリアルタイムデータを使用。5分ごとに更新。ADS-B受信局の電波状況により一部表示されない場合があります。
+    </div>
+    <div style="margin-bottom:20px">
+      <a href="https://www.naha-airport.co.jp/flight/today/" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#1e40af;color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">
+        ✈ 那覇空港 本日の出発・到着便（公式）↗
+      </a>
     </div>
 
     <div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:8px">⛴ 離島フェリー運航情報</div>
