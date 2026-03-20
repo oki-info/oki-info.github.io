@@ -1,0 +1,35 @@
+{
+  "fetched_jst": "2026-03-20 23:41",
+  "flights": [
+    {
+      "callsign": "FDX5601",
+      "lat": 26.7203,
+      "lon": 128.3765,
+      "alt_m": 10058.4,
+      "speed_ms": 291.6,
+      "heading": 47.22,
+      "on_ground": false
+    },
+    {
+      "callsign": "JNA037",
+      "lat": 26.1755,
+      "lon": 126.0359,
+      "alt_m": 11582.4,
+      "speed_ms": 180.62,
+      "heading": 205.84,
+      "on_ground": false
+    }
+  ],
+  "ships": [
+    {
+      "operator": "フェリーざまみ",
+      "url": "https://www.vill.zamami.okinawa.jp/",
+      "info": "2>本日の運航予定\r\n\t\r\n\t\t\r\n\t\r\n\t3月20日(金）くもり所により明け方雨　フェリーざまみ３及びクイーンざまみは予定どおり運航します。お乗りにな / になる船の出港時間を確認し、出港10分前までにご乗船下さい。朝の渋滞・駐車場満車で乗り遅れる方がいらしゃいます。時間に余裕を持って、乗船いただきますようお願い致します。\r\n\t\r\n\t\r\n\t\r\n\t\t<di"
+    },
+    {
+      "operator": "渡嘉敷村（マリンライナーとかしき）",
+      "url": "https://www.vill.tokashiki.okinawa.jp/",
+      "info": "村への代船運航のため運休となります。 / き」ドック運休予定令和8年5月18日(月曜日)～5月28日(木曜日)      \" />        <meta name=\""
+    }
+  ]
+}
