@@ -297,20 +297,21 @@ jobs:
 
               w['early_warning'] = early
               print(f"早期注意情報: {len(early)}エリア (発表中: {sum(1 for e in early if e['items'])}エリア)")
-              # 現在の condition 値を確認（デバッグ・次回削除）
-              if not early and isinstance(raw, list) and raw:
-                  ts0 = (raw[0].get('timeSeries') or [{}])[0]
-                  for a in (ts0.get('areas') or [])[:1]:
-                      for p in (a.get('properties') or [])[:2]:
-                          tc0 = (p.get('timeCells') or [{}])[0]
-                          loc0 = (tc0.get('locals') or [{}])[0]
-                          print(f"  condition実値: type={p['type']} cond={loc0.get('condition','?')!r} val={loc0.get('value','?')!r}")
               if early:
                   for e in early[:2]:
                       print(f"  {e['area']}: {e['items'][:2]}")
           except Exception as e:
               w['early_warning'] = []
               print(f"早期注意情報NG: {type(e).__name__}: {e}")
+
+          # 警報エリア確認（離島含む）
+          areas_in_warning = [a.get('area_name','') for a in (w.get('warnings') or [])]
+          print(f"警報JSONエリア数: {len(areas_in_warning)}, 先頭: {areas_in_warning[:5]}")
+          island_kw = ['久米島','大東','宮古','石垣','与那国','八重山','先島','尖閣']
+          for kw in island_kw:
+              found = [a for a in areas_in_warning if kw in a]
+              if found: print(f"  {kw}: {found}")
+              else: print(f"  {kw}: 含まれず")
 
           with open('warning.json', 'w', encoding='utf-8') as f:
               json.dump(w, f, ensure_ascii=False, indent=2)
