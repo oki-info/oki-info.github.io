@@ -255,24 +255,42 @@ jobs:
                   except Exception as eu:
                       print(f"URL失敗: {try_url.split('bosai/')[1][:50]} → {eu}")
                       raw = None
-              print(f"早期注意情報JSON型: {type(raw)}, キー: {list(raw.keys()) if isinstance(raw,dict) else 'list len='+str(len(raw))}")
-              if isinstance(raw, dict):
-                  print(f"サンプル: {str(raw)[:300]}")
+              print(f"早期注意情報URL成功: {try_url.split('bosai/')[1][:50]}")
               early = []
-              # areaTypes形式の場合
-              for at in (raw.get('areaTypes') or []):
-                  for area in (at.get('areas') or []):
-                      name = area.get('name','')
-                      items = area.get('items') or area.get('warnings') or []
-                      active = [i for i in items if (i.get('status') or i.get('possibility','')) not in ('','なし','なし（注意）')]
-                      if active:
-                          early.append({'area': name, 'items': active})
-              # 直接リスト形式の場合
-              if not early and isinstance(raw, list):
-                  for item in raw[:5]:
-                      print(f"リストアイテム: {str(item)[:200]}")
+              # probability/471000.json は timeSeries 構造
+              # [{reportDatetime, timeSeries:[{timeDefines:[...], areas:[{area:{name}, properties:[{type, conditions:[...]}]}]}]}]
+              for entry in (raw if isinstance(raw, list) else [raw]):
+                  for ts in (entry.get('timeSeries') or []):
+                      time_defines = ts.get('timeDefines') or []
+                      for area in (ts.get('areas') or []):
+                          area_name = (area.get('area') or {}).get('name','')
+                          if not area_name: continue
+                          props = area.get('properties') or []
+                          active_items = []
+                          for prop in props:
+                              ptype = prop.get('type','')
+                              conditions = prop.get('conditions') or []
+                              for i, cond in enumerate(conditions):
+                                  if cond and cond not in ('なし','','－'):
+                                      td = time_defines[i][:10] if i < len(time_defines) else ''
+                                      active_items.append({'type': ptype, 'time': td, 'condition': cond})
+                          if active_items:
+                              existing = next((e for e in early if e['area']==area_name), None)
+                              if existing:
+                                  existing['items'].extend(active_items)
+                              else:
+                                  early.append({'area': area_name, 'items': active_items})
+
+              # デバッグ: 構造確認
+              if not early and isinstance(raw, list) and raw:
+                  ts0 = (raw[0].get('timeSeries') or [{}])[0]
+                  areas0 = (ts0.get('areas') or [{}])[:1]
+                  if areas0:
+                      print(f"  areas[0]キー: {list(areas0[0].keys())}")
+                      print(f"  areas[0]: {str(areas0[0])[:300]}")
+
               w['early_warning'] = early
-              print(f"早期注意情報: {len(early)}エリア")
+              print(f"早期注意情報: {len(early)}エリア (発表中: {sum(1 for e in early if e['items'])}エリア)")
           except Exception as e:
               w['early_warning'] = []
               print(f"早期注意情報NG: {type(e).__name__}: {e}")
