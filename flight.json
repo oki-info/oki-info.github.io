@@ -1,94 +1,121 @@
 {
-  "fetched_jst": "2026-03-22 07:02",
+  "fetched_jst": "2026-03-22 07:57",
   "flights": [
     {
-      "callsign": "GIA874",
-      "lat": 26.3434,
-      "lon": 127.9708,
-      "alt_m": 11887.2,
-      "speed_ms": 269.07,
-      "heading": 40.11,
+      "callsign": "ANA1732",
+      "lat": 27.7262,
+      "lon": 129.0566,
+      "alt_m": 7612.38,
+      "speed_ms": 258.44,
+      "heading": 32.65,
       "on_ground": false
     },
     {
-      "callsign": "SIA618",
-      "lat": 26.6069,
-      "lon": 126.9345,
-      "alt_m": 11887.2,
-      "speed_ms": 284.19,
-      "heading": 41.77,
+      "callsign": "SIA612",
+      "lat": 26.898,
+      "lon": 126.6599,
+      "alt_m": 11277.6,
+      "speed_ms": 269.9,
+      "heading": 19.02,
       "on_ground": false
     },
     {
-      "callsign": "VJC828",
-      "lat": 26.9897,
-      "lon": 127.1988,
+      "callsign": "EVA166",
+      "lat": 26.0417,
+      "lon": 123.0902,
+      "alt_m": 8153.4,
+      "speed_ms": 257.12,
+      "heading": 52.97,
+      "on_ground": false
+    },
+    {
+      "callsign": "TTW200",
+      "lat": 26.1039,
+      "lon": 123.1893,
+      "alt_m": 9357.36,
+      "speed_ms": 263.61,
+      "heading": 52.77,
+      "on_ground": false
+    },
+    {
+      "callsign": "SJX834",
+      "lat": 25.7939,
+      "lon": 122.7416,
+      "alt_m": 7924.8,
+      "speed_ms": 262.69,
+      "heading": 52.48,
+      "on_ground": false
+    },
+    {
+      "callsign": "SNJ84",
+      "lat": 27.6124,
+      "lon": 128.5971,
+      "alt_m": 8839.2,
+      "speed_ms": 235.11,
+      "heading": 24.15,
+      "on_ground": false
+    },
+    {
+      "callsign": "SIA7448",
+      "lat": 26.952,
+      "lon": 128.739,
+      "alt_m": 11277.6,
+      "speed_ms": 296.98,
+      "heading": 46.82,
+      "on_ground": false
+    },
+    {
+      "callsign": "APG190",
+      "lat": 26.7165,
+      "lon": 128.3873,
       "alt_m": 10660.38,
-      "speed_ms": 257.43,
-      "heading": 36.55,
+      "speed_ms": 261.38,
+      "heading": 47.23,
       "on_ground": false
     },
     {
-      "callsign": "VJC856",
-      "lat": 27.9776,
-      "lon": 128.2284,
+      "callsign": "XAX532",
+      "lat": 27.5278,
+      "lon": 127.6605,
+      "alt_m": 11887.2,
+      "speed_ms": 271.01,
+      "heading": 44.92,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY510",
+      "lat": 26.333,
+      "lon": 128.0075,
+      "alt_m": 4480.56,
+      "speed_ms": 213.35,
+      "heading": 47.35,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY551",
+      "lat": 27.3984,
+      "lon": 128.6338,
+      "alt_m": 8374.38,
+      "speed_ms": 199.49,
+      "heading": 239.47,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL900",
+      "lat": 27.3437,
+      "lon": 129.2898,
+      "alt_m": 11887.2,
+      "speed_ms": 274.97,
+      "heading": 47.81,
+      "on_ground": false
+    },
+    {
+      "callsign": "AIQ736",
+      "lat": 28.3,
+      "lon": 126.2304,
       "alt_m": 10668,
-      "speed_ms": 262.62,
-      "heading": 42.06,
-      "on_ground": false
-    },
-    {
-      "callsign": "ASV512",
-      "lat": 26.5237,
-      "lon": 122.724,
-      "alt_m": 10050.78,
-      "speed_ms": 257.55,
-      "heading": 37.53,
-      "on_ground": false
-    },
-    {
-      "callsign": "TAX612",
-      "lat": 28.1141,
-      "lon": 128.2572,
-      "alt_m": 11887.2,
-      "speed_ms": 272.22,
-      "heading": 43.32,
-      "on_ground": false
-    },
-    {
-      "callsign": "AHK208",
-      "lat": 25.5527,
-      "lon": 122.5392,
-      "alt_m": 11887.2,
-      "speed_ms": 279.22,
-      "heading": 49.71,
-      "on_ground": false
-    },
-    {
-      "callsign": "AHK216",
-      "lat": 25.8713,
-      "lon": 122.9548,
-      "alt_m": 11887.2,
-      "speed_ms": 277.44,
-      "heading": 49.81,
-      "on_ground": false
-    },
-    {
-      "callsign": "JAL728",
-      "lat": 25.8507,
-      "lon": 127.455,
-      "alt_m": 12496.8,
-      "speed_ms": 283.01,
-      "heading": 45.15,
-      "on_ground": false
-    },
-    {
-      "callsign": "TVJ810",
-      "lat": 27.278,
-      "lon": 127.3916,
-      "alt_m": 10058.4,
-      "speed_ms": 268.56,
-      "heading": 43.45,
+      "speed_ms": 271.33,
+      "heading": 50.85,
       "on_ground": false
     }
   ],
@@ -96,7 +123,7 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "2>本日の運航予定\r\n\t\r\n\t本日の運航予定はまだ公開されていません。\t<div style"
+      "info": "2>本日の運航予定\r\n\t\r\n\t\t\r\n\t\r\n\t3月22日(日）晴れ時々くもり所により雨　フェリーざまみ３及びクイーンざまみは予定どおり運航します。お乗りに / になる船の出港時間を確認し、出港10分前までにご乗船下さい。朝の渋滞・駐車場満車で乗り遅れる方がいらしゃいます。時間に余裕を持って、乗船いただきますようお願い致します。\t\r\n\t\r\n\t\r\n\t\t<div "
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
