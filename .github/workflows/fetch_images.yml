@@ -297,6 +297,14 @@ jobs:
 
               w['early_warning'] = early
               print(f"早期注意情報: {len(early)}エリア (発表中: {sum(1 for e in early if e['items'])}エリア)")
+              # 現在の condition 値を確認（デバッグ・次回削除）
+              if not early and isinstance(raw, list) and raw:
+                  ts0 = (raw[0].get('timeSeries') or [{}])[0]
+                  for a in (ts0.get('areas') or [])[:1]:
+                      for p in (a.get('properties') or [])[:2]:
+                          tc0 = (p.get('timeCells') or [{}])[0]
+                          loc0 = (tc0.get('locals') or [{}])[0]
+                          print(f"  condition実値: type={p['type']} cond={loc0.get('condition','?')!r} val={loc0.get('value','?')!r}")
               if early:
                   for e in early[:2]:
                       print(f"  {e['area']}: {e['items'][:2]}")
