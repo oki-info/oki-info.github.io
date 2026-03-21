@@ -1,22 +1,31 @@
 {
-  "fetched_jst": "2026-03-21 23:57",
+  "fetched_jst": "2026-03-22 00:52",
   "flights": [
     {
-      "callsign": "JJP81",
-      "lat": 26.5065,
-      "lon": 128.1597,
-      "alt_m": 10965.18,
-      "speed_ms": 193.29,
-      "heading": 207.59,
+      "callsign": "FDX5986",
+      "lat": 27.2514,
+      "lon": 129.136,
+      "alt_m": 10058.4,
+      "speed_ms": 270.61,
+      "heading": 47.85,
       "on_ground": false
     },
     {
-      "callsign": "HVN98",
-      "lat": 26.1293,
-      "lon": 127.7651,
-      "alt_m": 11277.6,
-      "speed_ms": 293.95,
-      "heading": 45.71,
+      "callsign": "RBA652",
+      "lat": 26.1145,
+      "lon": 126.5945,
+      "alt_m": 10980.42,
+      "speed_ms": 227.29,
+      "heading": 187.54,
+      "on_ground": false
+    },
+    {
+      "callsign": "SIA623",
+      "lat": 27.3454,
+      "lon": 128.6645,
+      "alt_m": 11574.78,
+      "speed_ms": 224.39,
+      "heading": 208.03,
       "on_ground": false
     },
     {
@@ -27,22 +36,13 @@
       "speed_ms": 0,
       "heading": 140.62,
       "on_ground": true
-    },
-    {
-      "callsign": "KAL343",
-      "lat": 25.4772,
-      "lon": 127.0611,
-      "alt_m": 10363.2,
-      "speed_ms": 242.68,
-      "heading": 193.86,
-      "on_ground": false
     }
   ],
   "ships": [
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "2>本日の運航予定\r\n\t\r\n\t\t\r\n\t\r\n\t3月21日(土）くもり昼前から昼過ぎ雨　フェリーざまみ３及びクイーンざまみは予定どおり運航します。お乗りにな / になる船の出港時間を確認し、出港10分前までにご乗船下さい。朝の渋滞・駐車場満車で乗り遅れる方がいらしゃいます。時間に余裕を持って、乗船いただきますようお願い致します。\t\r\n\t\r\n\t\r\n\t\t<div "
+      "info": "2>本日の運航予定\r\n\t\r\n\t本日の運航予定はまだ公開されていません。\t<div style"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
