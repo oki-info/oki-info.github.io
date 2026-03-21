@@ -1,41 +1,68 @@
 {
-  "fetched_jst": "2026-03-22 00:52",
+  "fetched_jst": "2026-03-22 01:59",
   "flights": [
     {
-      "callsign": "FDX5986",
-      "lat": 27.2514,
-      "lon": 129.136,
+      "callsign": "SIA38",
+      "lat": 25.6189,
+      "lon": 127.121,
+      "alt_m": 11277.6,
+      "speed_ms": 293.45,
+      "heading": 49.69,
+      "on_ground": false
+    },
+    {
+      "callsign": "EVA026",
+      "lat": 27.3233,
+      "lon": 128.3235,
+      "alt_m": 10668,
+      "speed_ms": 303.39,
+      "heading": 74.76,
+      "on_ground": false
+    },
+    {
+      "callsign": "CAL022",
+      "lat": 26.9115,
+      "lon": 126.9477,
+      "alt_m": 10668,
+      "speed_ms": 307.47,
+      "heading": 71.26,
+      "on_ground": false
+    },
+    {
+      "callsign": "CAL004",
+      "lat": 27.0023,
+      "lon": 127.2461,
+      "alt_m": 8839.2,
+      "speed_ms": 279.65,
+      "heading": 71.33,
+      "on_ground": false
+    },
+    {
+      "callsign": "EVA010",
+      "lat": 26.788,
+      "lon": 126.5452,
+      "alt_m": 9448.8,
+      "speed_ms": 282.09,
+      "heading": 71.83,
+      "on_ground": false
+    },
+    {
+      "callsign": "SJX002",
+      "lat": 27.449,
+      "lon": 128.7567,
       "alt_m": 10058.4,
-      "speed_ms": 270.61,
-      "heading": 47.85,
+      "speed_ms": 298.91,
+      "heading": 73.81,
       "on_ground": false
     },
     {
-      "callsign": "RBA652",
-      "lat": 26.1145,
-      "lon": 126.5945,
-      "alt_m": 10980.42,
-      "speed_ms": 227.29,
-      "heading": 187.54,
+      "callsign": "EVA016",
+      "lat": 27.1274,
+      "lon": 127.6619,
+      "alt_m": 9448.8,
+      "speed_ms": 286.32,
+      "heading": 71.57,
       "on_ground": false
-    },
-    {
-      "callsign": "SIA623",
-      "lat": 27.3454,
-      "lon": 128.6645,
-      "alt_m": 11574.78,
-      "speed_ms": 224.39,
-      "heading": 208.03,
-      "on_ground": false
-    },
-    {
-      "callsign": "MARIK33",
-      "lat": 26.3584,
-      "lon": 127.7604,
-      "alt_m": null,
-      "speed_ms": 0,
-      "heading": 140.62,
-      "on_ground": true
     }
   ],
   "ships": [
