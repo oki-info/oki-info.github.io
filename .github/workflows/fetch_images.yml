@@ -257,23 +257,37 @@ jobs:
                       raw = None
               print(f"早期注意情報URL成功: {try_url.split('bosai/')[1][:50]}")
               early = []
-              # probability/471000.json は timeSeries 構造
-              # [{reportDatetime, timeSeries:[{timeDefines:[...], areas:[{area:{name}, properties:[{type, conditions:[...]}]}]}]}]
+              # 実際の構造:
+              # [{timeSeries:[{timeDefines:[...], areas:[{code:'471010', properties:[
+              #   {type:'２４時間最大雨量', timeCells:[{locals:[{value:'50', condition:'以下'}]}]}
+              # ]}]}]}]
+              # areaコード→名前マップ
+              AREA_CODE_NAME = {
+                  '471010':'沖縄本島地方', '471020':'大東島地方',
+                  '471030':'宮古島地方',   '471040':'八重山地方',
+                  '471050':'沖縄県',
+              }
               for entry in (raw if isinstance(raw, list) else [raw]):
                   for ts in (entry.get('timeSeries') or []):
                       time_defines = ts.get('timeDefines') or []
                       for area in (ts.get('areas') or []):
-                          area_name = (area.get('area') or {}).get('name','')
-                          if not area_name: continue
+                          code = str(area.get('code',''))
+                          area_name = AREA_CODE_NAME.get(code, code)
                           props = area.get('properties') or []
                           active_items = []
                           for prop in props:
                               ptype = prop.get('type','')
-                              conditions = prop.get('conditions') or []
-                              for i, cond in enumerate(conditions):
-                                  if cond and cond not in ('なし','','－'):
-                                      td = time_defines[i][:10] if i < len(time_defines) else ''
-                                      active_items.append({'type': ptype, 'time': td, 'condition': cond})
+                              for ti, tc in enumerate(prop.get('timeCells') or []):
+                                  td = time_defines[ti][:10] if ti < len(time_defines) else ''
+                                  for loc in (tc.get('locals') or []):
+                                      cond = loc.get('condition','')
+                                      val  = loc.get('value','')
+                                      # 「高」「中」のみアラート
+                                      if cond in ('高','中'):
+                                          active_items.append({
+                                              'type': ptype, 'time': td,
+                                              'condition': cond, 'value': val,
+                                          })
                           if active_items:
                               existing = next((e for e in early if e['area']==area_name), None)
                               if existing:
@@ -281,16 +295,11 @@ jobs:
                               else:
                                   early.append({'area': area_name, 'items': active_items})
 
-              # デバッグ: 構造確認
-              if not early and isinstance(raw, list) and raw:
-                  ts0 = (raw[0].get('timeSeries') or [{}])[0]
-                  areas0 = (ts0.get('areas') or [{}])[:1]
-                  if areas0:
-                      print(f"  areas[0]キー: {list(areas0[0].keys())}")
-                      print(f"  areas[0]: {str(areas0[0])[:300]}")
-
               w['early_warning'] = early
               print(f"早期注意情報: {len(early)}エリア (発表中: {sum(1 for e in early if e['items'])}エリア)")
+              if early:
+                  for e in early[:2]:
+                      print(f"  {e['area']}: {e['items'][:2]}")
           except Exception as e:
               w['early_warning'] = []
               print(f"早期注意情報NG: {type(e).__name__}: {e}")
