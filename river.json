@@ -1,6 +1,6 @@
 {
-  "fetched_jst": "2026-03-22 16:30",
-  "updated": "2026/03/22 16:20",
+  "fetched_jst": "2026-03-22 17:03",
+  "updated": "2026/03/22 16:40",
   "stations": [
     {
       "sno": 1,
@@ -15,7 +15,7 @@
       "sno": 3,
       "stn": "御成橋",
       "river": "久茂地川",
-      "level": "0.33",
+      "level": "0.36",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -24,7 +24,7 @@
       "sno": 4,
       "stn": "美栄橋",
       "river": "久茂地川",
-      "level": "1.97",
+      "level": "2.03",
       "alm": 0,
       "danger": 4.55,
       "caution": 4.75
@@ -60,7 +60,7 @@
       "sno": 10,
       "stn": "長堂川",
       "river": "長堂川",
-      "level": "0.94",
+      "level": "1.09",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -87,7 +87,7 @@
       "sno": 13,
       "stn": "古島",
       "river": "安謝川",
-      "level": "1.43",
+      "level": "1.23",
       "alm": 0,
       "danger": 3.45,
       "caution": 4.35
@@ -114,7 +114,7 @@
       "sno": 16,
       "stn": "牧港川",
       "river": "牧港川",
-      "level": "1.08",
+      "level": "1.09",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -141,7 +141,7 @@
       "sno": 19,
       "stn": "普天間川",
       "river": "普天間川",
-      "level": "0.26",
+      "level": "0.25",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -150,7 +150,7 @@
       "sno": 20,
       "stn": "小湾川",
       "river": "小湾川",
-      "level": "1.05",
+      "level": "1.04",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -159,7 +159,7 @@
       "sno": 21,
       "stn": "天願川",
       "river": "天願川",
-      "level": "2.74",
+      "level": "2.72",
       "alm": 0,
       "danger": 6.65,
       "caution": 6.9
@@ -195,7 +195,7 @@
       "sno": 23,
       "stn": "屋部川",
       "river": "屋部川",
-      "level": "0.27",
+      "level": "0.22",
       "alm": 0,
       "danger": 2.1,
       "caution": 2.6
@@ -231,7 +231,7 @@
       "sno": 27,
       "stn": "幸地川",
       "river": "幸地川",
-      "level": "0.40",
+      "level": "0.39",
       "alm": 0,
       "danger": null,
       "caution": null
