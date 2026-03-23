@@ -1,94 +1,31 @@
 {
-  "fetched_jst": "2026-03-23 20:31",
+  "fetched_jst": "2026-03-23 23:46",
   "flights": [
     {
-      "callsign": "JTA128",
-      "lat": 27.2006,
-      "lon": 127.6515,
-      "alt_m": 11887.2,
-      "speed_ms": 263.73,
-      "heading": 42,
+      "callsign": "TAX607",
+      "lat": 27.0578,
+      "lon": 127.7999,
+      "alt_m": 10363.2,
+      "speed_ms": 216.82,
+      "heading": 228.37,
       "on_ground": false
     },
     {
-      "callsign": "SNJ86",
-      "lat": 28.225,
-      "lon": 128.5868,
-      "alt_m": 8839.2,
-      "speed_ms": 240.7,
-      "heading": 30.29,
+      "callsign": "HKE614",
+      "lat": 26.1906,
+      "lon": 122.5273,
+      "alt_m": 10668,
+      "speed_ms": 260.08,
+      "heading": 35.42,
       "on_ground": false
     },
     {
-      "callsign": "APJ490",
-      "lat": 26.9469,
-      "lon": 127.7667,
-      "alt_m": 6088.38,
-      "speed_ms": 201.89,
-      "heading": 20.74,
-      "on_ground": false
-    },
-    {
-      "callsign": "JAL759",
-      "lat": 26.4279,
-      "lon": 127.0821,
-      "alt_m": 12184.38,
-      "speed_ms": 214.49,
-      "heading": 229.28,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA49",
-      "lat": 27.6466,
-      "lon": 128.7661,
-      "alt_m": 7924.8,
-      "speed_ms": 212.8,
-      "heading": 228.33,
-      "on_ground": false
-    },
-    {
-      "callsign": "JJP336",
-      "lat": 26.7023,
-      "lon": 127.6763,
-      "alt_m": 4762.5,
-      "speed_ms": 187.15,
-      "heading": 3.78,
-      "on_ground": false
-    },
-    {
-      "callsign": "APJ773",
-      "lat": 27.414,
-      "lon": 127.5364,
-      "alt_m": 10370.82,
-      "speed_ms": 209.96,
-      "heading": 223.51,
-      "on_ground": false
-    },
-    {
-      "callsign": "SKY597",
-      "lat": 26.299,
-      "lon": 127.8477,
-      "alt_m": 2301.24,
-      "speed_ms": 139.51,
-      "heading": 200.51,
-      "on_ground": false
-    },
-    {
-      "callsign": "SKY598",
-      "lat": 27.5533,
-      "lon": 128.0814,
-      "alt_m": 9090.66,
-      "speed_ms": 253.64,
-      "heading": 41.55,
-      "on_ground": false
-    },
-    {
-      "callsign": "ANA1740",
-      "lat": 27.9596,
-      "lon": 128.5766,
-      "alt_m": 8221.98,
-      "speed_ms": 249.53,
-      "heading": 40.65,
+      "callsign": "JJP81",
+      "lat": 26.6523,
+      "lon": 128.1452,
+      "alt_m": 7665.72,
+      "speed_ms": 203.24,
+      "heading": 212.28,
       "on_ground": false
     }
   ],
