@@ -337,7 +337,13 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
         </a>
       </div>
       <!-- 早期注意情報 -->
-      <div style="grid-column:1/-1" id="early-warning-wrap"></div>
+      <div style="grid-column:1/-1">
+        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>🔔 早期注意情報（警報級の可能性）</span>
+          <a href="https://www.jma.go.jp/bosai/probability/" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁</a>
+        </div>
+        <div id="early-warning-wrap"></div>
+      </div>
 
       <!-- キキクル危険度分布アラート -->
       <div style="grid-column:1/-1">
@@ -1488,7 +1494,11 @@ function renderEarlyWarning(data){
   const el = document.getElementById('early-warning-wrap');
   if(!el) return;
   if(!data || !data.length){
-    el.innerHTML = '';
+    el.innerHTML = `<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <span style="font-size:16px">✅</span>
+      <span style="font-size:13px;font-weight:700;color:#15803d">早期注意情報（警報級の可能性） — 現在、発表はありません</span>
+      <a href="https://www.jma.go.jp/bosai/probability/" target="_blank" style="margin-left:auto;font-size:11px;color:#15803d;text-decoration:none">↗ 気象庁</a>
+    </div>`;
     return;
   }
   const rows = data.map(area => {
