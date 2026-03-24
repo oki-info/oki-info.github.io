@@ -1,40 +1,112 @@
 {
-  "fetched_jst": "2026-03-24 23:44",
+  "fetched_jst": "2026-03-25 02:45",
   "flights": [
     {
-      "callsign": "CPA882",
-      "lat": 27.3082,
-      "lon": 129.5184,
-      "alt_m": 8839.2,
-      "speed_ms": 294.97,
-      "heading": 57.39,
+      "callsign": "SIA38",
+      "lat": 27.2003,
+      "lon": 128.7807,
+      "alt_m": 10668,
+      "speed_ms": 293.39,
+      "heading": 40.45,
       "on_ground": false
     },
     {
-      "callsign": "CAL024",
-      "lat": 26.164,
-      "lon": 126.6191,
-      "alt_m": 9448.8,
-      "speed_ms": 304.97,
-      "heading": 87,
+      "callsign": "CAL004",
+      "lat": 27.2655,
+      "lon": 129.6159,
+      "alt_m": 8229.6,
+      "speed_ms": 273.46,
+      "heading": 79.7,
       "on_ground": false
     },
     {
-      "callsign": "VJC978",
-      "lat": 26.2739,
-      "lon": 122.5871,
-      "alt_m": 10660.38,
-      "speed_ms": 263.33,
-      "heading": 32.23,
+      "callsign": "ANA849",
+      "lat": 27.1181,
+      "lon": 127.8754,
+      "alt_m": 12192,
+      "speed_ms": 209.55,
+      "heading": 228.48,
       "on_ground": false
     },
     {
-      "callsign": "JNA037",
-      "lat": 26.5451,
-      "lon": 126.8592,
-      "alt_m": 10972.8,
-      "speed_ms": 204.71,
-      "heading": 215.49,
+      "callsign": "CAL5138",
+      "lat": 27.4283,
+      "lon": 129.171,
+      "alt_m": 10058.4,
+      "speed_ms": 290.11,
+      "heading": 42.92,
+      "on_ground": false
+    },
+    {
+      "callsign": "SJX012",
+      "lat": 27.5423,
+      "lon": 129.8578,
+      "alt_m": 10058.4,
+      "speed_ms": 309.48,
+      "heading": 74.97,
+      "on_ground": false
+    },
+    {
+      "callsign": "THA661",
+      "lat": 28.0721,
+      "lon": 129.0978,
+      "alt_m": 12192,
+      "speed_ms": 210.48,
+      "heading": 229.26,
+      "on_ground": false
+    },
+    {
+      "callsign": "ACA65",
+      "lat": 28.0014,
+      "lon": 129.006,
+      "alt_m": 10965.18,
+      "speed_ms": 212.6,
+      "heading": 229.02,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL727",
+      "lat": 26.1221,
+      "lon": 126.185,
+      "alt_m": 12184.38,
+      "speed_ms": 215.85,
+      "heading": 222.97,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL78",
+      "lat": 27.7341,
+      "lon": 129.7487,
+      "alt_m": 12496.8,
+      "speed_ms": 283.46,
+      "heading": 46.4,
+      "on_ground": false
+    },
+    {
+      "callsign": "SIA34",
+      "lat": 27.7156,
+      "lon": 129.8592,
+      "alt_m": 11277.6,
+      "speed_ms": 307.22,
+      "heading": 75.06,
+      "on_ground": false
+    },
+    {
+      "callsign": "UAL1",
+      "lat": 28.0438,
+      "lon": 129.0612,
+      "alt_m": 11582.4,
+      "speed_ms": 206.79,
+      "heading": 229.14,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL33",
+      "lat": 27.1071,
+      "lon": 127.8615,
+      "alt_m": 11582.4,
+      "speed_ms": 212.12,
+      "heading": 228.54,
       "on_ground": false
     }
   ],
@@ -42,7 +114,7 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "2>本日の運航予定\r\n\t\r\n\t\t\r\n\t\r\n\t3月24日(火）くもり昼前一時雨　フェリーざまみ３及びクイーンざまみは予定どおり運航します。お乗りになる船の / になる船の出港時間を確認し、出港10分前までにご乗船下さい。朝の渋滞・駐車場満車で乗り遅れる方がいらしゃいます。時間に余裕を持って、乗船いただきますようお願い致します。\t\r\n\t\r\n\t\r\n\t\t<div "
+      "info": "2>本日の運航予定\r\n\t\r\n\t本日の運航予定はまだ公開されていません。\t<div style"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
