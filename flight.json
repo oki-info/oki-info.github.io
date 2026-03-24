@@ -1,67 +1,94 @@
 {
-  "fetched_jst": "2026-03-25 06:57",
+  "fetched_jst": "2026-03-25 08:04",
   "flights": [
     {
-      "callsign": "SIA672",
-      "lat": 25.5348,
-      "lon": 127.1078,
+      "callsign": "ANA1732",
+      "lat": 28.0035,
+      "lon": 129.3619,
       "alt_m": 11887.2,
-      "speed_ms": 283.01,
-      "heading": 44.85,
+      "speed_ms": 255.51,
+      "heading": 31.16,
       "on_ground": false
     },
     {
-      "callsign": "SIA656",
-      "lat": 25.9796,
-      "lon": 126.3048,
-      "alt_m": 11269.98,
-      "speed_ms": 287.99,
-      "heading": 37.01,
+      "callsign": "TTW230",
+      "lat": 25.0836,
+      "lon": 122.5258,
+      "alt_m": 7307.58,
+      "speed_ms": 242.64,
+      "heading": 96.09,
       "on_ground": false
     },
     {
-      "callsign": "KAL654",
-      "lat": 26.9599,
-      "lon": 122.8112,
+      "callsign": "TTW200",
+      "lat": 28.2927,
+      "lon": 126.2206,
+      "alt_m": 11277.6,
+      "speed_ms": 273.5,
+      "heading": 50.8,
+      "on_ground": false
+    },
+    {
+      "callsign": "EVA134",
+      "lat": 25.8796,
+      "lon": 122.8649,
+      "alt_m": 7962.9,
+      "speed_ms": 257.96,
+      "heading": 52.54,
+      "on_ground": false
+    },
+    {
+      "callsign": "EOK394",
+      "lat": 27.8298,
+      "lon": 128.055,
+      "alt_m": 8915.4,
+      "speed_ms": 234.17,
+      "heading": 175.84,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL38",
+      "lat": 26.2494,
+      "lon": 127.8836,
+      "alt_m": 11887.2,
+      "speed_ms": 266.84,
+      "heading": 40.23,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ774",
+      "lat": 27.3704,
+      "lon": 127.5192,
       "alt_m": 10668,
-      "speed_ms": 297.21,
-      "heading": 45.49,
+      "speed_ms": 265.71,
+      "heading": 35.78,
       "on_ground": false
     },
     {
-      "callsign": "ESR536",
-      "lat": 26.99,
-      "lon": 126.7509,
-      "alt_m": 10668,
-      "speed_ms": 249.07,
-      "heading": 18.17,
+      "callsign": "SNJ84",
+      "lat": 28.2434,
+      "lon": 128.7173,
+      "alt_m": 11277.6,
+      "speed_ms": 258.09,
+      "heading": 28.71,
       "on_ground": false
     },
     {
-      "callsign": "HVN422",
-      "lat": 26.7438,
-      "lon": 122.5693,
-      "alt_m": 12496.8,
-      "speed_ms": 287.38,
-      "heading": 45.29,
+      "callsign": "SKY510",
+      "lat": 26.6261,
+      "lon": 128.2604,
+      "alt_m": 7467.6,
+      "speed_ms": 229.69,
+      "heading": 47.09,
       "on_ground": false
     },
     {
-      "callsign": "VJC828",
-      "lat": 26.411,
-      "lon": 126.4876,
-      "alt_m": 9441.18,
-      "speed_ms": 266.69,
-      "heading": 36.45,
-      "on_ground": false
-    },
-    {
-      "callsign": "TZP54",
-      "lat": 27.3923,
-      "lon": 128.9643,
-      "alt_m": 11879.58,
-      "speed_ms": 290.22,
-      "heading": 50.61,
+      "callsign": "SKY551",
+      "lat": 26.9854,
+      "lon": 128.1391,
+      "alt_m": 4358.64,
+      "speed_ms": 183.72,
+      "heading": 224.21,
       "on_ground": false
     }
   ],
@@ -69,12 +96,12 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "2>本日の運航予定\r\n\t\r\n\t本日の運航予定はまだ公開されていません。\t<div style"
+      "info": "2>本日の運航予定\r\n\t\r\n\t\t\r\n\t\r\n\t3月25日(水）くもり所により朝雨で雷を伴う　フェリーざまみ３は予定どおり運航します。高速船クイーンざまみは / 時化のため欠航します。お乗りになる船の出港時間を確認し、出港10分前までにご乗船下さい。朝の渋滞・駐車場満車で乗り遅れる方がいらしゃいます。時間に余裕を持って、乗船いただきますようお願い致します。 / になる船の出港時間を確認し、出港10分前までにご乗船下さい。朝の渋滞・駐車場満車で乗り遅れる方がいらしゃいます。時間に余裕を持って、乗船いただきますようお願い致します。\t\r\n\t\r\n\t\r\n\t\t<div "
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
       "url": "https://www.vill.tokashiki.okinawa.jp/",
-      "info": "村への代船運航のため運休となります。 / き」ドック運休予定令和8年5月18日(月曜日)～5月28日(木曜日)      \" />        <meta name=\""
+      "info": "村への代船運航のため運休となります。 / ため午後便欠航\t\t\t\t\t\t泊  港  発\t\t\t\t\t\t09：00                                       \t\t\t16：30 (欠航)\t\t\t\t\t\t\t\t\t\t渡嘉敷港発\t\t"
     }
   ]
 }
