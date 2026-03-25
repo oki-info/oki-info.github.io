@@ -1,40 +1,58 @@
 {
-  "fetched_jst": "2026-03-26 00:57",
+  "fetched_jst": "2026-03-26 03:39",
   "flights": [
     {
-      "callsign": "SIA623",
-      "lat": 26.9917,
-      "lon": 128.3557,
-      "alt_m": 10363.2,
-      "speed_ms": 224.1,
-      "heading": 211.1,
+      "callsign": "ANA844",
+      "lat": 26.254,
+      "lon": 127.8877,
+      "alt_m": 11887.2,
+      "speed_ms": 280.07,
+      "heading": 40.01,
       "on_ground": false
     },
     {
-      "callsign": "CKS420",
-      "lat": 27.6703,
-      "lon": 128.9813,
-      "alt_m": 9997.44,
-      "speed_ms": 212.54,
-      "heading": 226.77,
+      "callsign": "ANA877",
+      "lat": 28.158,
+      "lon": 129.2098,
+      "alt_m": 12192,
+      "speed_ms": 208.25,
+      "heading": 229.11,
       "on_ground": false
     },
     {
-      "callsign": "TGW897",
-      "lat": 26.5933,
-      "lon": 122.6156,
-      "alt_m": 12153.9,
-      "speed_ms": 219.54,
-      "heading": 215.37,
+      "callsign": "ABL728",
+      "lat": 26.9491,
+      "lon": 122.8208,
+      "alt_m": 10050.78,
+      "speed_ms": 277.92,
+      "heading": 45,
       "on_ground": false
     },
     {
-      "callsign": "APJ723",
-      "lat": 28.1588,
-      "lon": 125.4608,
-      "alt_m": 11574.78,
-      "speed_ms": 186.56,
-      "heading": 231.04,
+      "callsign": "PAL486",
+      "lat": 26.673,
+      "lon": 127.5612,
+      "alt_m": 10668,
+      "speed_ms": 241.16,
+      "heading": 3.3,
+      "on_ground": false
+    },
+    {
+      "callsign": "HVN430",
+      "lat": 27.0004,
+      "lon": 122.8641,
+      "alt_m": 10668,
+      "speed_ms": 281.56,
+      "heading": 45.44,
+      "on_ground": false
+    },
+    {
+      "callsign": "KAL460",
+      "lat": 26.8496,
+      "lon": 122.7727,
+      "alt_m": 11277.6,
+      "speed_ms": 288.2,
+      "heading": 43.55,
       "on_ground": false
     }
   ],
