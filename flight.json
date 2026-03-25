@@ -1,58 +1,76 @@
 {
-  "fetched_jst": "2026-03-26 03:39",
+  "fetched_jst": "2026-03-26 05:07",
   "flights": [
     {
-      "callsign": "ANA844",
-      "lat": 26.254,
-      "lon": 127.8877,
-      "alt_m": 11887.2,
-      "speed_ms": 280.07,
-      "heading": 40.01,
+      "callsign": "VJC968",
+      "lat": 26.9483,
+      "lon": 122.8248,
+      "alt_m": 10058.4,
+      "speed_ms": 273.19,
+      "heading": 45.08,
       "on_ground": false
     },
     {
-      "callsign": "ANA877",
-      "lat": 28.158,
-      "lon": 129.2098,
-      "alt_m": 12192,
-      "speed_ms": 208.25,
-      "heading": 229.11,
+      "callsign": "ABL712",
+      "lat": 27.1051,
+      "lon": 127.1778,
+      "alt_m": 10058.4,
+      "speed_ms": 236.5,
+      "heading": 11.8,
       "on_ground": false
     },
     {
-      "callsign": "ABL728",
-      "lat": 26.9491,
-      "lon": 122.8208,
-      "alt_m": 10050.78,
-      "speed_ms": 277.92,
-      "heading": 45,
-      "on_ground": false
-    },
-    {
-      "callsign": "PAL486",
-      "lat": 26.673,
-      "lon": 127.5612,
-      "alt_m": 10668,
-      "speed_ms": 241.16,
-      "heading": 3.3,
-      "on_ground": false
-    },
-    {
-      "callsign": "HVN430",
-      "lat": 27.0004,
-      "lon": 122.8641,
-      "alt_m": 10668,
-      "speed_ms": 281.56,
-      "heading": 45.44,
-      "on_ground": false
-    },
-    {
-      "callsign": "KAL460",
-      "lat": 26.8496,
-      "lon": 122.7727,
+      "callsign": "JNA038",
+      "lat": 27.3063,
+      "lon": 126.6517,
       "alt_m": 11277.6,
-      "speed_ms": 288.2,
-      "heading": 43.55,
+      "speed_ms": 252.77,
+      "heading": 21.87,
+      "on_ground": false
+    },
+    {
+      "callsign": "HKE676",
+      "lat": 26.9722,
+      "lon": 122.8389,
+      "alt_m": 10668,
+      "speed_ms": 277.92,
+      "heading": 45.15,
+      "on_ground": false
+    },
+    {
+      "callsign": "THA682",
+      "lat": 25.9543,
+      "lon": 127.3063,
+      "alt_m": 10668,
+      "speed_ms": 294.06,
+      "heading": 48.33,
+      "on_ground": false
+    },
+    {
+      "callsign": "TWB038",
+      "lat": 25.6753,
+      "lon": 122.6992,
+      "alt_m": 10668,
+      "speed_ms": 279.62,
+      "heading": 49.78,
+      "on_ground": false
+    },
+    {
+      "callsign": "JA572A",
+      "lat": 26.2551,
+      "lon": 127.4169,
+      "alt_m": 2979.42,
+      "speed_ms": 139.78,
+      "heading": 254.63,
+      "on_ground": false
+    },
+    {
+      "callsign": "PAL430",
+      "lat": 25.9068,
+      "lon": 127.5934,
+      "alt_m": 10050.78,
+      "speed_ms": 272.67,
+      "heading": 36.33,
       "on_ground": false
     }
   ],
