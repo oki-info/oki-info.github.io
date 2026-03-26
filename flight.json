@@ -1,121 +1,31 @@
 {
-  "fetched_jst": "2026-03-26 20:33",
+  "fetched_jst": "2026-03-27 00:57",
   "flights": [
     {
-      "callsign": "EVA185",
-      "lat": 26.263,
-      "lon": 127.382,
-      "alt_m": 3520.44,
-      "speed_ms": 171.8,
-      "heading": 236.98,
-      "on_ground": false
-    },
-    {
-      "callsign": "CATS81",
-      "lat": 26.3138,
-      "lon": 127.7066,
-      "alt_m": 365.76,
-      "speed_ms": 67.65,
-      "heading": 50.86,
-      "on_ground": false
-    },
-    {
-      "callsign": "UAL837",
-      "lat": 27.1728,
-      "lon": 127.9432,
-      "alt_m": 10363.2,
-      "speed_ms": 201.66,
-      "heading": 229.03,
-      "on_ground": false
-    },
-    {
-      "callsign": "JJP336",
-      "lat": 27.0656,
-      "lon": 128.215,
-      "alt_m": 7795.26,
-      "speed_ms": 244.66,
-      "heading": 68.67,
-      "on_ground": false
-    },
-    {
-      "callsign": "HKE827",
-      "lat": 26.0225,
-      "lon": 126.9319,
-      "alt_m": 6278.88,
-      "speed_ms": 207.12,
-      "heading": 232.87,
-      "on_ground": false
-    },
-    {
-      "callsign": "JAL759",
-      "lat": 27.7629,
-      "lon": 128.6978,
-      "alt_m": 12184.38,
-      "speed_ms": 211.49,
-      "heading": 228.95,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA128",
-      "lat": 27.7266,
-      "lon": 129.2299,
-      "alt_m": 11887.2,
-      "speed_ms": 256.39,
-      "heading": 31.04,
-      "on_ground": false
-    },
-    {
-      "callsign": "APJ773",
-      "lat": 27.472,
-      "lon": 127.1437,
+      "callsign": "SIA623",
+      "lat": 26.9679,
+      "lon": 128.4148,
       "alt_m": 9745.98,
-      "speed_ms": 200.96,
-      "heading": 219.6,
+      "speed_ms": 230.3,
+      "heading": 209.14,
       "on_ground": false
     },
     {
-      "callsign": "SKY597",
-      "lat": 26.1092,
-      "lon": 127.7673,
-      "alt_m": 1219.2,
-      "speed_ms": 136.02,
-      "heading": 197.61,
+      "callsign": "DHK009",
+      "lat": 26.8902,
+      "lon": 125.9393,
+      "alt_m": 9448.8,
+      "speed_ms": 298.78,
+      "heading": 61.63,
       "on_ground": false
     },
     {
-      "callsign": "JTA46",
-      "lat": 27.1534,
-      "lon": 128.7299,
-      "alt_m": 9372.6,
-      "speed_ms": 247.93,
-      "heading": 48.87,
-      "on_ground": false
-    },
-    {
-      "callsign": "SKY598",
-      "lat": 26.8688,
-      "lon": 127.6684,
-      "alt_m": 5463.54,
-      "speed_ms": 190.54,
-      "heading": 6.51,
-      "on_ground": false
-    },
-    {
-      "callsign": "SNJ86",
-      "lat": 28.0493,
-      "lon": 128.483,
-      "alt_m": 11262.36,
-      "speed_ms": 248.45,
-      "heading": 30.76,
-      "on_ground": false
-    },
-    {
-      "callsign": "APJ490",
-      "lat": 26.3536,
-      "lon": 127.5935,
-      "alt_m": 1089.66,
-      "speed_ms": 96.86,
-      "heading": 353.29,
+      "callsign": "NCA235",
+      "lat": 27.2818,
+      "lon": 128.0827,
+      "alt_m": 10972.8,
+      "speed_ms": 216.86,
+      "heading": 228.56,
       "on_ground": false
     }
   ],
@@ -123,7 +33,7 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "になる船の出港時間を確認し、出港10分前までにご乗船下さい。朝の渋滞・駐車場満車で乗り遅れる方がいらしゃいます。時間に余裕を持って、乗船いただきますようお願い致します。"
+      "info": "情報取得中"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
