@@ -1,22 +1,13 @@
 {
-  "fetched_jst": "2026-03-28 00:13",
+  "fetched_jst": "2026-03-28 03:07",
   "flights": [
     {
-      "callsign": "KAL619",
-      "lat": 26.3926,
-      "lon": 127.311,
-      "alt_m": 11582.4,
-      "speed_ms": 225.71,
-      "heading": 193.85,
-      "on_ground": false
-    },
-    {
-      "callsign": "PAL439",
-      "lat": 26.3898,
-      "lon": 128.1401,
-      "alt_m": 10965.18,
-      "speed_ms": 211.04,
-      "heading": 208.06,
+      "callsign": "MXD822",
+      "lat": 27.3874,
+      "lon": 127.5537,
+      "alt_m": 10668,
+      "speed_ms": 250.2,
+      "heading": 28.36,
       "on_ground": false
     }
   ],
