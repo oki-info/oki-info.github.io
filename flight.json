@@ -1,22 +1,58 @@
 {
-  "fetched_jst": "2026-03-29 03:01",
+  "fetched_jst": "2026-03-29 04:48",
   "flights": [
     {
-      "callsign": "ANA843",
-      "lat": 25.8259,
-      "lon": 128.064,
-      "alt_m": 10972.8,
-      "speed_ms": 230.02,
-      "heading": 211.56,
+      "callsign": "ANA892",
+      "lat": 27.7634,
+      "lon": 129.6646,
+      "alt_m": 11879.58,
+      "speed_ms": 284.8,
+      "heading": 47.78,
       "on_ground": false
     },
     {
-      "callsign": "THA661",
-      "lat": 27.3463,
-      "lon": 128.3337,
-      "alt_m": 11582.4,
-      "speed_ms": 207.81,
-      "heading": 230.12,
+      "callsign": "TWB038",
+      "lat": 25.5455,
+      "lon": 122.5295,
+      "alt_m": 10668,
+      "speed_ms": 251.73,
+      "heading": 38.11,
+      "on_ground": false
+    },
+    {
+      "callsign": "AAR708",
+      "lat": 28.288,
+      "lon": 127.4788,
+      "alt_m": 9456.42,
+      "speed_ms": 225.49,
+      "heading": 11.18,
+      "on_ground": false
+    },
+    {
+      "callsign": "VJC821",
+      "lat": 27.6774,
+      "lon": 128.8486,
+      "alt_m": 9761.22,
+      "speed_ms": 205.28,
+      "heading": 231.21,
+      "on_ground": false
+    },
+    {
+      "callsign": "ANA856",
+      "lat": 26.1916,
+      "lon": 127.9628,
+      "alt_m": 11879.58,
+      "speed_ms": 275.85,
+      "heading": 37.04,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL726",
+      "lat": 27.9256,
+      "lon": 129.6365,
+      "alt_m": 11285.22,
+      "speed_ms": 279.62,
+      "heading": 50.6,
       "on_ground": false
     }
   ],
