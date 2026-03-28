@@ -1,67 +1,22 @@
 {
-  "fetched_jst": "2026-03-29 02:06",
+  "fetched_jst": "2026-03-29 03:01",
   "flights": [
     {
-      "callsign": "EVA010",
-      "lat": 28.2013,
-      "lon": 128.3173,
-      "alt_m": 9448.8,
-      "speed_ms": 285.47,
-      "heading": 61.36,
-      "on_ground": false
-    },
-    {
-      "callsign": "CAL032",
-      "lat": 27.7472,
-      "lon": 127.3321,
-      "alt_m": 9448.8,
-      "speed_ms": 290.36,
-      "heading": 61.07,
-      "on_ground": false
-    },
-    {
-      "callsign": "CAL008",
-      "lat": 27.2873,
-      "lon": 126.3907,
-      "alt_m": 9448.8,
-      "speed_ms": 287.02,
-      "heading": 59.76,
-      "on_ground": false
-    },
-    {
-      "callsign": "CAL004",
-      "lat": 28.1734,
-      "lon": 128.3263,
-      "alt_m": 10058.4,
-      "speed_ms": 286.01,
-      "heading": 60.95,
-      "on_ground": false
-    },
-    {
-      "callsign": "EVA016",
-      "lat": 27.859,
-      "lon": 127.5564,
-      "alt_m": 8488.68,
-      "speed_ms": 276.72,
-      "heading": 61.34,
-      "on_ground": false
-    },
-    {
-      "callsign": "ANA849",
-      "lat": 27.2704,
-      "lon": 128.2386,
-      "alt_m": 9753.6,
-      "speed_ms": 222.37,
-      "heading": 229.97,
-      "on_ground": false
-    },
-    {
-      "callsign": "MAS039",
-      "lat": 26.6742,
-      "lon": 126.7495,
+      "callsign": "ANA843",
+      "lat": 25.8259,
+      "lon": 128.064,
       "alt_m": 10972.8,
-      "speed_ms": 234.7,
-      "heading": 193.82,
+      "speed_ms": 230.02,
+      "heading": 211.56,
+      "on_ground": false
+    },
+    {
+      "callsign": "THA661",
+      "lat": 27.3463,
+      "lon": 128.3337,
+      "alt_m": 11582.4,
+      "speed_ms": 207.81,
+      "heading": 230.12,
       "on_ground": false
     }
   ],
