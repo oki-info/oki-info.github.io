@@ -1,31 +1,58 @@
 {
-  "fetched_jst": "2026-03-30 07:04",
+  "fetched_jst": "2026-03-30 08:06",
   "flights": [
     {
-      "callsign": "SIA672",
-      "lat": 27.0889,
-      "lon": 128.6746,
-      "alt_m": 11887.2,
-      "speed_ms": 283.18,
-      "heading": 40.43,
+      "callsign": "TGW834",
+      "lat": 26.2699,
+      "lon": 127.6283,
+      "alt_m": 365.76,
+      "speed_ms": 70.12,
+      "heading": 176.21,
       "on_ground": false
     },
     {
-      "callsign": "THA648",
-      "lat": 27.8454,
-      "lon": 127.9205,
+      "callsign": "SIA612",
+      "lat": 27.4989,
+      "lon": 126.843,
       "alt_m": 11887.2,
-      "speed_ms": 269.78,
-      "heading": 37.33,
+      "speed_ms": 272.28,
+      "heading": 20.11,
       "on_ground": false
     },
     {
-      "callsign": "JAL728",
-      "lat": 27.9463,
-      "lon": 129.3783,
-      "alt_m": 11887.2,
-      "speed_ms": 276.5,
-      "heading": 31.15,
+      "callsign": "CEB5068",
+      "lat": 25.8466,
+      "lon": 127.5949,
+      "alt_m": 11285.22,
+      "speed_ms": 268.46,
+      "heading": 45.31,
+      "on_ground": false
+    },
+    {
+      "callsign": "CEB185",
+      "lat": 26.5017,
+      "lon": 127.3309,
+      "alt_m": 10972.8,
+      "speed_ms": 213.86,
+      "heading": 193.64,
+      "on_ground": false
+    },
+    {
+      "callsign": "TORI11",
+      "lat": 27.6254,
+      "lon": 129.1957,
+      "alt_m": 5791.2,
+      "speed_ms": 152.95,
+      "heading": 29.41,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY551",
+      "lat": 26.4059,
+      "lon": 127.6675,
+      "alt_m": 594.36,
+      "speed_ms": 103.23,
+      "heading": 211.55,
       "on_ground": false
     }
   ],
@@ -33,12 +60,12 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "情報取得中"
+      "info": "・2便 　欠航\r\n(Zamami Port・Aka Port　⇔　Aharen Port　 1st・2nd  Cancellation)\n                                / ックのため運休となります。下記日程で、代船運航があります。フェリー運航情報をご確認下さい。\r\n　代船運航日：6日（フェリーとかしき）・10日（フェリーあぐに）・14日（フェリーとかしき）・17日（フェ"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
       "url": "https://www.vill.tokashiki.okinawa.jp/",
-      "info": "村への代船運航のため運休となります。 / き」ドック運休予定令和8年5月18日(月曜日)～5月28日(木曜日)      \" />        <meta name=\""
+      "info": "により繰上運航\n\n\n\t\n\t\t\n\t\t\t泊&nbsp; 港&nbsp; 発\n\t\t\t\n\t\t\t10：00&nbsp;<font / ため2便目欠航\t\t\t\t\t\t泊  港  発\t\t\t\t\t\t09：00                                        \t\t\t16：30 (欠航)\t\t\t\t\t\t\t\t\t\t渡嘉敷港発\t"
     }
   ]
 }
