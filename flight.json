@@ -1,13 +1,31 @@
 {
-  "fetched_jst": "2026-03-30 00:06",
+  "fetched_jst": "2026-03-30 01:05",
   "flights": [
     {
-      "callsign": "GTI8523",
-      "lat": 27.9745,
-      "lon": 125.7655,
+      "callsign": "SIA623",
+      "lat": 26.6112,
+      "lon": 126.6914,
+      "alt_m": 10972.8,
+      "speed_ms": 223.12,
+      "heading": 223.04,
+      "on_ground": false
+    },
+    {
+      "callsign": "CAL5116",
+      "lat": 27.0314,
+      "lon": 127.3422,
       "alt_m": 9448.8,
-      "speed_ms": 275.43,
-      "heading": 41.82,
+      "speed_ms": 284.37,
+      "heading": 71.43,
+      "on_ground": false
+    },
+    {
+      "callsign": "SIA34",
+      "lat": 25.8378,
+      "lon": 127.4421,
+      "alt_m": 11277.6,
+      "speed_ms": 284.83,
+      "heading": 45.07,
       "on_ground": false
     }
   ],
