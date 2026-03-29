@@ -1,85 +1,157 @@
 {
-  "fetched_jst": "2026-03-29 18:59",
+  "fetched_jst": "2026-03-29 20:06",
   "flights": [
     {
-      "callsign": "SIA621",
-      "lat": 26.9849,
-      "lon": 128.3432,
-      "alt_m": 10965.18,
-      "speed_ms": 230.45,
-      "heading": 210.74,
-      "on_ground": false
-    },
-    {
-      "callsign": "HKE824",
-      "lat": 26.3577,
-      "lon": 127.5267,
-      "alt_m": 807.72,
-      "speed_ms": 108.74,
-      "heading": 34.59,
-      "on_ground": false
-    },
-    {
-      "callsign": "AAR171",
-      "lat": 27.1708,
-      "lon": 127.8773,
-      "alt_m": 8503.92,
-      "speed_ms": 229.98,
-      "heading": 359.23,
-      "on_ground": false
-    },
-    {
-      "callsign": "ANA474",
-      "lat": 27.4368,
-      "lon": 129.3024,
-      "alt_m": 10637.52,
-      "speed_ms": 267.95,
-      "heading": 47.33,
-      "on_ground": false
-    },
-    {
-      "callsign": "ANA1097",
-      "lat": 27.9236,
-      "lon": 129.2048,
+      "callsign": "THA677",
+      "lat": 26.4426,
+      "lon": 127.0653,
       "alt_m": 11582.4,
-      "speed_ms": 199.41,
-      "heading": 231.18,
+      "speed_ms": 212.55,
+      "heading": 228.83,
       "on_ground": false
     },
     {
-      "callsign": "JTA60",
-      "lat": 26.4476,
-      "lon": 128.1802,
-      "alt_m": 7071.36,
-      "speed_ms": 203.01,
-      "heading": 46.03,
+      "callsign": "ANA1215",
+      "lat": 27.1258,
+      "lon": 128.1094,
+      "alt_m": 5143.5,
+      "speed_ms": 174.62,
+      "heading": 225.72,
       "on_ground": false
     },
     {
-      "callsign": "APJ218",
-      "lat": 28.3064,
-      "lon": 129.6595,
-      "alt_m": 11285.22,
-      "speed_ms": 240.37,
-      "heading": 29.91,
+      "callsign": "JAL920",
+      "lat": 26.242,
+      "lon": 127.9548,
+      "alt_m": 4434.84,
+      "speed_ms": 216.12,
+      "heading": 46.16,
       "on_ground": false
     },
     {
-      "callsign": "APJ508",
-      "lat": 26.6302,
-      "lon": 128.4163,
-      "alt_m": 8061.96,
-      "speed_ms": 246.33,
-      "heading": 46.27,
+      "callsign": "XAX522",
+      "lat": 26.1765,
+      "lon": 127.991,
+      "alt_m": 11887.2,
+      "speed_ms": 268.58,
+      "heading": 46.71,
       "on_ground": false
     },
     {
-      "callsign": "ANA1095",
-      "lat": 26.3035,
-      "lon": 127.6276,
-      "alt_m": 365.76,
-      "speed_ms": 66.46,
-      "heading": 176.89,
+      "callsign": "CAL036",
+      "lat": 27.222,
+      "lon": 129.373,
+      "alt_m": 10668,
+      "speed_ms": 291.82,
+      "heading": 57.23,
+      "on_ground": false
+    },
+    {
+      "callsign": "KAL433",
+      "lat": 25.5018,
+      "lon": 127.0676,
+      "alt_m": 11582.4,
+      "speed_ms": 236.57,
+      "heading": 193.58,
+      "on_ground": false
+    },
+    {
+      "callsign": "ANA886",
+      "lat": 27.7817,
+      "lon": 129.7365,
+      "alt_m": 11887.2,
+      "speed_ms": 266.85,
+      "heading": 47.27,
+      "on_ground": false
+    },
+    {
+      "callsign": "JTA62",
+      "lat": 26.907,
+      "lon": 128.2502,
+      "alt_m": 8839.2,
+      "speed_ms": 216.11,
+      "heading": 19.9,
+      "on_ground": false
+    },
+    {
+      "callsign": "OCTNE24",
+      "lat": 26.2285,
+      "lon": 127.5856,
+      "alt_m": 914.4,
+      "speed_ms": 102.09,
+      "heading": 119.92,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ292",
+      "lat": 26.5208,
+      "lon": 128.1647,
+      "alt_m": 7673.34,
+      "speed_ms": 204.52,
+      "heading": 41.23,
+      "on_ground": false
+    },
+    {
+      "callsign": "JJP331",
+      "lat": 26.2674,
+      "lon": 127.6422,
+      "alt_m": 358.14,
+      "speed_ms": 64.87,
+      "heading": 177.73,
+      "on_ground": false
+    },
+    {
+      "callsign": "ANA1216",
+      "lat": 27.5526,
+      "lon": 128.7424,
+      "alt_m": 11109.96,
+      "speed_ms": 233.69,
+      "heading": 21.03,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ773",
+      "lat": 27.265,
+      "lon": 127.3784,
+      "alt_m": 10363.2,
+      "speed_ms": 201.24,
+      "heading": 223.45,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ220",
+      "lat": 28.1857,
+      "lon": 129.4042,
+      "alt_m": 11871.96,
+      "speed_ms": 237.16,
+      "heading": 31.52,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY597",
+      "lat": 26.5196,
+      "lon": 127.6811,
+      "alt_m": 838.2,
+      "speed_ms": 119.36,
+      "heading": 191.94,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ378",
+      "lat": 26.6431,
+      "lon": 127.5862,
+      "alt_m": 11894.82,
+      "speed_ms": 260.16,
+      "heading": 38.09,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL974",
+      "lat": 25.9802,
+      "lon": 127.3356,
+      "alt_m": 11887.2,
+      "speed_ms": 275.54,
+      "heading": 66.45,
       "on_ground": false
     }
   ],
