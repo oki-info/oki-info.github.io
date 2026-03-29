@@ -1,58 +1,13 @@
 {
-  "fetched_jst": "2026-03-29 23:05",
+  "fetched_jst": "2026-03-30 00:06",
   "flights": [
     {
-      "callsign": "JNA043",
-      "lat": 25.444,
-      "lon": 127.052,
-      "alt_m": 10363.2,
-      "speed_ms": 223.22,
-      "heading": 194,
-      "on_ground": false
-    },
-    {
-      "callsign": "HKE628",
-      "lat": 25.9408,
-      "lon": 123.0459,
-      "alt_m": 10660.38,
-      "speed_ms": 265,
-      "heading": 49.72,
-      "on_ground": false
-    },
-    {
-      "callsign": "CEB131",
-      "lat": 27.9196,
-      "lon": 127.5936,
-      "alt_m": 10980.42,
-      "speed_ms": 239.44,
-      "heading": 177.54,
-      "on_ground": false
-    },
-    {
-      "callsign": "HVN98",
-      "lat": 27.3788,
-      "lon": 128.9518,
-      "alt_m": 11277.6,
-      "speed_ms": 276.93,
-      "heading": 40.56,
-      "on_ground": false
-    },
-    {
-      "callsign": "ANA1133",
-      "lat": 26.7693,
-      "lon": 127.9062,
-      "alt_m": 2697.48,
-      "speed_ms": 136.81,
-      "heading": 223.78,
-      "on_ground": false
-    },
-    {
-      "callsign": "APJ860",
-      "lat": 28.244,
-      "lon": 126.1529,
-      "alt_m": 11277.6,
-      "speed_ms": 262.89,
-      "heading": 50.8,
+      "callsign": "GTI8523",
+      "lat": 27.9745,
+      "lon": 125.7655,
+      "alt_m": 9448.8,
+      "speed_ms": 275.43,
+      "heading": 41.82,
       "on_ground": false
     }
   ],
@@ -60,7 +15,7 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "あります。運航予定表をご確認下さい。\r\n　代船運航日：6日・10日・14日・17日・22日\n                      \n                                / ックのため運休となります。下記日程で、代船運航があります。運航予定表をご確認下さい。\r\n　代船運航日：6日・10日・14日・17日・22日"
+      "info": "情報取得中"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
