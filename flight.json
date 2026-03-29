@@ -1,6 +1,70 @@
 {
-  "fetched_jst": "2026-03-30 02:51",
-  "flights": [],
+  "fetched_jst": "2026-03-30 04:48",
+  "flights": [
+    {
+      "callsign": "ANA892",
+      "lat": 26.0895,
+      "lon": 127.7104,
+      "alt_m": 11277.6,
+      "speed_ms": 286.21,
+      "heading": 48.86,
+      "on_ground": false
+    },
+    {
+      "callsign": "TWB038",
+      "lat": 25.5483,
+      "lon": 122.5332,
+      "alt_m": 11277.6,
+      "speed_ms": 273.56,
+      "heading": 47.97,
+      "on_ground": false
+    },
+    {
+      "callsign": "AAR708",
+      "lat": 26.8088,
+      "lon": 127.2052,
+      "alt_m": 10668,
+      "speed_ms": 255.71,
+      "heading": 28.21,
+      "on_ground": false
+    },
+    {
+      "callsign": "SIA22",
+      "lat": 26.4578,
+      "lon": 128.0783,
+      "alt_m": 11277.6,
+      "speed_ms": 282.18,
+      "heading": 40.19,
+      "on_ground": false
+    },
+    {
+      "callsign": "TGW884",
+      "lat": 26.9611,
+      "lon": 128.5531,
+      "alt_m": 12496.8,
+      "speed_ms": 274.42,
+      "heading": 40.44,
+      "on_ground": false
+    },
+    {
+      "callsign": "TGW883",
+      "lat": 25.6345,
+      "lon": 127.5122,
+      "alt_m": 10965.18,
+      "speed_ms": 229.61,
+      "heading": 206.34,
+      "on_ground": false
+    },
+    {
+      "callsign": "JNA038",
+      "lat": 27.3785,
+      "lon": 127.4357,
+      "alt_m": 10668,
+      "speed_ms": 241.61,
+      "heading": 8.08,
+      "on_ground": false
+    }
+  ],
   "ships": [
     {
       "operator": "フェリーざまみ",
