@@ -1,76 +1,31 @@
 {
-  "fetched_jst": "2026-03-30 06:03",
+  "fetched_jst": "2026-03-30 07:04",
   "flights": [
     {
-      "callsign": "JJA2402",
-      "lat": 26.7674,
-      "lon": 122.5989,
-      "alt_m": 10668,
-      "speed_ms": 282.29,
-      "heading": 45.3,
-      "on_ground": false
-    },
-    {
-      "callsign": "CPA820",
-      "lat": 27.7594,
-      "lon": 130.0429,
-      "alt_m": 10668,
-      "speed_ms": 290.76,
-      "heading": 75.03,
-      "on_ground": false
-    },
-    {
-      "callsign": "HGB2366",
-      "lat": 25.7023,
-      "lon": 122.7339,
-      "alt_m": 11277.6,
-      "speed_ms": 274.87,
-      "heading": 49.78,
-      "on_ground": false
-    },
-    {
-      "callsign": "PAL440",
-      "lat": 27.4059,
-      "lon": 127.8813,
-      "alt_m": 11269.98,
-      "speed_ms": 255.1,
-      "heading": 31.9,
-      "on_ground": false
-    },
-    {
-      "callsign": "CEB5062",
-      "lat": 27.8423,
-      "lon": 129.5215,
-      "alt_m": 10675.62,
-      "speed_ms": 265.79,
-      "heading": 50.73,
-      "on_ground": false
-    },
-    {
-      "callsign": "HVN336",
-      "lat": 26.7521,
-      "lon": 126.8346,
-      "alt_m": 10058.4,
-      "speed_ms": 256.94,
-      "heading": 43.22,
-      "on_ground": false
-    },
-    {
-      "callsign": "HVN306",
-      "lat": 26.6911,
-      "lon": 128.2977,
-      "alt_m": 11269.98,
-      "speed_ms": 281.79,
-      "heading": 40.26,
-      "on_ground": false
-    },
-    {
-      "callsign": "MXD872",
-      "lat": 26.5567,
-      "lon": 128.1708,
+      "callsign": "SIA672",
+      "lat": 27.0889,
+      "lon": 128.6746,
       "alt_m": 11887.2,
-      "speed_ms": 268.68,
-      "heading": 40.18,
+      "speed_ms": 283.18,
+      "heading": 40.43,
+      "on_ground": false
+    },
+    {
+      "callsign": "THA648",
+      "lat": 27.8454,
+      "lon": 127.9205,
+      "alt_m": 11887.2,
+      "speed_ms": 269.78,
+      "heading": 37.33,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL728",
+      "lat": 27.9463,
+      "lon": 129.3783,
+      "alt_m": 11887.2,
+      "speed_ms": 276.5,
+      "heading": 31.15,
       "on_ground": false
     }
   ],
