@@ -1,76 +1,103 @@
 {
-  "fetched_jst": "2026-03-31 07:03",
+  "fetched_jst": "2026-03-31 08:54",
   "flights": [
     {
-      "callsign": "GIA874",
-      "lat": 27.7154,
-      "lon": 129.9403,
-      "alt_m": 11887.2,
-      "speed_ms": 271.73,
-      "heading": 50.92,
+      "callsign": "JTA51",
+      "lat": 26.9794,
+      "lon": 128.2704,
+      "alt_m": 5113.02,
+      "speed_ms": 167.4,
+      "heading": 254.13,
       "on_ground": false
     },
     {
-      "callsign": "SIA618",
-      "lat": 26.1227,
-      "lon": 126.6684,
-      "alt_m": 11887.2,
-      "speed_ms": 290.18,
-      "heading": 53.94,
+      "callsign": "APJ209",
+      "lat": 26.6312,
+      "lon": 127.7307,
+      "alt_m": 1417.32,
+      "speed_ms": 120.61,
+      "heading": 228.29,
       "on_ground": false
     },
     {
-      "callsign": "SIA656",
-      "lat": 27.4452,
-      "lon": 128.9182,
-      "alt_m": 11879.58,
-      "speed_ms": 293.3,
-      "heading": 66.54,
+      "callsign": "EVA108",
+      "lat": 25.7392,
+      "lon": 122.7814,
+      "alt_m": 10058.4,
+      "speed_ms": 251.55,
+      "heading": 49.89,
       "on_ground": false
     },
     {
-      "callsign": "AHK216",
-      "lat": 25.6073,
-      "lon": 122.6102,
-      "alt_m": 12496.8,
-      "speed_ms": 274.81,
-      "heading": 49.63,
+      "callsign": "EVA112",
+      "lat": 26.2799,
+      "lon": 127.4673,
+      "alt_m": 906.78,
+      "speed_ms": 146.23,
+      "heading": 45,
       "on_ground": false
     },
     {
-      "callsign": "THA648",
-      "lat": 27.0357,
-      "lon": 127.3612,
-      "alt_m": 12496.8,
-      "speed_ms": 286.13,
-      "heading": 58.45,
+      "callsign": "CAL138",
+      "lat": 25.7294,
+      "lon": 122.769,
+      "alt_m": 10668,
+      "speed_ms": 256.63,
+      "heading": 49.8,
       "on_ground": false
     },
     {
-      "callsign": "JAL728",
-      "lat": 27.413,
-      "lon": 128.9845,
-      "alt_m": 12496.8,
-      "speed_ms": 289.38,
-      "heading": 40.46,
+      "callsign": "JAL901",
+      "lat": 27.0283,
+      "lon": 128.0261,
+      "alt_m": 4183.38,
+      "speed_ms": 151.85,
+      "heading": 243,
       "on_ground": false
     },
     {
-      "callsign": "CEB5108",
-      "lat": 26.9919,
-      "lon": 128.5065,
-      "alt_m": 10675.62,
-      "speed_ms": 280.97,
-      "heading": 60.85,
+      "callsign": "SNJ21",
+      "lat": 26.3335,
+      "lon": 127.6264,
+      "alt_m": 365.76,
+      "speed_ms": 78.28,
+      "heading": 177.36,
       "on_ground": false
     },
     {
-      "callsign": "TVJ810",
-      "lat": 26.7453,
-      "lon": 128.0716,
-      "alt_m": 11277.6,
-      "speed_ms": 274.44,
-      "heading": 60.22,
+      "callsign": "MAGIC22",
+      "lat": 26.5174,
+      "lon": 127.968,
+      "alt_m": 922.02,
+      "speed_ms": 116.49,
+      "heading": 183.54,
+      "on_ground": false
+    },
+    {
+      "callsign": "PAL401",
+      "lat": 27.0108,
+      "lon": 128.0179,
+      "alt_m": 12192,
+      "speed_ms": 221.5,
+      "heading": 203.11,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY511",
+      "lat": 27.4052,
+      "lon": 128.7491,
+      "alt_m": 10050.78,
+      "speed_ms": 197.74,
+      "heading": 219.4,
+      "on_ground": false
+    },
+    {
+      "callsign": "ANA461",
+      "lat": 26.9226,
+      "lon": 127.7268,
+      "alt_m": 2834.64,
+      "speed_ms": 137.76,
+      "heading": 209.53,
       "on_ground": false
     }
   ],
@@ -78,12 +105,12 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "情報取得中"
+      "info": "まみは全便欠航となりました、フェリーざまみは予定通りの運航です。 / 運休"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
       "url": "https://www.vill.tokashiki.okinawa.jp/",
-      "info": "により繰上運航\n\n\n\t\n\t\t\n\t\t\t泊&nbsp; 港&nbsp; 発\n\t\t\t\n\t\t\t10：00&nbsp;<font / ため2便目欠航\t\t\t\t\t\t泊  港  発\t\t\t\t\t\t09：00                                        \t\t\t16：30 (欠航)\t\t\t\t\t\t\t\t\t\t渡嘉敷港発\t"
+      "info": "村への代船運航のため運休となります。 / のため全便欠航(Cancelled)\t\t\t\t\t\t泊  港  発\t\t\t\t\t\t09：00 (欠航)                                 \t\t\t16：30 (欠航)\t\t\t\t\t\t\t"
     }
   ]
 }
