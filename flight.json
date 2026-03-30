@@ -1,31 +1,94 @@
 {
-  "fetched_jst": "2026-03-31 02:42",
+  "fetched_jst": "2026-03-31 05:05",
   "flights": [
     {
-      "callsign": "THA661",
-      "lat": 27.4311,
-      "lon": 128.6796,
-      "alt_m": 12192,
-      "speed_ms": 200.3,
-      "heading": 231.57,
+      "callsign": "JJP28",
+      "lat": 26.3514,
+      "lon": 127.978,
+      "alt_m": 10668,
+      "speed_ms": 279.62,
+      "heading": 40.22,
       "on_ground": false
     },
     {
-      "callsign": "JAL35",
-      "lat": 25.9857,
-      "lon": 126.7756,
-      "alt_m": 10363.2,
-      "speed_ms": 198.53,
-      "heading": 231.73,
+      "callsign": "JNA038",
+      "lat": 27.4168,
+      "lon": 128.8217,
+      "alt_m": 11285.22,
+      "speed_ms": 259.24,
+      "heading": 31.86,
       "on_ground": false
     },
     {
-      "callsign": "ANA849",
-      "lat": 26.2289,
-      "lon": 126.8221,
-      "alt_m": 11879.58,
-      "speed_ms": 208.3,
-      "heading": 229.31,
+      "callsign": "HKE698",
+      "lat": 26.814,
+      "lon": 122.6505,
+      "alt_m": 10675.62,
+      "speed_ms": 257.19,
+      "heading": 45.41,
+      "on_ground": false
+    },
+    {
+      "callsign": "JA577A",
+      "lat": 26.0602,
+      "lon": 127.4208,
+      "alt_m": 3253.74,
+      "speed_ms": 136.74,
+      "heading": 253.61,
+      "on_ground": false
+    },
+    {
+      "callsign": "CEB186",
+      "lat": 27.1289,
+      "lon": 128.6158,
+      "alt_m": 10668,
+      "speed_ms": 281.45,
+      "heading": 47.44,
+      "on_ground": false
+    },
+    {
+      "callsign": "JJP12",
+      "lat": 27.9195,
+      "lon": 129.6282,
+      "alt_m": 10058.4,
+      "speed_ms": 276.39,
+      "heading": 50.74,
+      "on_ground": false
+    },
+    {
+      "callsign": "VJC822",
+      "lat": 25.8257,
+      "lon": 127.3777,
+      "alt_m": 10058.4,
+      "speed_ms": 276.67,
+      "heading": 48.69,
+      "on_ground": false
+    },
+    {
+      "callsign": "CPA566",
+      "lat": 25.7999,
+      "lon": 122.7883,
+      "alt_m": 11887.2,
+      "speed_ms": 280.13,
+      "heading": 41.95,
+      "on_ground": false
+    },
+    {
+      "callsign": "HVN318",
+      "lat": 27.7356,
+      "lon": 129.4071,
+      "alt_m": 10066.02,
+      "speed_ms": 282.58,
+      "heading": 62.22,
+      "on_ground": false
+    },
+    {
+      "callsign": "SIA22",
+      "lat": 25.5541,
+      "lon": 127.1034,
+      "alt_m": 11277.6,
+      "speed_ms": 296.15,
+      "heading": 45.99,
       "on_ground": false
     }
   ],
