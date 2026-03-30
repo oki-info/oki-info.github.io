@@ -1,58 +1,85 @@
 {
-  "fetched_jst": "2026-03-30 08:06",
+  "fetched_jst": "2026-03-30 09:06",
   "flights": [
     {
-      "callsign": "TGW834",
-      "lat": 26.2699,
-      "lon": 127.6283,
+      "callsign": "ANA1131",
+      "lat": 27.2749,
+      "lon": 128.2771,
+      "alt_m": 8534.4,
+      "speed_ms": 212.57,
+      "heading": 233.46,
+      "on_ground": false
+    },
+    {
+      "callsign": "EVA182",
+      "lat": 28.2526,
+      "lon": 126.1651,
+      "alt_m": 11277.6,
+      "speed_ms": 282.19,
+      "heading": 50.62,
+      "on_ground": false
+    },
+    {
+      "callsign": "TTW230",
+      "lat": 26.3116,
+      "lon": 127.6256,
       "alt_m": 365.76,
-      "speed_ms": 70.12,
-      "heading": 176.21,
+      "speed_ms": 63.41,
+      "heading": 176.28,
       "on_ground": false
     },
     {
-      "callsign": "SIA612",
-      "lat": 27.4989,
-      "lon": 126.843,
-      "alt_m": 11887.2,
-      "speed_ms": 272.28,
-      "heading": 20.11,
-      "on_ground": false
-    },
-    {
-      "callsign": "CEB5068",
-      "lat": 25.8466,
-      "lon": 127.5949,
-      "alt_m": 11285.22,
-      "speed_ms": 268.46,
-      "heading": 45.31,
-      "on_ground": false
-    },
-    {
-      "callsign": "CEB185",
-      "lat": 26.5017,
-      "lon": 127.3309,
+      "callsign": "PAL401",
+      "lat": 26.579,
+      "lon": 127.3172,
       "alt_m": 10972.8,
-      "speed_ms": 213.86,
-      "heading": 193.64,
+      "speed_ms": 216.81,
+      "heading": 196.54,
       "on_ground": false
     },
     {
-      "callsign": "TORI11",
-      "lat": 27.6254,
-      "lon": 129.1957,
-      "alt_m": 5791.2,
-      "speed_ms": 152.95,
-      "heading": 29.41,
+      "callsign": "APG190",
+      "lat": 28.0376,
+      "lon": 130.0878,
+      "alt_m": 10637.52,
+      "speed_ms": 259.5,
+      "heading": 48.54,
       "on_ground": false
     },
     {
-      "callsign": "SKY551",
-      "lat": 26.4059,
-      "lon": 127.6675,
-      "alt_m": 594.36,
-      "speed_ms": 103.23,
-      "heading": 211.55,
+      "callsign": "ANA461",
+      "lat": 26.3005,
+      "lon": 127.6264,
+      "alt_m": 358.14,
+      "speed_ms": 60.33,
+      "heading": 176.09,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY511",
+      "lat": 26.5236,
+      "lon": 127.6205,
+      "alt_m": 1638.3,
+      "speed_ms": 97,
+      "heading": 203.44,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ375",
+      "lat": 26.5405,
+      "lon": 126.9888,
+      "alt_m": 9745.98,
+      "speed_ms": 197.73,
+      "heading": 222.36,
+      "on_ground": false
+    },
+    {
+      "callsign": "ANA993",
+      "lat": 26.6446,
+      "lon": 127.7253,
+      "alt_m": 2156.46,
+      "speed_ms": 116.04,
+      "heading": 225.18,
       "on_ground": false
     }
   ],
