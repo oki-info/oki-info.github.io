@@ -1,12 +1,4 @@
 {
-  "fetched_jst": "2026-03-31 12:28",
-  "earthquakes": [
-    {
-      "time": "03/30 12:31",
-      "loc": "沖縄本島近海",
-      "mag": "4.5",
-      "depth": "-",
-      "maxi": "1"
-    }
-  ]
+  "fetched_jst": "2026-03-31 12:51",
+  "earthquakes": []
 }
