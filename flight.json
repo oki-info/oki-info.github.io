@@ -1,67 +1,103 @@
 {
-  "fetched_jst": "2026-04-02 07:03",
+  "fetched_jst": "2026-04-02 08:53",
   "flights": [
     {
-      "callsign": "GIA874",
-      "lat": 27.1929,
-      "lon": 128.9978,
-      "alt_m": 11887.2,
-      "speed_ms": 279.21,
-      "heading": 47.17,
+      "callsign": "JA130A",
+      "lat": 26.5217,
+      "lon": 128.0662,
+      "alt_m": 586.74,
+      "speed_ms": 34.25,
+      "heading": 302.74,
       "on_ground": false
     },
     {
-      "callsign": "SIA672",
-      "lat": 27.0732,
-      "lon": 128.8763,
-      "alt_m": 11277.6,
-      "speed_ms": 286.08,
-      "heading": 46.89,
+      "callsign": "EVA108",
+      "lat": 26.1997,
+      "lon": 123.3881,
+      "alt_m": 10668,
+      "speed_ms": 262.55,
+      "heading": 50.01,
       "on_ground": false
     },
     {
-      "callsign": "SIA656",
-      "lat": 27.4714,
-      "lon": 127.4719,
-      "alt_m": 11887.2,
-      "speed_ms": 282.36,
-      "heading": 31.89,
+      "callsign": "TTW260",
+      "lat": 26.1882,
+      "lon": 123.3725,
+      "alt_m": 10675.62,
+      "speed_ms": 264.79,
+      "heading": 50.12,
       "on_ground": false
     },
     {
-      "callsign": "THA648",
-      "lat": 26.4655,
-      "lon": 126.5401,
-      "alt_m": 12496.8,
-      "speed_ms": 278.81,
-      "heading": 43.06,
+      "callsign": "CAL112",
+      "lat": 25.8342,
+      "lon": 122.8988,
+      "alt_m": 8503.92,
+      "speed_ms": 257.48,
+      "heading": 50.11,
       "on_ground": false
     },
     {
-      "callsign": "JAL728",
-      "lat": 28.481,
-      "lon": 128.613,
-      "alt_m": 12489.18,
-      "speed_ms": 286.95,
-      "heading": 42.38,
+      "callsign": "ANA461",
+      "lat": 27.3621,
+      "lon": 128.5421,
+      "alt_m": 9281.16,
+      "speed_ms": 199.15,
+      "heading": 238.2,
       "on_ground": false
     },
     {
-      "callsign": "TVJ820",
-      "lat": 28.3391,
-      "lon": 128.605,
-      "alt_m": 11277.6,
-      "speed_ms": 258.34,
-      "heading": 46.29,
+      "callsign": "SNJ21",
+      "lat": 26.3257,
+      "lon": 128.0247,
+      "alt_m": 3048,
+      "speed_ms": 143.47,
+      "heading": 215.51,
       "on_ground": false
     },
     {
-      "callsign": "TVJ810",
-      "lat": 26.8513,
-      "lon": 126.9421,
-      "alt_m": 11277.6,
-      "speed_ms": 265.32,
-      "heading": 43.19,
+      "callsign": "PAL401",
+      "lat": 27.1043,
+      "lon": 127.4969,
+      "alt_m": 10370.82,
+      "speed_ms": 224.94,
+      "heading": 196.61,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ375",
+      "lat": 27.9218,
+      "lon": 128.0704,
+      "alt_m": 11574.78,
+      "speed_ms": 188.17,
+      "heading": 223.12,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL901",
+      "lat": 27.1607,
+      "lon": 128.2274,
+      "alt_m": 7475.22,
+      "speed_ms": 210.76,
+      "heading": 207.32,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ209",
+      "lat": 26.0613,
+      "lon": 127.7632,
+      "alt_m": 876.3,
+      "speed_ms": 126.32,
+      "heading": 222.85,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY511",
+      "lat": 27.6057,
+      "lon": 128.9166,
+      "alt_m": 9753.6,
+      "speed_ms": 204.77,
+      "heading": 228.26,
       "on_ground": false
     }
   ],
@@ -74,7 +110,7 @@
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
       "url": "https://www.vill.tokashiki.okinawa.jp/",
-      "info": "村への代船運航のため運休となります。 / のため全便欠航(Cancelled)\t\t\t\t\t\t泊  港  発\t\t\t\t\t\t09：00 (欠航)                                 \t\t\t16：30 (欠航)\t\t\t\t\t\t\t"
+      "info": "村への代船運航のため運休となります。 / き」ドック運休予定令和8年5月18日(月曜日)～5月28日(木曜日)      \" />        <meta name=\""
     }
   ]
 }
