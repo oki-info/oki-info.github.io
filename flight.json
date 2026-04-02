@@ -1,94 +1,31 @@
 {
-  "fetched_jst": "2026-04-02 20:35",
+  "fetched_jst": "2026-04-02 23:46",
   "flights": [
     {
-      "callsign": "N64686",
-      "lat": 26.3267,
-      "lon": 127.7575,
-      "alt_m": 182.88,
-      "speed_ms": 45.99,
-      "heading": 233.64,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA46",
-      "lat": 26.7436,
-      "lon": 127.6774,
-      "alt_m": 4777.74,
-      "speed_ms": 194.92,
-      "heading": 3.93,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA128",
-      "lat": 26.6574,
-      "lon": 128.2659,
-      "alt_m": 9448.8,
-      "speed_ms": 250.04,
-      "heading": 40.24,
-      "on_ground": false
-    },
-    {
-      "callsign": "SJX313",
-      "lat": 26.2536,
-      "lon": 127.4922,
-      "alt_m": 3154.68,
-      "speed_ms": 145.44,
-      "heading": 242.17,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA86",
-      "lat": 27.2275,
-      "lon": 127.6574,
-      "alt_m": 11277.6,
-      "speed_ms": 238.91,
-      "heading": 42.21,
-      "on_ground": false
-    },
-    {
-      "callsign": "UAL837",
-      "lat": 25.7832,
-      "lon": 126.9383,
+      "callsign": "JNA065",
+      "lat": 27.8205,
+      "lon": 127.3251,
       "alt_m": 10363.2,
-      "speed_ms": 222.01,
-      "heading": 236.05,
+      "speed_ms": 228.74,
+      "heading": 200.68,
       "on_ground": false
     },
     {
-      "callsign": "APJ773",
-      "lat": 26.6434,
-      "lon": 126.6205,
-      "alt_m": 9753.6,
-      "speed_ms": 219.6,
-      "heading": 222.25,
+      "callsign": "JNA061",
+      "lat": 26.2893,
+      "lon": 127.2823,
+      "alt_m": 10972.8,
+      "speed_ms": 223.59,
+      "heading": 193.84,
       "on_ground": false
     },
     {
-      "callsign": "CKS242",
-      "lat": 27.9089,
-      "lon": 125.3979,
-      "alt_m": 12192,
-      "speed_ms": 204.98,
-      "heading": 230.4,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA49",
-      "lat": 27.233,
-      "lon": 128.3198,
-      "alt_m": 7962.9,
-      "speed_ms": 209.71,
-      "heading": 239.16,
-      "on_ground": false
-    },
-    {
-      "callsign": "ANA476",
-      "lat": 26.9735,
-      "lon": 128.466,
-      "alt_m": 7947.66,
-      "speed_ms": 244.4,
-      "heading": 49.27,
+      "callsign": "JNA037",
+      "lat": 26.1626,
+      "lon": 125.7849,
+      "alt_m": 10972.8,
+      "speed_ms": 225.97,
+      "heading": 197.9,
       "on_ground": false
     }
   ],
