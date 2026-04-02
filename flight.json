@@ -1,31 +1,76 @@
 {
-  "fetched_jst": "2026-04-02 23:46",
+  "fetched_jst": "2026-04-03 02:38",
   "flights": [
     {
-      "callsign": "JNA065",
-      "lat": 27.8205,
-      "lon": 127.3251,
-      "alt_m": 10363.2,
-      "speed_ms": 228.74,
-      "heading": 200.68,
+      "callsign": "SIA38",
+      "lat": 27.5404,
+      "lon": 129.4498,
+      "alt_m": 11277.6,
+      "speed_ms": 274.44,
+      "heading": 46.97,
       "on_ground": false
     },
     {
-      "callsign": "JNA061",
-      "lat": 26.2893,
-      "lon": 127.2823,
-      "alt_m": 10972.8,
-      "speed_ms": 223.59,
-      "heading": 193.84,
+      "callsign": "CAL032",
+      "lat": 28.0871,
+      "lon": 127.9885,
+      "alt_m": 9448.8,
+      "speed_ms": 282.4,
+      "heading": 61.85,
       "on_ground": false
     },
     {
-      "callsign": "JNA037",
-      "lat": 26.1626,
-      "lon": 125.7849,
-      "alt_m": 10972.8,
-      "speed_ms": 225.97,
-      "heading": 197.9,
+      "callsign": "CAL008",
+      "lat": 27.8384,
+      "lon": 127.4658,
+      "alt_m": 9448.8,
+      "speed_ms": 278.57,
+      "heading": 61.31,
+      "on_ground": false
+    },
+    {
+      "callsign": "SJX002",
+      "lat": 27.5825,
+      "lon": 126.9626,
+      "alt_m": 10668,
+      "speed_ms": 290.14,
+      "heading": 60.12,
+      "on_ground": false
+    },
+    {
+      "callsign": "THA661",
+      "lat": 26.7276,
+      "lon": 127.4505,
+      "alt_m": 12192,
+      "speed_ms": 210.48,
+      "heading": 229.26,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL727",
+      "lat": 26.507,
+      "lon": 126.4053,
+      "alt_m": 11582.4,
+      "speed_ms": 224.94,
+      "heading": 219.99,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL78",
+      "lat": 26.0952,
+      "lon": 128.3204,
+      "alt_m": 12489.18,
+      "speed_ms": 288.83,
+      "heading": 45,
+      "on_ground": false
+    },
+    {
+      "callsign": "ANA849",
+      "lat": 26.9296,
+      "lon": 127.7025,
+      "alt_m": 11574.78,
+      "speed_ms": 219.63,
+      "heading": 229.37,
       "on_ground": false
     }
   ],
