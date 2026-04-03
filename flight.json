@@ -1,40 +1,94 @@
 {
-  "fetched_jst": "2026-04-04 02:57",
+  "fetched_jst": "2026-04-04 04:56",
   "flights": [
     {
-      "callsign": "SJX012",
-      "lat": 28.2151,
-      "lon": 127.4249,
-      "alt_m": 11193.78,
-      "speed_ms": 280.83,
-      "heading": 60.48,
+      "callsign": "JJP28",
+      "lat": 25.8273,
+      "lon": 122.8978,
+      "alt_m": 10668,
+      "speed_ms": 271.25,
+      "heading": 49.85,
       "on_ground": false
     },
     {
-      "callsign": "KAL624",
-      "lat": 25.5477,
-      "lon": 122.501,
+      "callsign": "ANA892",
+      "lat": 26.3861,
+      "lon": 128.302,
       "alt_m": 11277.6,
-      "speed_ms": 271.76,
-      "heading": 19.81,
+      "speed_ms": 265.55,
+      "heading": 45.16,
       "on_ground": false
     },
     {
-      "callsign": "KAL658",
-      "lat": 26.9947,
-      "lon": 122.6844,
-      "alt_m": 11887.2,
-      "speed_ms": 278.33,
-      "heading": 49.27,
+      "callsign": "EVA630",
+      "lat": 28.0314,
+      "lon": 127.4732,
+      "alt_m": 8839.2,
+      "speed_ms": 283.76,
+      "heading": 61.99,
       "on_ground": false
     },
     {
-      "callsign": "ANA814",
-      "lat": 27.3133,
-      "lon": 128.8889,
+      "callsign": "CPA566",
+      "lat": 25.3277,
+      "lon": 122.6811,
       "alt_m": 12496.8,
-      "speed_ms": 286.08,
-      "heading": 40.48,
+      "speed_ms": 281.33,
+      "heading": 41.59,
+      "on_ground": false
+    },
+    {
+      "callsign": "KAL602",
+      "lat": 27.2616,
+      "lon": 127.7004,
+      "alt_m": 11277.6,
+      "speed_ms": 264.32,
+      "heading": 23.27,
+      "on_ground": false
+    },
+    {
+      "callsign": "KAL438",
+      "lat": 26.4933,
+      "lon": 127.2931,
+      "alt_m": 10668,
+      "speed_ms": 259.42,
+      "heading": 12.13,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL70",
+      "lat": 26.2285,
+      "lon": 127.864,
+      "alt_m": 12489.18,
+      "speed_ms": 287.59,
+      "heading": 40.36,
+      "on_ground": false
+    },
+    {
+      "callsign": "SIA22",
+      "lat": 25.8555,
+      "lon": 127.4501,
+      "alt_m": 11285.22,
+      "speed_ms": 273.96,
+      "heading": 45.99,
+      "on_ground": false
+    },
+    {
+      "callsign": "TGW884",
+      "lat": 27.6673,
+      "lon": 129.6944,
+      "alt_m": 12496.8,
+      "speed_ms": 291.41,
+      "heading": 48.01,
+      "on_ground": false
+    },
+    {
+      "callsign": "KAL428",
+      "lat": 26.7689,
+      "lon": 122.5209,
+      "alt_m": 12344.4,
+      "speed_ms": 281.34,
+      "heading": 46.85,
       "on_ground": false
     }
   ],
