@@ -1,49 +1,40 @@
 {
-  "fetched_jst": "2026-04-03 23:32",
+  "fetched_jst": "2026-04-04 01:06",
   "flights": [
     {
-      "callsign": "JJA2125",
-      "lat": 25.8865,
-      "lon": 127.172,
-      "alt_m": 10972.8,
-      "speed_ms": 218.85,
-      "heading": 193.87,
-      "on_ground": false
-    },
-    {
-      "callsign": "CEB131",
-      "lat": 25.4753,
-      "lon": 127.0606,
+      "callsign": "SIA623",
+      "lat": 26.6006,
+      "lon": 128.1532,
       "alt_m": 10363.2,
-      "speed_ms": 229.95,
-      "heading": 193.85,
+      "speed_ms": 245.55,
+      "heading": 210.33,
       "on_ground": false
     },
     {
-      "callsign": "JNA001",
-      "lat": 25.8056,
-      "lon": 122.867,
-      "alt_m": 10363.2,
-      "speed_ms": 214.25,
-      "heading": 207.92,
+      "callsign": "SIA635",
+      "lat": 27.4499,
+      "lon": 129.2558,
+      "alt_m": 11582.4,
+      "speed_ms": 228.52,
+      "heading": 210.43,
       "on_ground": false
     },
     {
-      "callsign": "SKY599",
-      "lat": 26.2991,
-      "lon": 127.6277,
-      "alt_m": 388.62,
-      "speed_ms": 70.6,
-      "heading": 176.66,
-      "on_ground": false
-    },
-    {
-      "callsign": "JAL6771",
-      "lat": 26.1822,
-      "lon": 126.7088,
+      "callsign": "JNA043",
+      "lat": 26.4003,
+      "lon": 127.281,
       "alt_m": 10972.8,
-      "speed_ms": 219.64,
-      "heading": 227.94,
+      "speed_ms": 221.84,
+      "heading": 196.71,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ631",
+      "lat": 26.4969,
+      "lon": 126.2578,
+      "alt_m": 10347.96,
+      "speed_ms": 208.64,
+      "heading": 212.51,
       "on_ground": false
     }
   ],
@@ -51,7 +42,7 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "24日の間運休します。代船運航があります。船舶運航ダイヤをご確認下さい。\r\n・クイーンざまみは予定通り通常運航します。\r\n\r\n※朝の渋滞・駐車場満車で乗り遅れる方がいらっしゃいます。時間に余裕を持って"
+      "info": "情報取得中"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
