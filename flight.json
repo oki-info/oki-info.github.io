@@ -1,40 +1,31 @@
 {
-  "fetched_jst": "2026-04-05 00:06",
+  "fetched_jst": "2026-04-05 01:02",
   "flights": [
     {
-      "callsign": "CAL5141",
-      "lat": 26.7244,
-      "lon": 125.9647,
+      "callsign": "SIA623",
+      "lat": 27.6437,
+      "lon": 127.7941,
       "alt_m": 10972.8,
-      "speed_ms": 199.35,
-      "heading": 225.21,
+      "speed_ms": 198.63,
+      "heading": 225.63,
       "on_ground": false
     },
     {
-      "callsign": "JNA065",
-      "lat": 26.4578,
-      "lon": 126.3223,
+      "callsign": "CKS200",
+      "lat": 28.148,
+      "lon": 125.4458,
+      "alt_m": 12047.22,
+      "speed_ms": 188.65,
+      "heading": 230.75,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ69",
+      "lat": 28.1732,
+      "lon": 125.4885,
       "alt_m": 10972.8,
-      "speed_ms": 186.78,
-      "heading": 209.18,
-      "on_ground": false
-    },
-    {
-      "callsign": "TAX607",
-      "lat": 26.0973,
-      "lon": 126.7637,
-      "alt_m": 11582.4,
-      "speed_ms": 195.76,
-      "heading": 230.12,
-      "on_ground": false
-    },
-    {
-      "callsign": "HRCLS92",
-      "lat": 26.8283,
-      "lon": 128.1777,
-      "alt_m": 1478.28,
-      "speed_ms": 120.22,
-      "heading": 228.12,
+      "speed_ms": 176.75,
+      "heading": 231.26,
       "on_ground": false
     }
   ],
