@@ -1,58 +1,94 @@
 {
-  "fetched_jst": "2026-04-05 07:26",
+  "fetched_jst": "2026-04-05 08:03",
   "flights": [
     {
-      "callsign": "EVA051",
-      "lat": 25.9431,
-      "lon": 126.1016,
-      "alt_m": 11582.4,
-      "speed_ms": 205.46,
-      "heading": 242.73,
-      "on_ground": false
-    },
-    {
-      "callsign": "KAL434",
-      "lat": 27.0463,
-      "lon": 126.5704,
-      "alt_m": 11269.98,
-      "speed_ms": 280.67,
-      "heading": 21.39,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA601",
-      "lat": 26.2243,
-      "lon": 127.4683,
-      "alt_m": 3322.32,
-      "speed_ms": 127.71,
-      "heading": 242.4,
-      "on_ground": false
-    },
-    {
-      "callsign": "JTA50",
-      "lat": 26.8748,
-      "lon": 127.7334,
-      "alt_m": 5478.78,
-      "speed_ms": 220.45,
-      "heading": 25.43,
-      "on_ground": false
-    },
-    {
-      "callsign": "TVJ810",
-      "lat": 28.4343,
-      "lon": 128.4298,
-      "alt_m": 11277.6,
-      "speed_ms": 283.4,
-      "heading": 37.85,
-      "on_ground": false
-    },
-    {
-      "callsign": "TVJ820",
-      "lat": 28.3952,
-      "lon": 128.5532,
+      "callsign": "TAX602",
+      "lat": 27.3085,
+      "lon": 128.8896,
       "alt_m": 11887.2,
-      "speed_ms": 282.02,
-      "heading": 43.45,
+      "speed_ms": 284.58,
+      "heading": 49.4,
+      "on_ground": false
+    },
+    {
+      "callsign": "TAX620",
+      "lat": 27.8464,
+      "lon": 127.4935,
+      "alt_m": 12496.8,
+      "speed_ms": 286.23,
+      "heading": 34.23,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL38",
+      "lat": 26.2437,
+      "lon": 127.5133,
+      "alt_m": 11887.2,
+      "speed_ms": 282.66,
+      "heading": 45.52,
+      "on_ground": false
+    },
+    {
+      "callsign": "OCTNE91",
+      "lat": 26.3592,
+      "lon": 127.7836,
+      "alt_m": null,
+      "speed_ms": 0,
+      "heading": 132.19,
+      "on_ground": true
+    },
+    {
+      "callsign": "APG190",
+      "lat": 26.9904,
+      "lon": 128.6327,
+      "alt_m": 10675.62,
+      "speed_ms": 269.08,
+      "heading": 48.88,
+      "on_ground": false
+    },
+    {
+      "callsign": "CEB5068",
+      "lat": 26.6539,
+      "lon": 128.0186,
+      "alt_m": 10668,
+      "speed_ms": 275.39,
+      "heading": 39.85,
+      "on_ground": false
+    },
+    {
+      "callsign": "APJ774",
+      "lat": 28.3081,
+      "lon": 128.6223,
+      "alt_m": 10668,
+      "speed_ms": 279.53,
+      "heading": 41.49,
+      "on_ground": false
+    },
+    {
+      "callsign": "XAX532",
+      "lat": 27.5575,
+      "lon": 127.8825,
+      "alt_m": 11887.2,
+      "speed_ms": 280.01,
+      "heading": 41.13,
+      "on_ground": false
+    },
+    {
+      "callsign": "SKY551",
+      "lat": 26.8849,
+      "lon": 128.1554,
+      "alt_m": 4975.86,
+      "speed_ms": 173.94,
+      "heading": 226.44,
+      "on_ground": false
+    },
+    {
+      "callsign": "JAL900",
+      "lat": 28.15,
+      "lon": 128.5298,
+      "alt_m": 11064.24,
+      "speed_ms": 283.3,
+      "heading": 54.98,
       "on_ground": false
     }
   ],
@@ -60,12 +96,12 @@
     {
       "operator": "フェリーざまみ",
       "url": "https://www.vill.zamami.okinawa.jp/",
-      "info": "情報取得中"
+      "info": "運休"
     },
     {
       "operator": "渡嘉敷村（マリンライナーとかしき）",
       "url": "https://www.vill.tokashiki.okinawa.jp/",
-      "info": "村への代船運航のため運休となります。 / のため全便欠航\t\t\t\t\t\t泊  港  発\t\t\t\t\t\t09：00 (欠航)                                 \t\t\t16：30 (欠航)\t\t\t\t\t\t\t\t\t\t渡嘉敷港発\t\t\t"
+      "info": "村への代船運航のため運休となります。 / き」ドック運休予定令和8年5月18日(月曜日)～5月28日(木曜日)＜ドック準備の為5月17日の2便目は運休予定＞      \" />  <meta name=\"viewport\" content=\""
     }
   ]
 }
