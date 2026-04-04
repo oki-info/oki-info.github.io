@@ -1,31 +1,40 @@
 {
-  "fetched_jst": "2026-04-05 01:02",
+  "fetched_jst": "2026-04-05 02:52",
   "flights": [
     {
-      "callsign": "SIA623",
-      "lat": 27.6437,
-      "lon": 127.7941,
-      "alt_m": 10972.8,
-      "speed_ms": 198.63,
-      "heading": 225.63,
+      "callsign": "ANA849",
+      "lat": 27.3601,
+      "lon": 128.1823,
+      "alt_m": 12184.38,
+      "speed_ms": 206.36,
+      "heading": 228.84,
       "on_ground": false
     },
     {
-      "callsign": "CKS200",
-      "lat": 28.148,
-      "lon": 125.4458,
-      "alt_m": 12047.22,
-      "speed_ms": 188.65,
-      "heading": 230.75,
+      "callsign": "THA661",
+      "lat": 26.2318,
+      "lon": 126.8266,
+      "alt_m": 12192,
+      "speed_ms": 208.97,
+      "heading": 229.09,
       "on_ground": false
     },
     {
-      "callsign": "APJ69",
-      "lat": 28.1732,
-      "lon": 125.4885,
-      "alt_m": 10972.8,
-      "speed_ms": 176.75,
-      "heading": 231.26,
+      "callsign": "N3E",
+      "lat": 26.3117,
+      "lon": 126.5563,
+      "alt_m": 11277.6,
+      "speed_ms": 277.02,
+      "heading": 38.74,
+      "on_ground": false
+    },
+    {
+      "callsign": "JJA2104",
+      "lat": 26.0524,
+      "lon": 122.6197,
+      "alt_m": 11277.6,
+      "speed_ms": 262.19,
+      "heading": 32.26,
       "on_ground": false
     }
   ],
