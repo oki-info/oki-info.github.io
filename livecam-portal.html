@@ -1365,48 +1365,52 @@ function parseRiverData(infJs, datJs) {
       caution: almMap[sno]?.caution ?? null,
     });
   }
-  // 経過表（rep_suii10min = 10分間隔水位）をパース
+  // 経過表（rep_suii10min）をパース
+  // 構造: { tim:'04/05 11:10', sdat: [ { sno:1, dat:[{ dat:'0.21', alm:0, updw:0 }] }, ... ] }
   const history = [];
-  let inRep = false, curSno = null, curRecords = [], _repDebugLines = 0;
+  const stnRecords = {}; // sno → [{time, level, alm, trend}]
+  let inRep = false, curTime = null;
 
   for (const line of datJs.split('\n')) {
-    if (line.includes('rep_suii10min:')) { inRep = true; }
+    if (line.includes('rep_suii10min:')) { inRep = true; continue; }
     if (!inRep) continue;
-    // セクション開始直後の20行をログ出力
-    if (inRep && curSno === null && curRecords.length === 0) {
-      _repDebugLines = (_repDebugLines || 0) + 1;
-      if (_repDebugLines <= 20) console.log('[rep構造]', JSON.stringify(line.trim().slice(0,150)));
-    }
-    if (/kind:\s*4[^0-9]/.test(line) && line.includes('sno:')) {
-      // 前の観測所の記録を保存
-      if (curSno !== null && stnMap[curSno] && curRecords.length) {
-        history.push({
-          sno: curSno,
-          stn: stnMap[curSno].stn,
-          river: stnMap[curSno].river,
-          danger:  almMap[curSno]?.danger  ?? null,
-          caution: almMap[curSno]?.caution ?? null,
-          records: curRecords,
-        });
-      }
-      const m = line.match(/sno:\s*(\d+)/);
-      curSno = m ? parseInt(m[1]) : null;
-      curRecords = [];
-    } else if (curSno && line.includes('dt:') && line.includes('item10:')) {
-      const dtM  = line.match(/dt:\s*\[\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)/);
-      const lvM  = line.match(/item10:\s*\{\s*dat:\s*['"]([^'"]*)['"]/);
-      const almM = line.match(/item10:\s*\{[^}]*alm:\s*(-?\d+)/);
-      const trM  = line.match(/trend:\s*['"]([^'"]*)['"]/);
-      if (dtM) {
-        const [,, M, D, h, mn] = dtM.map(Number);
-        curRecords.push({
-          time:  `${String(M).padStart(2,'0')}/${String(D).padStart(2,'0')} ${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`,
+
+    // 時刻行: { tim:'04/05 11:10', sdat: [
+    const timM = line.match(/tim:\s*'([^']+)'/);
+    if (timM) { curTime = timM[1]; continue; }
+
+    // 観測所行: { sno: 1, dat:[ { dat:'0.21', alm:0, updw:0 } ] },
+    if (curTime && line.includes('sno:') && line.includes('dat:')) {
+      const snoM  = line.match(/sno:\s*(\d+)/);
+      const lvM   = line.match(/dat:\s*\[\s*\{\s*dat:\s*'([^']*)'/);
+      const almM  = line.match(/alm:\s*(-?\d+)/);
+      const updwM = line.match(/updw:\s*(-?\d+)/);
+      if (snoM) {
+        const sno  = parseInt(snoM[1]);
+        const updw = updwM ? parseInt(updwM[1]) : 0;
+        if (!stnRecords[sno]) stnRecords[sno] = [];
+        stnRecords[sno].push({
+          time:  curTime,
           level: lvM ? lvM[1] : '-',
           alm:   almM ? parseInt(almM[1]) : 0,
-          trend: trM ? trM[1] : '',
+          trend: updw > 0 ? 'up' : updw < 0 ? 'down' : 'stay',
         });
       }
     }
+  }
+
+  // stnRecordsからhistory配列を構築（新しい順に並べる）
+  for (const [sno, records] of Object.entries(stnRecords)) {
+    const snoInt = parseInt(sno);
+    if (!stnMap[snoInt]) continue;
+    history.push({
+      sno:     snoInt,
+      stn:     stnMap[snoInt].stn,
+      river:   stnMap[snoInt].river,
+      danger:  almMap[snoInt]?.danger  ?? null,
+      caution: almMap[snoInt]?.caution ?? null,
+      records: [...records].reverse(), // 新しい順
+    });
   }
   console.log(`[水位経過] history=${history.length}局`);
   // 最後の観測所
