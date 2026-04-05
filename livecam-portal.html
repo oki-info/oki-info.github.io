@@ -2241,52 +2241,7 @@ nextAt=Date.now()+10*60*1000;
 loadCameras(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
 
 // ── タブスワイプ（スマホ対応）──
-(function(){
-  const TAB_ORDER = ['river','youtube','kaiho','kasen','road','bousai'];
-  let _swipeX = null, _swipeY = null, _swipeStartY = null;
-  // スワイプ開始がタブバー付近（画面上部150px以内）のみ有効
-  const SWIPE_ZONE_HEIGHT = 150;
 
-  function getCurrentTab(){
-    return TAB_ORDER.find(t => document.getElementById('sec-'+t)?.classList.contains('active'));
-  }
-
-  document.addEventListener('touchstart', e => {
-    if(document.querySelector('.lightbox.open')) return;
-    const touch = e.touches[0];
-    // タブバー付近（上部150px）でのタッチのみ記録
-    if(touch.clientY > SWIPE_ZONE_HEIGHT) {
-      _swipeX = null; _swipeY = null;
-      return;
-    }
-    _swipeX = touch.clientX;
-    _swipeY = touch.clientY;
-    _swipeStartY = touch.clientY;
-  }, {passive: true});
-
-  document.addEventListener('touchend', e => {
-    if(_swipeX === null || _swipeY === null) return;
-    const dx = e.changedTouches[0].clientX - _swipeX;
-    const dy = e.changedTouches[0].clientY - _swipeY;
-    _swipeX = null; _swipeY = null;
-
-    // 縦スクロールが主体の場合は無視（|dy| > |dx|）
-    if(Math.abs(dy) > Math.abs(dx)) return;
-    // 最小スワイプ距離 60px
-    if(Math.abs(dx) < 60) return;
-
-    const cur = getCurrentTab();
-    if(!cur) return;
-    const idx = TAB_ORDER.indexOf(cur);
-    if(dx < 0 && idx < TAB_ORDER.length - 1){
-      showTab(TAB_ORDER[idx + 1]);
-      document.getElementById('tab-' + TAB_ORDER[idx + 1])?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
-    } else if(dx > 0 && idx > 0){
-      showTab(TAB_ORDER[idx - 1]);
-      document.getElementById('tab-' + TAB_ORDER[idx - 1])?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
-    }
-  }, {passive: true});
-})();
 
 </script>
 </body>
