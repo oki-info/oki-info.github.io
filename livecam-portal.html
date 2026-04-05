@@ -1486,9 +1486,7 @@ function renderKasenNow(data){
       : s.alm > 0
         ? `<span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]}</span>`
         : `<span style="color:#aaa;font-size:11px">－</span>`;
-    const histLink = hist.find(h=>h.sno===s.sno)
-      ? `<a href="#" onclick="event.preventDefault();showKasenHist(${s.sno})" style="font-size:11px;color:#1565c0">経過表</a>`
-      : '';
+    const histLink = `<a href="#" onclick="event.preventDefault();showKasenHist(${s.sno})" style="font-size:11px;color:#1565c0">📈 経過</a>`;
     return `<tr style="background:${bg};border-bottom:1px solid #ddd">
       <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:600;white-space:nowrap">${s.stn}</td>
       <td style="padding:6px 10px;color:#555;font-size:12px;white-space:nowrap">${s.river}</td>
@@ -1547,7 +1545,10 @@ function showKasenHist(sno){
 
   const render = (data) => {
     const h = (data.history||[]).find(x=>x.sno===sno);
-    if(!h){ el.innerHTML=''; return; }
+    if(!h){
+      el.innerHTML='<div style="padding:12px;color:#666;font-size:12px">経過データを取得できませんでした。</div>';
+      return;
+    }
     const AC2 = {'-1':'#aaa', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
     const AB2 = {'-1':'#eee', 0:'#fff',  1:'#fff9c4', 2:'#ffe0b2', 3:'#ffcdd2', 4:'#b71c1c'};
     const TR  = {up:'↑',down:'↓',stay:'→','':'→'};
@@ -1632,15 +1633,30 @@ function showKasenHist(sno){
     }, 100);
   };
 
-  // キャッシュ済みデータがあれば使う、なければWorker経由で取得
-  if (_cachedRiverData && _cachedRiverData.history && _cachedRiverData.history.length) {
-    render(_cachedRiverData);
+  // ローディング表示
+  el.innerHTML = '<div style="padding:12px;color:#666;font-size:12px">📡 経過データを取得中...</div>';
+
+  // キャッシュにhistoryがあればそのまま使う、なければWorkerから取得
+  const tryRender = (data) => {
+    if (data && data.history && data.history.length) {
+      render(data);
+    } else {
+      // historyが空 → Workerから強制再取得
+      fetchRiverDirect().then(fresh => {
+        if (fresh) { _cachedRiverData = fresh; render(fresh); }
+        else { el.innerHTML = '<div style="padding:12px;color:#c00;font-size:12px">データ取得失敗。更新ボタンで再試行してください。</div>'; }
+      });
+    }
+  };
+
+  if (_cachedRiverData) {
+    tryRender(_cachedRiverData);
   } else {
     fetchRiverDirect().then(data => {
-      if (data) { _cachedRiverData = data; render(data); }
+      if (data) { _cachedRiverData = data; tryRender(data); }
       else {
-        fetch('river.json?_='+Date.now()).then(r=>r.json()).then(data => {
-          _cachedRiverData = data; render(data);
+        fetch('river.json?_='+Date.now()).then(r=>r.json()).then(d => {
+          _cachedRiverData = d; tryRender(d);
         });
       }
     });
