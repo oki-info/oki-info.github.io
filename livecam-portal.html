@@ -1414,6 +1414,18 @@ function parseRiverData(infJs, datJs) {
   }
   console.log(`[水位経過] history=${history.length}局`);
 
+  // 現在水位（nowdt）を経過データの末尾に追加（最新値として）
+  const now = new Date();
+  const nowLabel = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  for (const h of history) {
+    const s = stations.find(x => x.sno === h.sno);
+    if (!s) continue;
+    const lastTime = h.records.length ? h.records[h.records.length-1].time : '';
+    if (lastTime !== nowLabel && s.level && s.level !== '-' && s.level !== '欠測') {
+      h.records.push({ time: nowLabel + ' ★', level: s.level, alm: s.alm, trend: 'stay' });
+    }
+  }
+
   return { stations, history };
 }
 
