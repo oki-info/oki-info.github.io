@@ -488,28 +488,44 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
       <div class="cam-card">
         <div class="cam-head"><div><div class="cam-name">第十一管区海上保安本部庁舎</div><div class="cam-loc">那覇市</div></div><span class="cam-badge badge-bousai">海保</span></div>
         <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/11th_rcgh/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+          <a href="https://camera.mics.kaiho.mlit.go.jp/camstream/11th_rcgh/" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;text-decoration:none;color:#94a3b8;gap:10px">
+            <span style="font-size:36px">📷</span>
+            <span style="font-size:12px;font-weight:600;color:#60a5fa">映像を開く ↗</span>
+            <span style="font-size:10px;color:#64748b;text-align:center;padding:0 8px">海上保安庁のサイトが別タブで開きます</span>
+          </a>
         </div>
         <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/11th_rcgh/" target="_blank">別タブで開く↗</a></div>
       </div>
       <div class="cam-card">
         <div class="cam-head"><div><div class="cam-name">伊計島灯台</div><div class="cam-loc">うるま市与那城伊計</div></div><span class="cam-badge badge-bousai">海保</span></div>
         <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/ikeishima_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+          <a href="https://camera.mics.kaiho.mlit.go.jp/camstream/ikeishima_lt/" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;text-decoration:none;color:#94a3b8;gap:10px">
+            <span style="font-size:36px">📷</span>
+            <span style="font-size:12px;font-weight:600;color:#60a5fa">映像を開く ↗</span>
+            <span style="font-size:10px;color:#64748b;text-align:center;padding:0 8px">海上保安庁のサイトが別タブで開きます</span>
+          </a>
         </div>
         <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/ikeishima_lt/" target="_blank">別タブで開く↗</a></div>
       </div>
       <div class="cam-card">
         <div class="cam-head"><div><div class="cam-name">琉球観音埼灯台</div><div class="cam-loc">石垣市新川</div></div><span class="cam-badge badge-bousai">海保</span></div>
         <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/ryukyukannonsaki_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+          <a href="https://camera.mics.kaiho.mlit.go.jp/camstream/ryukyukannonsaki_lt/" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;text-decoration:none;color:#94a3b8;gap:10px">
+            <span style="font-size:36px">📷</span>
+            <span style="font-size:12px;font-weight:600;color:#60a5fa">映像を開く ↗</span>
+            <span style="font-size:10px;color:#64748b;text-align:center;padding:0 8px">海上保安庁のサイトが別タブで開きます</span>
+          </a>
         </div>
         <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/ryukyukannonsaki_lt/" target="_blank">別タブで開く↗</a></div>
       </div>
       <div class="cam-card">
         <div class="cam-head"><div><div class="cam-name">西埼灯台</div><div class="cam-loc">八重山郡与那国町</div></div><span class="cam-badge badge-bousai">海保</span></div>
         <div style="position:relative;aspect-ratio:4/3;background:#0a0f16;overflow:hidden">
-          <iframe src="https://camera.mics.kaiho.mlit.go.jp/camstream/irisaki_lt/" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+          <a href="https://camera.mics.kaiho.mlit.go.jp/camstream/irisaki_lt/" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;text-decoration:none;color:#94a3b8;gap:10px">
+            <span style="font-size:36px">📷</span>
+            <span style="font-size:12px;font-weight:600;color:#60a5fa">映像を開く ↗</span>
+            <span style="font-size:10px;color:#64748b;text-align:center;padding:0 8px">海上保安庁のサイトが別タブで開きます</span>
+          </a>
         </div>
         <div class="card-foot"><span class="foot-stamp">海上保安庁</span><a class="foot-link" href="https://camera.mics.kaiho.mlit.go.jp/camstream/irisaki_lt/" target="_blank">別タブで開く↗</a></div>
       </div>
@@ -1597,6 +1613,7 @@ async function renderSummary(){
   ]);
   const W = warningData.value,  K = kikuData.value;
   const R = riverData.value,    Q = quakeData.value;
+  const K_early = (W && W.early_warning) || [];
 
   // ── 警報・注意報 集計 ──
   let warnLevel=0, warnAreas=[], warnAlerts=[];
