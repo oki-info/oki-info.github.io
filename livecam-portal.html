@@ -274,27 +274,24 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 </div>
 
 <nav>
-  <button class="tab active" id="tab-bousaiinfo" onclick="showTab('bousaiinfo')">⚠️ 防災情報</button>
-  <button class="tab"        id="tab-river"   onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
+  <button class="tab active" id="tab-river"    onclick="showTab('river')">🌊 河川カメラ <span class="tab-count" id="tc-river">—</span></button>
   <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
   <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
-  <button class="tab"        id="tab-amedas"  onclick="showTab('amedas')">🌤 気象観測</button>
-  <button class="tab"        id="tab-flight" onclick="showTab('flight')">✈ フライト・船舶</button>
-  <button class="tab"        id="tab-kasen"  onclick="showTab('kasen')">📊 河川水位</button>
+  <button class="tab"        id="tab-kasen"    onclick="showTab('kasen')">📊 河川水位</button>
   <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-bousai"   onclick="showTab('bousai')">🚨 防災カメラ <span class="tab-count">4</span></button>
 </nav>
 
 <!-- ① 河川カメラ -->
-<div class="section" id="sec-river">
+<div class="section active" id="sec-river">
   <div class="river-toolbar">
     <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">表示:</span>
     <div class="seg">
       <button class="seg-btn" id="btn1"   onclick="setMode(1)">１画面</button>
       <button class="seg-btn" id="btn2"   onclick="setMode(2)">２画面</button>
-      <button class="seg-btn active" id="btn4" onclick="setMode(4)">４画面</button>
+      <button class="seg-btn" id="btn4" onclick="setMode(4)">４画面</button>
       <button class="seg-btn" id="btn8"   onclick="setMode(8)">８画面</button>
-      <button class="seg-btn" id="btnall" onclick="setMode('all')">全画面</button>
+      <button class="seg-btn active" id="btnall" onclick="setMode('all')">全画面</button>
     </div>
     <button class="tbtn" onclick="reloadAll()">↺ 今すぐ更新</button>
     <div class="ml-auto s-row">
@@ -310,99 +307,6 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 </div>
 
 <!-- ② 防災情報タブ -->
-<div class="section active" id="sec-bousaiinfo">
-  <div class="portal-body">
-    <div style="display:grid;gap:16px;grid-template-columns:1fr 1fr;">
-
-      <!-- サマリーパネル -->
-      <div style="grid-column:1/-1" id="summary-panel-wrap"></div>
-
-      <!-- 気象警報・注意報 -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">気象警報・注意報 <span style="font-size:11px;font-weight:400;letter-spacing:0">（沖縄県 — 気象庁）</span>
-          <a href="https://www.jma.go.jp/bosai/warning/#area_type=class20s&area_code=471000" target="_blank" class="tbtn" style="margin-left:auto">↗ 気象庁</a>
-          <button class="tbtn" onclick="loadBousaiInfo()">↺ 更新</button>
-        </div>
-        <div id="warning-area" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
-        </div>
-      </div>
-
-      <!-- 雨雲レーダー -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">📡 雨雲レーダー（気象庁）</div>
-        <a href="https://www.jma.go.jp/bosai/nowc/" target="_blank" class="ext-link">
-          <span class="ext-link-name">気象庁 雨雲レーダー（ナウキャスト）を開く</span>
-          <span class="ext-link-arr">↗</span>
-        </a>
-      </div>
-      <!-- 早期注意情報 -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
-          <span>🔔 早期注意情報（警報級の可能性）</span>
-          <a href="https://www.jma.go.jp/bosai/probability/" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁</a>
-        </div>
-        <div id="early-warning-wrap"></div>
-      </div>
-
-      <!-- キキクル危険度分布アラート -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">🔴 キキクル（危険度分布）
-          <a href="https://www.jma.go.jp/bosai/risk/#lat:26.6/lon:127.96/zoom:8/elements:inund" target="_blank" class="tbtn" style="margin-left:auto">↗ 気象庁 キキクル</a>
-        </div>
-        <div id="kikukuru-banner"></div>
-      </div>
-
-      <!-- 地震情報 -->
-      <div style="grid-column:1/-1;text-align:left">
-        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-          <span>🌏 地震情報（沖縄周辺 直近24時間）</span>
-          <div style="display:flex;gap:6px;align-items:center">
-            <a href="https://www.data.jma.go.jp/multi/quake/index.html?lang=jp" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁 地震情報</a>
-            <button class="tbtn" onclick="loadEarthquake()">↺ 更新</button>
-          </div>
-        </div>
-        <div id="earthquake-panel">
-          <div style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px">読込中…</div>
-        </div>
-      </div>
-
-      <!-- 台風情報 -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">台風情報<a href="https://www.jma.go.jp/bosai/typhoon/" target="_blank" class="tbtn" style="font-size:11px">↗ 気象庁</a></div>
-        <div id="typhoon-area" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:20px">読込中…</div>
-        </div>
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <a class="ext-link" href="https://www.jma.go.jp/bosai/typhoon/" target="_blank" style="font-size:12px"><span class="ext-link-name">気象庁 台風情報</span><span class="ext-link-arr">↗</span></a>
-          <a class="ext-link" href="https://www.jma-net.go.jp/okinawa/" target="_blank" style="font-size:12px"><span class="ext-link-name">沖縄気象台</span><span class="ext-link-arr">↗</span></a>
-        </div>
-      </div>
-
-      <!-- 停電情報 -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">停電情報</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <a class="ext-link" href="https://www.okidenmail.jp/bosai/info/index.html" target="_blank">
-            <span style="font-size:16px">⚡</span><span class="ext-link-name">沖縄電力 停電情報</span><span class="ext-link-arr">↗</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- 防災ポータル -->
-      <div style="grid-column:1/-1">
-        <div class="sec-title">防災ポータル</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <a class="ext-link" href="https://bousai-okinawa.my.salesforce-sites.com" target="_blank">
-            <span style="font-size:16px">🛡</span><span class="ext-link-name">沖縄防災情報ポータル ハイサイ！防災で〜びる</span><span class="ext-link-arr">↗</span>
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
 <div class="section" id="sec-youtube">
   <div class="portal-body">
     <div class="sec-title">YouTube ライブカメラ</div>
@@ -542,22 +446,6 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 </div>
 
 <!-- ④ 道路カメラ -->
-<div class="section" id="sec-flight">
-  <div class="portal-body" style="background:#f0f7ff;min-height:400px">
-    <div id="flight-inner">
-      <div style="color:#666;font-family:monospace;font-size:12px;padding:16px">読込中…</div>
-    </div>
-  </div>
-</div>
-
-<div class="section" id="sec-amedas">
-  <div class="portal-body" style="background:#f0f7ff;min-height:400px">
-    <div id="amedas-inner">
-      <div style="color:#666;font-family:monospace;font-size:12px;padding:16px">読込中…</div>
-    </div>
-  </div>
-</div>
-
 <div class="section" id="sec-kasen">
   <div class="portal-body" style="background:#f0f4f8;min-height:400px">
     <div id="kasen-inner">
@@ -656,7 +544,7 @@ const YT_TAB_FIXED = [
   { id:'wRq4tg4d-aA', el:'ytf-22' },
 ];
 
-let CAMERAS=[], mode=4, initialized=false, ytTabLoaded=false, nextAt=null;
+let CAMERAS=[], mode='all', initialized=false, ytTabLoaded=false, nextAt=null;
 const st={};
 let _lastYtLive=null;
 
@@ -723,15 +611,12 @@ async function setImgNoCache(imgEl, url) {
 }
 
 function showTab(id){
-  ['river','bousaiinfo','youtube','kaiho','road','bousai','kasen','amedas','flight'].forEach(t=>{
+  ['river','youtube','kaiho','kasen','road','bousai'].forEach(t=>{
     document.getElementById('sec-'+t).classList.toggle('active',t===id);
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
   document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
-  if(id==='bousaiinfo'){ renderSummary(); loadKikukuru(); loadBousaiInfo(); loadEarthquake(); }
   if(id==='kasen'){ loadKasen(); }
-  if(id==='amedas'){ loadAmedas(); }
-  if(id==='flight'){ loadFlight(); }
   // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
@@ -804,7 +689,8 @@ async function loadCameras(){
     if(!initialized){
       // ── 初回のみ：カメラリスト構築＋グリッド描画 ──
       initialized=true;
-      CAMERAS=data.cameras.map(c=>({type:'static',filename:`p-${c.pid}.jpg`,name:'🌊 カメラ '+c.pid,loc:'p-'+c.pid,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/'}));
+      const SKIP_PIDS = new Set(['26','27','28','29','45']);
+      CAMERAS=data.cameras.filter(c=>!SKIP_PIDS.has(String(c.pid))).map(c=>({type:'static',filename:`p-${c.pid}.jpg`,name:'🌊 カメラ '+c.pid,loc:'p-'+c.pid,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/'}));
       if(data.extra_cameras) data.extra_cameras.forEach(c=>{const info=EXTRA_CAM_INFO[c.key]||{};CAMERAS.push({type:'static',filename:`${c.key}.jpg`,name:info.name||c.name,loc:info.loc||c.loc,link:info.link||'#'});});
       YT_FIXED.forEach(y=>CAMERAS.push({type:'youtube',ytId:y.id,name:y.name,loc:y.loc,ytUrl:y.ytUrl}));
       // 国道グリッド描画
@@ -1313,6 +1199,95 @@ function renderAmedas(data){
 let kasenLoaded = false;
 let kasenHistSno = null;
 
+// ── 河川水位 直接取得（Actions遅延回避）──
+const RIVER_DAT_BASE = 'http://bousai-kasen.pref.okinawa.jp/river/kasen/dat_js/';
+const CORS_PROXY = 'https://corsproxy.io/?url=';
+
+async function fetchRiverJs(filename) {
+  const url = RIVER_DAT_BASE + filename;
+  // まず corsproxy.io 経由
+  try {
+    const r = await fetch(CORS_PROXY + encodeURIComponent(url), {
+      cache: 'no-store', signal: AbortSignal.timeout(8000)
+    });
+    if (r.ok) return await r.text();
+  } catch(e) {}
+  // allorigins フォールバック
+  try {
+    const r2 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url), {
+      cache: 'no-store', signal: AbortSignal.timeout(8000)
+    });
+    if (r2.ok) return await r2.text();
+  } catch(e) {}
+  return null;
+}
+
+function parseRiverData(infJs, datJs) {
+  // 観測所マスタ（kind:4）
+  const stnMap = {};
+  const almMap = {};
+  for (const line of infJs.split('\n')) {
+    const l = line.replace(/\s/g,'');
+    if (!l.includes('kind:4') || !l.includes('sno:')) continue;
+    const g = (k) => { const m = line.match(new RegExp(k+":\\s*['\"]([^'\"]*)['\"]")); return m?m[1]:''; };
+    const gi = (k) => { const m = line.match(new RegExp(k+":\\s*(-?\\d+)")); return m?parseInt(m[1]):null; };
+    const gf = (k) => { const m = line.match(new RegExp(k+":\\s*([\\d.]+)")); return m?parseFloat(m[1]):null; };
+    const sno = gi('sno');
+    if (sno == null) continue;
+    stnMap[sno] = { stn: g('stn'), river: g('ksn'), cam: gi('cam') };
+    const almM = line.match(/alm:\s*\[([^\]]+)\]/);
+    if (almM) {
+      const vals = almM[1].split(',').map(v => v.trim().replace(/['"]/g,''));
+      // alm[3]=氾濫危険水位, alm[4]=護岸天端高水位
+      const danger  = vals[3] && vals[3] !== '－' ? parseFloat(vals[3]) : null;
+      const caution = vals[4] && vals[4] !== '－' ? parseFloat(vals[4]) : null;
+      almMap[sno] = { danger, caution };
+    }
+  }
+
+  // 現在水位（nowdt）
+  const stations = [];
+  let inNow = false;
+  for (const line of datJs.split('\n')) {
+    if (line.includes('nowdt:')) inNow = true;
+    if (!inNow) continue;
+    if (!/kind:\s*4[^0-9]/.test(line) || !line.includes('sno:')) continue;
+    const gi = (k) => { const m = line.match(new RegExp(k+":\\s*(-?\\d+)")); return m?parseInt(m[1]):null; };
+    const sno = gi('sno');
+    if (sno == null || !stnMap[sno]) continue;
+    const lvM  = line.match(/item10:\s*\{\s*dat:\s*['"]([^'"]*)['"]/);
+    const almM = line.match(/item10:\s*\{[^}]*alm:\s*(-?\d+)/);
+    const level = lvM ? lvM[1] : '-';
+    const alm   = almM ? parseInt(almM[1]) : 0;
+    stations.push({
+      sno, level, alm,
+      stn:     stnMap[sno].stn,
+      river:   stnMap[sno].river,
+      cam:     stnMap[sno].cam,
+      danger:  almMap[sno]?.danger  ?? null,
+      caution: almMap[sno]?.caution ?? null,
+    });
+  }
+  return stations;
+}
+
+async function fetchRiverDirect() {
+  try {
+    const [infJs, datJs] = await Promise.all([
+      fetchRiverJs('DBDAT_inf.js'),
+      fetchRiverJs('DBDAT_dat.js'),
+    ]);
+    if (!infJs || !datJs) return null;
+    const stations = parseRiverData(infJs, datJs);
+    if (!stations.length) return null;
+    console.log(`河川水位直接取得: ${stations.length}局`);
+    return { stations, history: [], updated: '直接取得（リアルタイム）', fetched_jst: new Date().toLocaleString('ja-JP') };
+  } catch(e) {
+    console.warn('河川水位直接取得失敗:', e);
+    return null;
+  }
+}
+
 async function loadKasen(){
   if(kasenLoaded) return;
   kasenLoaded = true;
@@ -1397,7 +1372,7 @@ function renderKasenNow(data){
 
   // 凡例
   const legend = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:11px">
-    ${[{l:1,t:'注意（護岸天端超え）'},{l:2,t:'警戒（氾濫危険超え）'},{l:3,t:'危険'}].map(x=>
+    ${[{l:1,t:'注意（氾濫危険水位超え）'},{l:2,t:'警戒（護岸天端高超え）'},{l:3,t:'危険'}].map(x=>
       `<div style="display:flex;align-items:center;gap:5px">
         <div style="width:14px;height:14px;border-radius:2px;background:${AB[x.l]};border:1px solid ${AC[x.l]}"></div>
         <span style="color:#555">${x.t}</span>
@@ -1608,7 +1583,7 @@ async function renderSummary(){
   const [warningData, kikuData, riverData, quakeData] = await Promise.allSettled([
     fetch('warning.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
     fetch('kikukuru.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
-    fetch('river.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
+    fetchRiverDirect().then(d => d || fetch('river.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null)),
     fetch('earthquake.json?_='+Math.floor(Date.now()/300000)).then(r=>r.ok?r.json():null),
   ]);
   const W = warningData.value,  K = kikuData.value;
@@ -1927,11 +1902,11 @@ function renderTyphoon(data){
 // ── 防災ダッシュボード ──
 setTimeout(()=>location.reload(),10*60*1000);
 nextAt=Date.now()+10*60*1000;
-loadCameras(); renderSummary(); loadKikukuru(); loadBousaiInfo(); loadEarthquake(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
+loadCameras(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
 
 // ── タブスワイプ（スマホ対応）──
 (function(){
-  const TAB_ORDER = ['bousaiinfo','river','youtube','kaiho','amedas','flight','kasen','road','bousai'];
+  const TAB_ORDER = ['river','youtube','kaiho','kasen','road','bousai'];
   let _swipeX = null, _swipeY = null;
   const container = document.querySelector('.sections') || document.body;
 
