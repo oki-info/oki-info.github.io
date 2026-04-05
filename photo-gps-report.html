@@ -488,8 +488,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 
     <!-- Position adjustment -->
     <div class="card adj-card" id="adjCard">
-      <div class="card-head"><span class="dot" style="background:#e67e22;box-shadow:0 0 5px #e67e22"></span>📍 GPS位置を手動調整</div>
-      <div class="adj-hint">🖱 マーカーをドラッグして位置を修正 · ホイールでズーム</div>
+      <div class="card-head"><span class="dot" style="background:#e67e22;box-shadow:0 0 5px #e67e22"></span>📍 GPS位置を設定 / 手動調整</div>
+      <div class="adj-hint" id="adjHint">🖱 マーカーをドラッグして位置を修正 · ホイールでズーム</div>
       <div class="adj-photo-sel">
         <span>対象写真:</span>
         <select id="adjPhotoSel" onchange="adjPhotoChanged()"></select>
@@ -506,7 +506,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
         </div>
       </div>
       <div class="adj-btn-row">
-        <button class="adj-reset" onclick="adjReset()">↩ 元に戻す</button>
+        <button class="adj-reset" id="adjResetBtn" onclick="adjReset()">↩ 元に戻す</button>
         <button class="adj-apply" onclick="adjApply()">✓ この位置を適用</button>
       </div>
       <div class="adj-status" id="adjStatus">✓ 位置を更新しました</div>
@@ -886,8 +886,8 @@ async function handleFiles(files) {
     }
     renderItem(idx);
     document.getElementById('genBtn').disabled = !photos.some(p => p.status === 'ok');
-    // Show/refresh adj card when a GPS photo is available
-    if (photos.some(p => p.gps)) showAdjCard();
+    // 写真が1枚以上あれば位置設定カードを表示
+    if (photos.length) showAdjCard();
   }
 }
 
@@ -941,67 +941,103 @@ function selectPhoto(idx) {
 // ======================
 let adjMap = null;
 let adjMarker = null;
-let adjTargetIdx = 0; // index into GPS photos
+let adjTargetIdx = 0;
 
+// 写真アップ後に毎回カードを更新
 function showAdjCard() {
-  const gpsPhotos = photos.filter(p => p.gps);
-  if (!gpsPhotos.length) return;
+  if (!photos.length) return;
   document.getElementById('adjCard').classList.add('visible');
-  // Populate select
   const sel = document.getElementById('adjPhotoSel');
+  const prev = sel.value;
   sel.innerHTML = photos.map((p, i) =>
-    p.gps ? `<option value="${i}">${p.name}</option>` : ''
+    `<option value="${i}">${p.name}${p.gps ? '' : '　⚠️ GPS情報なし'}</option>`
   ).join('');
-  adjTargetIdx = parseInt(sel.value);
+  // 選択中インデックスを維持（可能なら）
+  if (prev !== '' && photos[parseInt(prev)]) sel.value = prev;
+  adjTargetIdx = parseInt(sel.value) || 0;
   initAdjMap();
 }
 
 function adjPhotoChanged() {
   adjTargetIdx = parseInt(document.getElementById('adjPhotoSel').value);
-  const p = photos[adjTargetIdx];
-  if (!p?.gps || !adjMarker) return;
-  const ll = [p.gps.lat, p.gps.lng];
-  adjMarker.setLatLng(ll);
-  adjMap.setView(ll, adjMap.getZoom());
-  document.getElementById('adj-lat').value = p.gps.lat.toFixed(7);
-  document.getElementById('adj-lng').value = p.gps.lng.toFixed(7);
-  document.getElementById('adjStatus').style.display = 'none';
+  initAdjMap();
 }
 
 function initAdjMap() {
-  if (adjMap) { adjMap.remove(); adjMap = null; }
+  if (adjMap) { adjMap.remove(); adjMap = null; adjMarker = null; }
   const p = photos[adjTargetIdx];
-  if (!p?.gps) return;
+  if (!p) return;
+
+  const hasGps = !!p.gps;
+  // GPSあり→その位置、なし→沖縄中心
+  const initLat = hasGps ? p.gps.lat : 26.2124;
+  const initLng = hasGps ? p.gps.lng : 127.6809;
+  const initZoom = hasGps ? 16 : 11;
+
+  // ヒント文言を切り替え
+  document.getElementById('adjHint').textContent = hasGps
+    ? '🖱 マーカーをドラッグして位置を修正 · ホイールでズーム'
+    : '🖱 地図をクリックして位置をセット · ホイールでズーム';
+  // リセットボタン文言
+  document.getElementById('adjResetBtn').textContent = hasGps ? '↩ 元に戻す' : '🗑 位置をクリア';
 
   adjMap = L.map('adjMap', { zoomControl: true, attributionControl: false });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(adjMap);
-  adjMap.setView([p.gps.lat, p.gps.lng], 16);
+  adjMap.setView([initLat, initLng], initZoom);
 
-  // Draggable marker
   const icon = L.divIcon({
     className: '',
     html: `<div style="width:20px;height:20px;background:#e67e22;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.5);cursor:grab;"></div>`,
     iconSize: [20, 20], iconAnchor: [10, 10]
   });
-  adjMarker = L.marker([p.gps.lat, p.gps.lng], { icon, draggable: true }).addTo(adjMap);
 
-  document.getElementById('adj-lat').value = p.gps.lat.toFixed(7);
-  document.getElementById('adj-lng').value = p.gps.lng.toFixed(7);
+  if (hasGps) {
+    // GPSあり：マーカー表示・ドラッグで移動
+    adjMarker = L.marker([initLat, initLng], { icon, draggable: true }).addTo(adjMap);
+    document.getElementById('adj-lat').value = initLat.toFixed(7);
+    document.getElementById('adj-lng').value = initLng.toFixed(7);
+    adjMarker.on('drag', e => {
+      const ll = e.target.getLatLng();
+      document.getElementById('adj-lat').value = ll.lat.toFixed(7);
+      document.getElementById('adj-lng').value = ll.lng.toFixed(7);
+      document.getElementById('adjStatus').style.display = 'none';
+    });
+  } else {
+    // GPSなし：マーカーなし、クリックで設置
+    document.getElementById('adj-lat').value = '';
+    document.getElementById('adj-lng').value = '';
+    adjMap.on('click', e => {
+      const { lat, lng } = e.latlng;
+      if (!adjMarker) {
+        adjMarker = L.marker([lat, lng], { icon, draggable: true }).addTo(adjMap);
+        adjMarker.on('drag', ev => {
+          const ll = ev.target.getLatLng();
+          document.getElementById('adj-lat').value = ll.lat.toFixed(7);
+          document.getElementById('adj-lng').value = ll.lng.toFixed(7);
+          document.getElementById('adjStatus').style.display = 'none';
+        });
+      } else {
+        adjMarker.setLatLng([lat, lng]);
+      }
+      document.getElementById('adj-lat').value = lat.toFixed(7);
+      document.getElementById('adj-lng').value = lng.toFixed(7);
+      document.getElementById('adjStatus').style.display = 'none';
+    });
+  }
 
-  adjMarker.on('drag', e => {
-    const ll = e.target.getLatLng();
-    document.getElementById('adj-lat').value = ll.lat.toFixed(7);
-    document.getElementById('adj-lng').value = ll.lng.toFixed(7);
-    document.getElementById('adjStatus').style.display = 'none';
-  });
+  document.getElementById('adjStatus').style.display = 'none';
 
-  // Allow lat/lng input → move marker
+  // 座標入力でマーカー移動
   ['adj-lat', 'adj-lng'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
       const lat = parseFloat(document.getElementById('adj-lat').value);
       const lng = parseFloat(document.getElementById('adj-lng').value);
       if (!isNaN(lat) && !isNaN(lng)) {
-        adjMarker.setLatLng([lat, lng]);
+        if (!adjMarker) {
+          adjMarker = L.marker([lat, lng], { icon, draggable: true }).addTo(adjMap);
+        } else {
+          adjMarker.setLatLng([lat, lng]);
+        }
         adjMap.panTo([lat, lng]);
       }
     });
@@ -1013,18 +1049,18 @@ function initAdjMap() {
 async function adjApply() {
   const lat = parseFloat(document.getElementById('adj-lat').value);
   const lng = parseFloat(document.getElementById('adj-lng').value);
-  if (isNaN(lat) || isNaN(lng)) { alert('緯度・経度を確認してください'); return; }
+  if (isNaN(lat) || isNaN(lng)) { alert('地図をクリックするか、緯度・経度を入力してください'); return; }
 
   const p = photos[adjTargetIdx];
   const prevAlt = p.gps?.alt ?? null;
   const prevDir = p.gps?.dir ?? null;
 
-  // Update GPS
   p.gps = { lat, lng, alt: prevAlt, dir: prevDir };
   p.utm = toUTM(lat, lng);
+  p.status = 'ok';
+  renderItem(adjTargetIdx);
+  document.getElementById('genBtn').disabled = false;
 
-  // Re-geocode
-  p.address = '住所取得中…';
   const st = document.getElementById('adjStatus');
   st.textContent = '住所を取得中…';
   st.style.color = 'var(--text2)';
@@ -1036,22 +1072,37 @@ async function adjApply() {
     p.address = d.display_name || '—';
   } catch { p.address = '（住所取得失敗）'; }
 
-  st.textContent = '✓ 位置を更新しました。レポートを再生成してください。';
+  st.textContent = '✓ 位置を設定しました。レポートを再生成してください。';
   st.style.color = 'var(--green)';
-  document.getElementById('genBtn').disabled = false;
 }
 
 function adjReset() {
   const p = photos[adjTargetIdx];
-  if (!p?.origGps) return;
-  p.gps = { ...p.origGps };
-  p.utm = toUTM(p.origGps.lat, p.origGps.lng);
-  adjMarker.setLatLng([p.origGps.lat, p.origGps.lng]);
-  adjMap.setView([p.origGps.lat, p.origGps.lng], 16);
-  document.getElementById('adj-lat').value = p.origGps.lat.toFixed(7);
-  document.getElementById('adj-lng').value = p.origGps.lng.toFixed(7);
   const st = document.getElementById('adjStatus');
-  st.textContent = '↩ 元の位置に戻しました';
+  if (p.origGps) {
+    // GPS付き写真：元の位置に戻す
+    p.gps = { ...p.origGps };
+    p.utm = toUTM(p.origGps.lat, p.origGps.lng);
+    if (adjMarker) {
+      adjMarker.setLatLng([p.origGps.lat, p.origGps.lng]);
+      adjMap.setView([p.origGps.lat, p.origGps.lng], 16);
+    }
+    document.getElementById('adj-lat').value = p.origGps.lat.toFixed(7);
+    document.getElementById('adj-lng').value = p.origGps.lng.toFixed(7);
+    st.textContent = '↩ 元の位置に戻しました';
+  } else {
+    // GPSなし写真：手動設定をクリア
+    p.gps = null;
+    p.utm = null;
+    p.address = null;
+    p.status = 'none';
+    renderItem(adjTargetIdx);
+    if (adjMarker) { adjMarker.remove(); adjMarker = null; }
+    document.getElementById('adj-lat').value = '';
+    document.getElementById('adj-lng').value = '';
+    st.textContent = '🗑 位置をクリアしました';
+    document.getElementById('genBtn').disabled = !photos.some(p => p.status === 'ok');
+  }
   st.style.color = 'var(--text2)';
   st.style.display = 'block';
 }
