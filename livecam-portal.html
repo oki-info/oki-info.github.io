@@ -286,7 +286,12 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
 <!-- ① 河川カメラ -->
 <div class="section active" id="sec-river">
   <div class="river-toolbar">
-    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">表示:</span>
+    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">河川:</span>
+    <select id="river-filter" onchange="setRiverFilter(this.value)"
+      style="font-size:11px;font-family:var(--mono);padding:4px 8px;border:1px solid var(--edge);border-radius:4px;background:var(--panel);color:var(--text);cursor:pointer;max-width:140px">
+      <option value="">全河川</option>
+    </select>
+    <span style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:4px">表示:</span>
     <div class="seg">
       <button class="seg-btn" id="btn1"   onclick="setMode(1)">１画面</button>
       <button class="seg-btn" id="btn2"   onclick="setMode(2)">２画面</button>
@@ -845,10 +850,31 @@ async function loadCameras(){
     if(!initialized){
       // ── 初回のみ：カメラリスト構築＋グリッド描画 ──
       initialized=true;
-      const SKIP_PIDS = new Set(['26','27','28','29','45']);
-      CAMERAS=data.cameras.filter(c=>!SKIP_PIDS.has(String(c.pid))).map(c=>({type:'static',filename:`p-${c.pid}.jpg`,name:'🌊 カメラ '+c.pid,loc:'p-'+c.pid,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/'}));
+      
+// カメラpid → 河川名マッピング（DBDAT_inf.jsより）
+const CAM_RIVER_MAP = {
+  '01':'久茂地川','02':'久茂地川',
+  '04':'安里川',
+  '11':'真嘉比川',
+  '17':'国場川','20':'国場川',
+  '21':'長堂川',
+  '22':'安謝川','25':'安謝川',
+  '41':'小波津川',
+  '43':'牧港川',
+  '44':'比謝川',
+  '49':'石川川',
+  '50':'天願川','52':'天願川','53':'天願川',
+  '64':'源河川',
+};
+const SKIP_PIDS = new Set(['26','27','28','29','45']);
+      CAMERAS=data.cameras.filter(c=>!SKIP_PIDS.has(String(c.pid))).map(c=>{
+        const pid = String(c.pid).padStart(2,'0');
+        const river = CAM_RIVER_MAP[pid] || 'その他';
+        return {type:'static',filename:`p-${pid}.jpg`,name:`${river} p-${pid}`,loc:river,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/',river};
+      });
       if(data.extra_cameras) data.extra_cameras.forEach(c=>{const info=EXTRA_CAM_INFO[c.key]||{};CAMERAS.push({type:'static',filename:`${c.key}.jpg`,name:info.name||c.name,loc:info.loc||c.loc,link:info.link||'#'});});
       YT_FIXED.forEach(y=>CAMERAS.push({type:'youtube',ytId:y.id,name:y.name,loc:y.loc,ytUrl:y.ytUrl}));
+      buildRiverFilterOptions();
       // 国道グリッド描画
       if(data.road_cameras&&data.road_cameras.length>0){
         const rg=document.getElementById('road-grid');
@@ -933,9 +959,10 @@ function render(){
   const grid=document.getElementById('grid'); grid.innerHTML='';
   const modeMap={1:'g1',2:'g2',4:'g4',8:'g8',all:'gall'};
   grid.className='grid '+(modeMap[mode]||'g4');
-  const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);
+  const filt3 = filteredCameras();
+  const count=mode==='all'?filt3.length:Math.min(mode,filt3.length);
   for(let i=0;i<count;i++){
-    const cam=CAMERAS[i]; if(!cam) continue;
+    const cam=filt3[i]; if(!cam) continue;
     if(cam.type==='youtube'){
       const d=document.createElement('div'); d.className='yt-card'; d.id='card-'+i;
       d.innerHTML=`<div class="yt-head"><div><div class="card-river">${esc(cam.name)}</div><div class="card-loc">${esc(cam.loc)}</div></div><div class="yt-badge"><div class="yt-badge-dot"></div>LIVE</div></div>
@@ -970,11 +997,12 @@ function rimgOK(i){const img=document.getElementById('rimg-'+i),ld=document.getE
 function rimgNG(i){const img=document.getElementById('rimg-'+i),ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(ld)ld.style.display='none';if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';}
 function loadImg(i){
   const img=document.getElementById('img-'+i);
-  if(!img||!CAMERAS[i]) return;
-  if(CAMERAS[i].filename?.startsWith('p-')) {
-    setRiverImg(img, CAMERAS[i].filename, `img_cam/${CAMERAS[i].filename}`);
+  const fc=filteredCameras();
+  if(!img||!fc[i]) return;
+  if(fc[i].filename?.startsWith('p-')) {
+    setRiverImg(img, fc[i].filename, `img_cam/${fc[i].filename}`);
   } else {
-    setImgNoCache(img, `img_cam/${CAMERAS[i].filename}`);
+    setImgNoCache(img, `img_cam/${fc[i].filename}`);
   }
 }
 function imgOK(i){
@@ -994,11 +1022,38 @@ function retry(i){
   if(img){img.style.display='block';img.style.opacity='0';}
   if(card)card.className='card';st[i]='loading';updateCounts();loadImg(i);
 }
-function reloadAll(){const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++)if(CAMERAS[i]&&CAMERAS[i].type!=='youtube')retry(i);nextAt=Date.now()+10*60*1000;}
+function reloadAll(){const fc=filteredCameras();const count=mode==='all'?fc.length:Math.min(mode,fc.length);for(let i=0;i<count;i++)if(fc[i]&&fc[i].type!=='youtube')retry(i);nextAt=Date.now()+10*60*1000;}
 function reloadRoad(){document.querySelectorAll('[id^="rimg-"]').forEach((img,i)=>{const ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>setImgNoCache(img,img.src.split('?')[0]),i*200);});}
 function reloadBousai(){document.querySelectorAll('[id^="bimg-"]').forEach((img,i)=>{const uid=img.id.replace('bimg-',''),ld=document.getElementById('bld-'+uid),er=document.getElementById('ber-'+uid),card=document.getElementById('bc-'+uid);if(er)er.style.display='none';if(ld)ld.style.display='flex';if(img){img.style.display='block';img.style.opacity='0';}if(card)card.className='card';setTimeout(()=>setImgNoCache(img,img.src.split('?')[0].replace(/^blob:.+/,img.dataset.src||'')),i*200);});}
-function updateCounts(){let ok=0,err=0;const count=mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length);for(let i=0;i<count;i++){if(st[i]==='ok')ok++;if(st[i]==='error')err++;}document.getElementById('cnt-ok').textContent=ok;document.getElementById('cnt-err').textContent=err;}
+function updateCounts(){let ok=0,err=0;const fc=filteredCameras();const count=mode==='all'?fc.length:Math.min(mode,fc.length);for(let i=0;i<count;i++){if(st[i]==='ok')ok++;if(st[i]==='error')err++;}document.getElementById('cnt-ok').textContent=ok;document.getElementById('cnt-err').textContent=err;}
 function setMode(n){mode=n;['1','2','4','8','all'].forEach(v=>document.getElementById('btn'+v).classList.toggle('active',v==String(n)));Object.keys(st).forEach(k=>delete st[k]);render();}
+
+// 河川フィルター
+let riverFilter = '';
+function setRiverFilter(val) {
+  riverFilter = val;
+  Object.keys(st).forEach(k=>delete st[k]);
+  render();
+}
+
+function buildRiverFilterOptions() {
+  const sel = document.getElementById('river-filter');
+  if (!sel || !CAMERAS.length) return;
+  const rivers = [...new Set(CAMERAS.filter(c=>c.river).map(c=>c.river))].sort();
+  // 既存オプションを全部削除してから再構築
+  sel.innerHTML = '<option value="">全河川</option>';
+  rivers.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = r;
+    sel.appendChild(o);
+  });
+}
+
+// フィルター適用済みCAMERASを返す
+function filteredCameras() {
+  if (!riverFilter) return CAMERAS;
+  return CAMERAS.filter(c => c.river === riverFilter);
+}
 // ── ライトボックス（河川・道路・防災 共通）──
 let lbMode=null, lbList=[], lbIdx=null;
 
@@ -1030,9 +1085,10 @@ function openLb(i){
   const idx=list.findIndex(x=>x.imgId==='img-'+i);
   if(idx<0){
     document.getElementById('lb-img').src=img.src;
-    document.getElementById('lb-cap').textContent=CAMERAS[i].name+' — '+CAMERAS[i].loc;
+    const _fc=filteredCameras();
+    document.getElementById('lb-cap').textContent=_fc[i].name+' — '+_fc[i].loc;
     document.getElementById('lb').classList.add('open');
-    lbList=[{imgId:'img-'+i,name:CAMERAS[i].name,loc:CAMERAS[i].loc}]; lbIdx=0;
+    lbList=[{imgId:'img-'+i,name:_fc[i].name,loc:_fc[i].loc}]; lbIdx=0;
     return;
   }
   openLbGeneric(list, idx);
@@ -1360,31 +1416,33 @@ const RIVER_DAT_BASE = 'http://bousai-kasen.pref.okinawa.jp/river/kasen/dat_js/'
 const CORS_PROXY = 'https://corsproxy.io/?url=';
 
 async function fetchRiverJs(filename) {
-  // キャッシュバスター: 5分ごとに変化
-  const bust = Math.floor(Date.now() / 300000);
-  const url = RIVER_DAT_BASE + filename + '?t=' + bust;
-  // corsproxy.io 経由（キャッシュバスター付き）
-  try {
-    const r = await fetch(CORS_PROXY + encodeURIComponent(url), {
-      cache: 'no-store', signal: AbortSignal.timeout(10000)
-    });
-    if (r.ok) { const t = await r.text(); if(t.length > 100) return t; }
-  } catch(e) {}
-  // allorigins フォールバック
-  try {
-    const r2 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url), {
-      cache: 'no-store', signal: AbortSignal.timeout(10000)
-    });
-    if (r2.ok) { const t = await r2.text(); if(t.length > 100) return t; }
-  } catch(e) {}
-  // corsproxy.io (タイムスタンプなし・別パスで再試行)
-  try {
-    const urlNoTs = RIVER_DAT_BASE + filename;
-    const r3 = await fetch('https://corsproxy.io/?' + encodeURIComponent(urlNoTs), {
-      cache: 'no-store', signal: AbortSignal.timeout(10000)
-    });
-    if (r3.ok) { const t = await r3.text(); if(t.length > 100) return t; }
-  } catch(e) {}
+  const bust = Math.floor(Date.now() / 60000); // 1分ごとに変化
+  const rawUrl = RIVER_DAT_BASE + filename;
+  const urlWithTs = rawUrl + '?t=' + bust;
+  const proxies = [
+    // allorigins: シンプルで比較的安定
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(urlWithTs),
+    // corsproxy.io
+    'https://corsproxy.io/?' + encodeURIComponent(urlWithTs),
+    // thingproxy
+    'https://thingproxy.freeboard.io/fetch/' + urlWithTs,
+  ];
+  for (const pu of proxies) {
+    try {
+      const r = await fetch(pu, { cache:'no-store', signal: AbortSignal.timeout(8000) });
+      if (r.ok) {
+        const t = await r.text();
+        // DBDAT_inf.jsは5000字以上、DBDAT_dat.jsは1000字以上のはず
+        if (t.length > 500 && (t.includes('kind') || t.includes('sno'))) {
+          console.log(`河川JS取得成功(${filename}): ${pu.split('?')[0].split('/')[2]} ${t.length}chars`);
+          return t;
+        }
+      }
+    } catch(e) {
+      console.warn(`河川JSプロキシNG: ${pu.split('?')[0].split('/')[2]}`, e.message);
+    }
+  }
+  console.warn(`河川JS全プロキシ失敗: ${filename}`);
   return null;
 }
 
@@ -1446,8 +1504,10 @@ async function fetchRiverDirect() {
     if (!infJs || !datJs) return null;
     const stations = parseRiverData(infJs, datJs);
     if (!stations.length) return null;
+    const now = new Date();
+    const jst = now.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'});
     console.log(`河川水位直接取得: ${stations.length}局`);
-    return { stations, history: [], updated: '直接取得（リアルタイム）', fetched_jst: new Date().toLocaleString('ja-JP') };
+    return { stations, history: [], updated: `直接取得 ${jst}`, fetched_jst: now.toLocaleString('ja-JP') };
   } catch(e) {
     console.warn('河川水位直接取得失敗:', e);
     return null;
