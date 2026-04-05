@@ -911,7 +911,7 @@ function updateCounts(){let ok=0,err=0;const fc=filteredCameras();const count=mo
 function setMode(n){mode=n;['1','2','4','8','all'].forEach(v=>document.getElementById('btn'+v).classList.toggle('active',v==String(n)));Object.keys(st).forEach(k=>delete st[k]);render();}
 
 // 河川フィルター
-let riverFilter = '';
+let riverFilter = '安謝川';
 function setRiverFilter(val) {
   riverFilter = val;
   Object.keys(st).forEach(k=>delete st[k]);
@@ -922,11 +922,11 @@ function buildRiverFilterOptions() {
   const sel = document.getElementById('river-filter');
   if (!sel || !CAMERAS.length) return;
   const rivers = [...new Set(CAMERAS.filter(c=>c.river).map(c=>c.river))].sort();
-  // 既存オプションを全部削除してから再構築
   sel.innerHTML = '<option value="">全河川</option>';
   rivers.forEach(r => {
     const o = document.createElement('option');
     o.value = r; o.textContent = r;
+    if(r === riverFilter) o.selected = true;
     sel.appendChild(o);
   });
 }
@@ -959,18 +959,18 @@ async function openLbGeneric(list, idx){
   lbImg.src=img.src;
 }
 function openLb(i){
-  if(st[i]!=='ok'||!CAMERAS[i]||CAMERAS[i].type==='youtube') return;
+  const fc = filteredCameras();
+  if(st[i]!=='ok'||!fc[i]||fc[i].type==='youtube') return;
   const img=document.getElementById('img-'+i);
-  const list=CAMERAS.slice(0, mode==='all'?CAMERAS.length:Math.min(mode,CAMERAS.length))
+  const list=fc.slice(0, mode==='all'?fc.length:Math.min(mode,fc.length))
     .map((c,n)=>({imgId:'img-'+n, name:c.name||'', loc:c.loc||''}))
     .filter((_,n)=>st[n]==='ok');
   const idx=list.findIndex(x=>x.imgId==='img-'+i);
   if(idx<0){
     document.getElementById('lb-img').src=img.src;
-    const _fc=filteredCameras();
-    document.getElementById('lb-cap').textContent=_fc[i].name+' — '+_fc[i].loc;
+    document.getElementById('lb-cap').textContent=fc[i].name+' — '+fc[i].loc;
     document.getElementById('lb').classList.add('open');
-    lbList=[{imgId:'img-'+i,name:_fc[i].name,loc:_fc[i].loc}]; lbIdx=0;
+    lbList=[{imgId:'img-'+i,name:fc[i].name,loc:fc[i].loc}]; lbIdx=0;
     return;
   }
   openLbGeneric(list, idx);
@@ -1392,11 +1392,16 @@ async function loadKasen(){
   const el = document.getElementById('kasen-inner');
   if(!el) return;
   try {
-    const res = await fetch('river.json?_='+Math.floor(Date.now()/300000));
-    if(!res.ok){ el.innerHTML='<p style="color:#666;padding:16px">データなし</p>'; return; }
-    const data = await res.json();
+    // まずWorker経由でリアルタイム取得
+    let data = await fetchRiverDirect();
+    if(!data) {
+      // フォールバック: river.json
+      const res = await fetch('river.json?_='+Math.floor(Date.now()/300000));
+      if(!res.ok){ el.innerHTML='<p style="color:#666;padding:16px">データなし</p>'; return; }
+      data = await res.json();
+    }
     renderKasenNow(data);
-  } catch(e){ console.warn('river.json取得失敗',e); }
+  } catch(e){ console.warn('河川水位取得失敗',e); }
 }
 
 function renderKasenNow(data){
