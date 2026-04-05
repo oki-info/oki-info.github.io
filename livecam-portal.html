@@ -1413,14 +1413,6 @@ function parseRiverData(infJs, datJs) {
     });
   }
   console.log(`[水位経過] history=${history.length}局`);
-  // 最後の観測所
-  if (curSno !== null && stnMap[curSno] && curRecords.length) {
-    history.push({
-      sno: curSno, stn: stnMap[curSno].stn, river: stnMap[curSno].river,
-      danger: almMap[curSno]?.danger ?? null, caution: almMap[curSno]?.caution ?? null,
-      records: curRecords,
-    });
-  }
 
   return { stations, history };
 }
