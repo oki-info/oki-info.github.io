@@ -278,6 +278,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   <button class="tab"        id="tab-youtube"  onclick="showTab('youtube')">▶ YouTube ライブ <span class="tab-count">36</span></button>
   <button class="tab"        id="tab-kaiho"    onclick="showTab('kaiho')">⚓ 海保カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-kasen"    onclick="showTab('kasen')">📊 河川水位</button>
+  <button class="tab"        id="tab-map"      onclick="showTab('map')">🗺 水位・カメラ地図</button>
   <button class="tab"        id="tab-road"     onclick="showTab('road')">🚗 道路カメラ <span class="tab-count">5</span></button>
   <button class="tab"        id="tab-bousai"   onclick="showTab('bousai')">🚨 防災カメラ <span class="tab-count">4</span></button>
 </nav>
@@ -454,6 +455,14 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   </div>
 </div>
 
+<div class="section" id="sec-map">
+  <div class="portal-body" style="padding:0;height:calc(100vh - 110px)">
+    <div id="river-map-wrap" style="width:100%;height:100%">
+      <div style="padding:16px;color:var(--muted);font-size:12px">読込中…</div>
+    </div>
+  </div>
+</div>
+
 <div class="section" id="sec-road">
   <div class="river-toolbar">
     <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">南部国道事務所 道路カメラ</span>
@@ -561,7 +570,11 @@ const OKINAWA_CITY_BASE_HTTPS = 'https://www.city.okinawa.okinawa.jp/suiikanshi/
 // 河川カメラ用: HTTPSで直接取得、失敗→プロキシ→GitHub順にフォールバック
 async function setRiverImg(imgEl, filename, fallbackPath) {
   const httpsUrl  = RIVER_BASE_HTTPS + filename;
-  const proxyUrl  = 'https://wsrv.nl/?url=http%3A%2F%2Fbousai-kasen.pref.okinawa.jp%2Friver%2Fkasen%2Fimg_cam%2F' + filename + '&n=-1';
+  // wsrv.nlはURLが同じだとキャッシュされるため、元URLにタイムスタンプを付与
+  const ts = Math.floor(Date.now() / 60000); // 1分ごとに変わるキャッシュキー
+  const proxyUrl = 'https://wsrv.nl/?url=' + encodeURIComponent(
+    'http://bousai-kasen.pref.okinawa.jp/river/kasen/img_cam/' + filename + '?t=' + ts
+  ) + '&n=-1';
   const localUrl  = fallbackPath || ('img_cam/' + filename);
 
   // まずHTTPSを試す
@@ -610,13 +623,156 @@ async function setImgNoCache(imgEl, url) {
   }
 }
 
+// ── 水位・カメラ地図タブ ──
+let riverMapLoaded = false;
+
+function loadRiverMap() {
+  if (riverMapLoaded) return;
+  riverMapLoaded = true;
+  const wrap = document.getElementById('river-map-wrap');
+  if (!wrap) return;
+
+  // Leaflet CSS/JSを動的に読み込む
+  if (!document.getElementById('leaflet-css')) {
+    const lc = document.createElement('link');
+    lc.id = 'leaflet-css';
+    lc.rel = 'stylesheet';
+    lc.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(lc);
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  script.onload = () => initRiverMap(wrap);
+  document.head.appendChild(script);
+}
+
+function initRiverMap(wrap) {
+  wrap.innerHTML = '<div id="leaflet-map" style="width:100%;height:100%"></div>';
+
+  const STATIONS = [
+    {sno:1,  cam:4,  lat:26.214722, lon:127.694444, stn:"ひめゆり橋", ksn:"安里川"},
+    {sno:3,  cam:1,  lat:26.215000, lon:127.679722, stn:"御成橋",     ksn:"久茂地川"},
+    {sno:4,  cam:2,  lat:26.219444, lon:127.685278, stn:"美栄橋",     ksn:"久茂地川"},
+    {sno:5,  cam:11, lat:26.220556, lon:127.705000, stn:"真嘉比川",   ksn:"真嘉比川"},
+    {sno:8,  cam:17, lat:26.196389, lon:127.719444, stn:"兼城",       ksn:"国場川"},
+    {sno:9,  cam:20, lat:26.193611, lon:127.701389, stn:"真玉橋",     ksn:"国場川"},
+    {sno:10, cam:21, lat:26.180000, lon:127.716111, stn:"長堂川",     ksn:"長堂川"},
+    {sno:11, cam:-1, lat:26.148611, lon:127.720278, stn:"報得川",     ksn:"報得川"},
+    {sno:12, cam:-1, lat:26.236667, lon:127.698889, stn:"安岡",       ksn:"安謝川"},
+    {sno:13, cam:22, lat:26.231667, lon:127.706667, stn:"古島",       ksn:"安謝川"},
+    {sno:14, cam:25, lat:26.230278, lon:127.723333, stn:"石嶺",       ksn:"安謝川"},
+    {sno:15, cam:41, lat:26.226944, lon:127.754167, stn:"小波津川",   ksn:"小波津川"},
+    {sno:16, cam:43, lat:26.260833, lon:127.727778, stn:"牧港川",     ksn:"牧港川"},
+    {sno:17, cam:44, lat:26.355278, lon:127.811667, stn:"比謝川",     ksn:"比謝川"},
+    {sno:18, cam:-1, lat:26.310278, lon:127.765833, stn:"白比川",     ksn:"白比川"},
+    {sno:19, cam:-1, lat:26.287500, lon:127.787222, stn:"普天間川",   ksn:"普天間川"},
+    {sno:20, cam:-1, lat:26.246111, lon:127.711389, stn:"小湾川",     ksn:"小湾川"},
+    {sno:21, cam:50, lat:26.385556, lon:127.858056, stn:"天願川",     ksn:"天願川"},
+    {sno:22, cam:49, lat:26.426667, lon:127.820000, stn:"石川川",     ksn:"石川川"},
+    {sno:30, cam:52, lat:26.385278, lon:127.856389, stn:"赤田地橋",   ksn:"天願川"},
+    {sno:31, cam:53, lat:26.394167, lon:127.833333, stn:"栄野比",     ksn:"天願川"},
+    {sno:23, cam:-1, lat:26.603056, lon:127.971667, stn:"屋部川",     ksn:"屋部川"},
+    {sno:24, cam:-1, lat:26.604167, lon:127.948333, stn:"西屋部川",   ksn:"西屋部川"},
+    {sno:25, cam:-1, lat:26.625278, lon:128.001667, stn:"我部祖河川", ksn:"我部祖河川"},
+    {sno:26, cam:64, lat:26.634167, lon:128.064722, stn:"源河川",     ksn:"源河川"},
+    {sno:27, cam:-1, lat:26.587500, lon:127.986389, stn:"幸地川",     ksn:"幸地川"},
+  ];
+
+  const map = L.map('leaflet-map').setView([26.35, 127.78], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap', maxZoom: 18
+  }).addTo(map);
+
+  // river.jsonから水位状態を取得してマーカーに反映
+  const ALM_COLOR = {0:'#1D9E75', 1:'#d97706', 2:'#dc2626', 3:'#7c3aed', 4:'#1a0000'};
+  const ALM_LABEL = {0:'平常', 1:'注意', 2:'警戒', 3:'危険', 4:'氾濫危険'};
+  const PROXY_BASE = 'https://wsrv.nl/?url=';
+  const CAM_HTTP   = 'http://bousai-kasen.pref.okinawa.jp/river/kasen/img_cam/';
+
+  function makeMarker(s, alm) {
+    const col = ALM_COLOR[alm] || '#1D9E75';
+    const size = alm > 0 ? 18 : 14;
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,
+      iconSize: [size, size], iconAnchor: [size/2, size/2], popupAnchor: [0, -size/2]
+    });
+  }
+
+  const markers = {};
+  STATIONS.forEach(s => {
+    const marker = L.marker([s.lat, s.lon], {icon: makeMarker(s, 0)}).addTo(map);
+    markers[s.sno] = {marker, station: s};
+
+    const pad = String(Math.max(0, s.cam)).padStart(2,'0');
+    const ts  = Math.floor(Date.now()/60000);
+    const imgUrl = s.cam >= 0
+      ? PROXY_BASE + encodeURIComponent(CAM_HTTP + 'p-' + pad + '.jpg?t=' + ts) + '&n=-1'
+      : null;
+
+    const imgHtml = imgUrl
+      ? `<img src="${imgUrl}" style="width:220px;height:140px;object-fit:cover;border-radius:4px;display:block;margin-top:8px" onerror="this.style.display='none'">`
+      : `<div style="background:#f5f5f5;border-radius:4px;padding:8px;margin-top:8px;font-size:11px;color:#888;text-align:center">カメラなし</div>`;
+
+    marker.bindPopup(`
+      <div style="min-width:220px">
+        <div style="font-size:11px;color:#666;margin-bottom:2px">${s.ksn}</div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a" id="map-stn-${s.sno}">${s.stn}</div>
+        <div style="font-size:12px;color:#888;margin-top:2px" id="map-lv-${s.sno}">水位: —</div>
+        ${imgHtml}
+      </div>
+    `, {maxWidth: 260});
+  });
+
+  // 水位データを取得してマーカー色と水位を更新
+  async function updateMapLevels() {
+    try {
+      const data = await fetchRiverDirect() ||
+        await fetch('river.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+      if (!data || !data.stations) return;
+      data.stations.forEach(s => {
+        const m = markers[s.sno];
+        if (!m) return;
+        const alm = s.alm >= 0 ? s.alm : 0;
+        m.marker.setIcon(makeMarker(m.station, alm));
+        // ポップアップの水位テキストを更新
+        const lvEl = document.getElementById('map-lv-'+s.sno);
+        if (lvEl) {
+          const col = ALM_COLOR[alm] || '#555';
+          const lbl = alm > 0 ? ` (${ALM_LABEL[alm]})` : '';
+          lvEl.innerHTML = `水位: <span style="font-weight:600;color:${col}">${s.level}m${lbl}</span>`;
+        }
+      });
+    } catch(e) { console.warn('地図水位更新失敗', e); }
+  }
+
+  updateMapLevels();
+
+  // 凡例
+  const legend = L.control({position:'bottomright'});
+  legend.onAdd = () => {
+    const d = L.DomUtil.create('div');
+    d.style.cssText = 'background:#fff;padding:8px 12px;border-radius:8px;font-size:11px;line-height:1.8;box-shadow:0 1px 4px rgba(0,0,0,.2)';
+    d.innerHTML = Object.entries(ALM_COLOR).map(([k,c])=>
+      `<div style="display:flex;align-items:center;gap:6px">
+        <div style="width:12px;height:12px;border-radius:50%;background:${c}"></div>
+        ${ALM_LABEL[k]}
+      </div>`
+    ).join('');
+    return d;
+  };
+  legend.addTo(map);
+}
+
 function showTab(id){
-  ['river','youtube','kaiho','kasen','road','bousai'].forEach(t=>{
+  ['river','youtube','kaiho','kasen','map','road','bousai'].forEach(t=>{
     document.getElementById('sec-'+t).classList.toggle('active',t===id);
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
   });
   document.getElementById('fetch-bar').style.display=id==='river'?'flex':'none';
   if(id==='kasen'){ loadKasen(); }
+  if(id==='map'){ loadRiverMap(); }
   // YouTubeタブを初めて開いた時にIntersectionObserverで遅延ロード開始
   if(id==='youtube' && !ytTabLoaded){
     ytTabLoaded=true;
@@ -1204,20 +1360,30 @@ const RIVER_DAT_BASE = 'http://bousai-kasen.pref.okinawa.jp/river/kasen/dat_js/'
 const CORS_PROXY = 'https://corsproxy.io/?url=';
 
 async function fetchRiverJs(filename) {
-  const url = RIVER_DAT_BASE + filename;
-  // まず corsproxy.io 経由
+  // キャッシュバスター: 5分ごとに変化
+  const bust = Math.floor(Date.now() / 300000);
+  const url = RIVER_DAT_BASE + filename + '?t=' + bust;
+  // corsproxy.io 経由（キャッシュバスター付き）
   try {
     const r = await fetch(CORS_PROXY + encodeURIComponent(url), {
-      cache: 'no-store', signal: AbortSignal.timeout(8000)
+      cache: 'no-store', signal: AbortSignal.timeout(10000)
     });
-    if (r.ok) return await r.text();
+    if (r.ok) { const t = await r.text(); if(t.length > 100) return t; }
   } catch(e) {}
   // allorigins フォールバック
   try {
     const r2 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url), {
-      cache: 'no-store', signal: AbortSignal.timeout(8000)
+      cache: 'no-store', signal: AbortSignal.timeout(10000)
     });
-    if (r2.ok) return await r2.text();
+    if (r2.ok) { const t = await r2.text(); if(t.length > 100) return t; }
+  } catch(e) {}
+  // corsproxy.io (タイムスタンプなし・別パスで再試行)
+  try {
+    const urlNoTs = RIVER_DAT_BASE + filename;
+    const r3 = await fetch('https://corsproxy.io/?' + encodeURIComponent(urlNoTs), {
+      cache: 'no-store', signal: AbortSignal.timeout(10000)
+    });
+    if (r3.ok) { const t = await r3.text(); if(t.length > 100) return t; }
   } catch(e) {}
   return null;
 }
@@ -1906,7 +2072,7 @@ loadCameras(); tick(); setInterval(tick,1000); setInterval(loadCameras,60*1000);
 
 // ── タブスワイプ（スマホ対応）──
 (function(){
-  const TAB_ORDER = ['river','youtube','kaiho','kasen','road','bousai'];
+  const TAB_ORDER = ['river','youtube','kaiho','kasen','map','road','bousai'];
   let _swipeX = null, _swipeY = null;
   const container = document.querySelector('.sections') || document.body;
 
