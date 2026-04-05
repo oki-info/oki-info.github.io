@@ -1440,7 +1440,44 @@ function parseRiverData(infJs, datJs) {
   const history60 = buildHistory(recs60);
   console.log(`[水位経過] 10分=${history.length}局 60分=${history60.length}局`);
 
-  return { stations, history, history60 };
+  return { stations, history, history60, stnMap, almMap };
+}
+
+// ── KV履歴取得（Cloudflare Workers KV）──
+const WORKER_HISTORY_URL = 'https://okinawa-river-proxy.bergkamp218.workers.dev/?action=history';
+
+async function fetchKvHistory(stnMap, almMap) {
+  try {
+    const r = await fetch(WORKER_HISTORY_URL + '&t=' + Date.now(), {
+      cache: 'no-store', signal: AbortSignal.timeout(8000)
+    });
+    if (!r.ok) return null;
+    const kvData = await r.json(); // { "1": [{time,level,alm},...], "3": [...], ... }
+    if (!kvData || !Object.keys(kvData).length) return null;
+
+    const history = [];
+    for (const [snoStr, records] of Object.entries(kvData)) {
+      const sno = parseInt(snoStr);
+      if (!stnMap[sno]) continue;
+      const recs = records.map(r => ({
+        time:  r.time,
+        level: r.level,
+        alm:   r.alm,
+        trend: 'stay',
+      }));
+      history.push({
+        sno, stn: stnMap[sno].stn, river: stnMap[sno].river,
+        danger:  almMap[sno]?.danger  ?? null,
+        caution: almMap[sno]?.caution ?? null,
+        records: recs,
+      });
+    }
+    console.log(`[KV履歴] ${history.length}局取得`);
+    return history;
+  } catch(e) {
+    console.warn('[KV履歴] 取得失敗:', e.message);
+    return null;
+  }
 }
 
 async function fetchRiverDirect() {
@@ -1450,12 +1487,16 @@ async function fetchRiverDirect() {
       fetchRiverJs('DBDAT_dat.js'),
     ]);
     if (!infJs || !datJs) return null;
-    const { stations, history, history60 } = parseRiverData(infJs, datJs);
+    const { stations, history, history60, stnMap, almMap } = parseRiverData(infJs, datJs);
     if (!stations.length) return null;
     const now = new Date();
     const jst = now.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'});
-    console.log(`河川水位直接取得: ${stations.length}局 経過: ${history.length}局`);
-    return { stations, history, history60, updated: `直接取得 ${jst}`, fetched_jst: now.toLocaleString('ja-JP') };
+
+    // KV履歴を取得（リアルタイム蓄積データ）
+    const kvHistory = await fetchKvHistory(stnMap, almMap);
+
+    console.log(`河川水位直接取得: ${stations.length}局 経過: ${history.length}局 KV: ${kvHistory?kvHistory.length:0}局`);
+    return { stations, history, history60, kvHistory, updated: `直接取得 ${jst}`, fetched_jst: now.toLocaleString('ja-JP') };
   } catch(e) {
     console.warn('河川水位直接取得失敗:', e);
     return null;
@@ -1577,10 +1618,12 @@ function showKasenHist(sno, _mode){
   const el = document.getElementById('kasen-hist-area');
   if(!el) return;
 
-  let histMode = _mode || '10'; // '10' or '60'
+  let histMode = _mode || 'kv';
 
   const render = (data) => {
-    const hist = histMode === '60' ? (data.history60||[]) : (data.history||[]);
+    const hist = histMode === '60' ? (data.history60||[])
+                : histMode === '10' ? (data.history||[])
+                : (data.kvHistory || data.history || []);
     const h = hist.find(x=>x.sno===sno);
     if(!h){
       el.innerHTML=`<div style="padding:12px;color:#666;font-size:12px">
@@ -1624,8 +1667,10 @@ function showKasenHist(sno, _mode){
       <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#f0f4ff;border-top:1px solid #bfdbfe">
         <span style="font-size:11px;color:#555">表示間隔:</span>
         <div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid #93c5fd">
+          <button onclick="switchHistMode('kv',${sno})"
+            style="padding:4px 14px;border:none;cursor:pointer;font-size:12px;background:${histMode==='kv'?'#1565c0':'#fff'};color:${histMode==='kv'?'#fff':'#1565c0'};font-weight:${histMode==='kv'?'700':'400'}">蓄積</button>
           <button onclick="switchHistMode('10',${sno})"
-            style="padding:4px 14px;border:none;cursor:pointer;font-size:12px;background:${histMode==='10'?'#1565c0':'#fff'};color:${histMode==='10'?'#fff':'#1565c0'};font-weight:${histMode==='10'?'700':'400'}">10分</button>
+            style="padding:4px 14px;border:none;cursor:pointer;font-size:12px;background:${histMode==='10'?'#1565c0':'#fff'};color:${histMode==='10'?'#fff':'#1565c0'};font-weight:${histMode==='10'?'700':'400'};border-left:1px solid #93c5fd">10分</button>
           <button onclick="switchHistMode('60',${sno})"
             style="padding:4px 14px;border:none;cursor:pointer;font-size:12px;background:${histMode==='60'?'#1565c0':'#fff'};color:${histMode==='60'?'#fff':'#1565c0'};font-weight:${histMode==='60'?'700':'400'};border-left:1px solid #93c5fd">60分</button>
         </div>
