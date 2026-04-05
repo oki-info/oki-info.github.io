@@ -877,7 +877,7 @@ async function handleFiles(files) {
       renderItem(idx);
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${gps.lat}&lon=${gps.lng}&accept-language=ja`,
-          { headers: { 'User-Agent': 'bosai-oki-gps-report/1.0 (okinawa-pref-disaster-tool)' } });
+          { headers: { 'User-Agent': 'oki-info-gps-report/1.0 (okinawa-pref-disaster-tool)' } });
         const d = await res.json();
         entry.address = d.display_name || '—';
       } catch { entry.address = '（住所取得失敗）'; }
@@ -1031,7 +1031,7 @@ async function adjApply() {
   st.style.display = 'block';
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=ja`,
-      { headers: { 'User-Agent': 'bosai-oki-gps-report/1.0 (okinawa-pref-disaster-tool)' } });
+      { headers: { 'User-Agent': 'oki-info-gps-report/1.0 (okinawa-pref-disaster-tool)' } });
     const d = await res.json();
     p.address = d.display_name || '—';
   } catch { p.address = '（住所取得失敗）'; }
