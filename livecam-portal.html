@@ -242,6 +242,7 @@ footer{background:var(--deep);border-top:1px solid var(--edge);padding:5px 14px;
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -1364,7 +1365,55 @@ function parseRiverData(infJs, datJs) {
       caution: almMap[sno]?.caution ?? null,
     });
   }
-  return stations;
+  // 経過表（repdt）をパース
+  const history = [];
+  let inRep = false, curSno = null, curRecords = [];
+
+  for (const line of datJs.split('
+')) {
+    if (line.includes('repdt:')) inRep = true;
+    if (!inRep) continue;
+    if (/kind:\s*4[^0-9]/.test(line) && line.includes('sno:')) {
+      // 前の観測所の記録を保存
+      if (curSno !== null && stnMap[curSno] && curRecords.length) {
+        history.push({
+          sno: curSno,
+          stn: stnMap[curSno].stn,
+          river: stnMap[curSno].river,
+          danger:  almMap[curSno]?.danger  ?? null,
+          caution: almMap[curSno]?.caution ?? null,
+          records: curRecords,
+        });
+      }
+      const m = line.match(/sno:\s*(\d+)/);
+      curSno = m ? parseInt(m[1]) : null;
+      curRecords = [];
+    } else if (curSno && line.includes('dt:') && line.includes('item10:')) {
+      const dtM  = line.match(/dt:\s*\[\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)/);
+      const lvM  = line.match(/item10:\s*\{\s*dat:\s*['"]([^'"]*)['"]/);
+      const almM = line.match(/item10:\s*\{[^}]*alm:\s*(-?\d+)/);
+      const trM  = line.match(/trend:\s*['"]([^'"]*)['"]/);
+      if (dtM) {
+        const [,, M, D, h, mn] = dtM.map(Number);
+        curRecords.push({
+          time:  `${String(M).padStart(2,'0')}/${String(D).padStart(2,'0')} ${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`,
+          level: lvM ? lvM[1] : '-',
+          alm:   almM ? parseInt(almM[1]) : 0,
+          trend: trM ? trM[1] : '',
+        });
+      }
+    }
+  }
+  // 最後の観測所
+  if (curSno !== null && stnMap[curSno] && curRecords.length) {
+    history.push({
+      sno: curSno, stn: stnMap[curSno].stn, river: stnMap[curSno].river,
+      danger: almMap[curSno]?.danger ?? null, caution: almMap[curSno]?.caution ?? null,
+      records: curRecords,
+    });
+  }
+
+  return { stations, history };
 }
 
 async function fetchRiverDirect() {
@@ -1374,12 +1423,12 @@ async function fetchRiverDirect() {
       fetchRiverJs('DBDAT_dat.js'),
     ]);
     if (!infJs || !datJs) return null;
-    const stations = parseRiverData(infJs, datJs);
+    const { stations, history } = parseRiverData(infJs, datJs);
     if (!stations.length) return null;
     const now = new Date();
     const jst = now.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'});
-    console.log(`河川水位直接取得: ${stations.length}局`);
-    return { stations, history: [], updated: `直接取得 ${jst}`, fetched_jst: now.toLocaleString('ja-JP') };
+    console.log(`河川水位直接取得: ${stations.length}局 経過: ${history.length}局`);
+    return { stations, history, updated: `直接取得 ${jst}`, fetched_jst: now.toLocaleString('ja-JP') };
   } catch(e) {
     console.warn('河川水位直接取得失敗:', e);
     return null;
@@ -1400,6 +1449,7 @@ async function loadKasen(){
       if(!res.ok){ el.innerHTML='<p style="color:#666;padding:16px">データなし</p>'; return; }
       data = await res.json();
     }
+    _cachedRiverData = data;
     renderKasenNow(data);
   } catch(e){ console.warn('河川水位取得失敗',e); }
 }
@@ -1489,10 +1539,14 @@ function renderKasenNow(data){
     `<div id="kasen-hist-area"></div></div>`;
 }
 
+// Worker取得データをキャッシュ
+let _cachedRiverData = null;
+
 function showKasenHist(sno){
   const el = document.getElementById('kasen-hist-area');
   if(!el) return;
-  fetch('river.json?_='+Math.floor(Date.now()/300000)).then(r=>r.json()).then(data=>{
+
+  const render = (data) => {
     const h = (data.history||[]).find(x=>x.sno===sno);
     if(!h){ el.innerHTML=''; return; }
     const AC2 = {'-1':'#aaa', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
@@ -1507,25 +1561,91 @@ function showKasenHist(sno){
         <td style="padding:5px 10px;text-align:center;font-size:14px;color:${c}">${TR[r.trend]||'→'}</td>
       </tr>`;
     }).join('');
-    el.innerHTML = `<div style="overflow-x:auto">
-      <table style="width:100%;max-width:400px;border-collapse:collapse;background:#fff;border:1px solid #ccc">
-        <thead>
-          <tr style="background:#1565c0">
-            <th colspan="3" style="padding:8px 12px;color:#fff;text-align:left;font-size:13px">水位経過表 — ${h.stn}（${h.river}）
-              <button onclick="document.getElementById('kasen-hist-area').innerHTML=''" style="float:right;background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:11px">✕ 閉じる</button>
-            </th>
-          </tr>
-          ${h.danger!=null||h.caution!=null ? `<tr style="background:#ffebee"><td colspan="3" style="padding:4px 12px;font-size:11px;color:#c62828">氾濫危険水位: ${h.danger!=null?h.danger+'m':'－'} ／ 護岸天端: ${h.caution!=null?h.caution+'m':'－'}</td></tr>` : ''}
-          <tr style="background:#e3f2fd">
-            <th style="padding:6px 10px;text-align:left;color:#333;font-size:12px;border-bottom:2px solid #1565c0">日時</th>
-            <th style="padding:6px 10px;text-align:right;color:#333;font-size:12px;border-bottom:2px solid #1565c0">水位</th>
-            <th style="padding:6px 10px;text-align:center;color:#333;font-size:12px;border-bottom:2px solid #1565c0">傾向</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
+
+    // グラフ描画（Chart.js）
+    const chartId = 'hist-chart-'+sno;
+    const validRecs = h.records.filter(r=>r.level&&r.level!=='-'&&r.level!=='欠測');
+    const labels = validRecs.map(r=>r.time);
+    const vals   = validRecs.map(r=>parseFloat(r.level));
+    const ALM_COL = {0:'#2563eb',1:'#d97706',2:'#dc2626',3:'#7c3aed'};
+    const ptColors = validRecs.map(r=>ALM_COL[r.alm]||'#2563eb');
+
+    el.innerHTML = `<div style="background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;margin-bottom:8px">
+      <div style="background:#1565c0;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+        <div style="color:#fff;font-weight:700;font-size:14px">📈 ${h.stn}（${h.river}） 水位経過</div>
+        <button onclick="document.getElementById('kasen-hist-area').innerHTML=''"
+          style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px">✕ 閉じる</button>
+      </div>
+      ${h.danger!=null||h.caution!=null ? `<div style="background:#fff8f0;padding:6px 14px;font-size:11px;color:#92400e">
+        氾濫危険水位: <strong>${h.danger!=null?h.danger+'m':'－'}</strong>　護岸天端高: <strong>${h.caution!=null?h.caution+'m':'－'}</strong>
+      </div>` : ''}
+      <div style="padding:12px">
+        <canvas id="${chartId}" height="180"></canvas>
+      </div>
+      <div style="overflow-x:auto;max-height:260px;overflow-y:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead style="position:sticky;top:0;background:#e3f2fd">
+            <tr>
+              <th style="padding:6px 10px;text-align:left;color:#1e3a5f">日時</th>
+              <th style="padding:6px 10px;text-align:right;color:#1e3a5f">水位</th>
+              <th style="padding:6px 10px;text-align:center;color:#1e3a5f">傾向</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </div>`;
-  });
+
+    // Chart.js でグラフ描画
+    setTimeout(() => {
+      const canvas = document.getElementById(chartId);
+      if (!canvas || !vals.length) return;
+      const ctx = canvas.getContext('2d');
+      const datasets = [{
+        label: '水位(m)', data: vals,
+        borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,.08)',
+        pointBackgroundColor: ptColors, pointRadius: 3,
+        tension: 0.3, fill: true,
+      }];
+      // 基準水位ライン
+      if (h.danger != null) datasets.push({
+        label: '氾濫危険水位', data: Array(vals.length).fill(h.danger),
+        borderColor: '#dc2626', borderDash: [5,3], borderWidth: 1.5,
+        pointRadius: 0, fill: false,
+      });
+      if (h.caution != null) datasets.push({
+        label: '護岸天端高', data: Array(vals.length).fill(h.caution),
+        borderColor: '#d97706', borderDash: [5,3], borderWidth: 1.5,
+        pointRadius: 0, fill: false,
+      });
+      new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { labels: { font: { size: 10 }, boxWidth: 20 } } },
+          scales: {
+            x: { ticks: { font: { size: 9 }, maxTicksLimit: 10, maxRotation: 45 } },
+            y: { ticks: { font: { size: 10 } }, title: { display: true, text: '水位 (m)', font: { size: 10 } } },
+          },
+        },
+      });
+    }, 100);
+  };
+
+  // キャッシュ済みデータがあれば使う、なければWorker経由で取得
+  if (_cachedRiverData && _cachedRiverData.history && _cachedRiverData.history.length) {
+    render(_cachedRiverData);
+  } else {
+    fetchRiverDirect().then(data => {
+      if (data) { _cachedRiverData = data; render(data); }
+      else {
+        fetch('river.json?_='+Date.now()).then(r=>r.json()).then(data => {
+          _cachedRiverData = data; render(data);
+        });
+      }
+    });
+  }
 }
 
 // ── 河川水位 ──
