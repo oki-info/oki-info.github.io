@@ -1501,7 +1501,7 @@ function renderKasenNow(data){
   </div>`;
 
   // 総括表
-  const nowRows = stns.map(s => {
+  const nowRows = stns.map((s, idx) => {
     const c = AC[s.alm]??'#333', bg = AB[s.alm]??'#fff';
     const lv = (!s.level || s.level==='-' || s.level==='欠測') ? '欠測' : s.level+'m';
     const isMissing = lv==='欠測';
@@ -1515,7 +1515,8 @@ function renderKasenNow(data){
         ? `<span style="background:${bg};border:1px solid ${c};color:${c};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${AL[s.alm]}</span>`
         : `<span style="color:#aaa;font-size:11px">－</span>`;
     const histLink = `<a href="#" onclick="event.preventDefault();showKasenHist(${s.sno})" style="font-size:11px;color:#1565c0">📈 経過</a>`;
-    return `<tr style="background:${bg};border-bottom:1px solid #ddd">
+    const rowBg = s.alm > 0 ? bg : (idx % 2 === 0 ? '#fff' : '#f0f6ff');
+    return `<tr style="background:${rowBg};border-bottom:1px solid #ddd">
       <td style="padding:6px 10px;color:${c};font-size:13px;font-weight:600;white-space:nowrap">${s.stn}</td>
       <td style="padding:6px 10px;color:#555;font-size:12px;white-space:nowrap">${s.river}</td>
       <td style="padding:6px 10px;color:#888;font-size:11px;white-space:nowrap;font-family:monospace">${data.updated||'–'}</td>
@@ -1609,24 +1610,26 @@ function showKasenHist(sno, _mode){
     const ptColors = validRecs.map(r=>ALM_COL[r.alm]||'#2563eb');
 
     el.innerHTML = `<div style="background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;margin-bottom:8px">
-      <div style="background:#1565c0;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="background:#1565c0;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
         <div style="color:#fff;font-weight:700;font-size:14px">📈 ${h.stn}（${h.river}） 水位経過</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,.4)">
-            <button id="hist-btn-10" onclick="switchHistMode('10',${sno})"
-              style="padding:3px 10px;border:none;cursor:pointer;font-size:11px;background:${histMode==='10'?'rgba(255,255,255,.3)':'transparent'};color:#fff;font-weight:${histMode==='10'?'700':'400'}">10分</button>
-            <button id="hist-btn-60" onclick="switchHistMode('60',${sno})"
-              style="padding:3px 10px;border:none;cursor:pointer;font-size:11px;background:${histMode==='60'?'rgba(255,255,255,.3)':'transparent'};color:#fff;font-weight:${histMode==='60'?'700':'400'};border-left:1px solid rgba(255,255,255,.4)">60分</button>
-          </div>
-          <button onclick="document.getElementById('kasen-hist-area').innerHTML=''"
-            style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px">✕ 閉じる</button>
-        </div>
+        <button onclick="document.getElementById('kasen-hist-area').innerHTML=''"
+          style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px">✕ 閉じる</button>
       </div>
       ${h.danger!=null||h.caution!=null ? `<div style="background:#fff8f0;padding:6px 14px;font-size:11px;color:#92400e">
         氾濫危険水位: <strong>${h.danger!=null?h.danger+'m':'－'}</strong>　護岸天端高: <strong>${h.caution!=null?h.caution+'m':'－'}</strong>
       </div>` : ''}
       <div style="padding:12px">
         <canvas id="${chartId}" height="180"></canvas>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#f0f4ff;border-top:1px solid #bfdbfe">
+        <span style="font-size:11px;color:#555">表示間隔:</span>
+        <div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid #93c5fd">
+          <button onclick="switchHistMode('10',${sno})"
+            style="padding:4px 14px;border:none;cursor:pointer;font-size:12px;background:${histMode==='10'?'#1565c0':'#fff'};color:${histMode==='10'?'#fff':'#1565c0'};font-weight:${histMode==='10'?'700':'400'}">10分</button>
+          <button onclick="switchHistMode('60',${sno})"
+            style="padding:4px 14px;border:none;cursor:pointer;font-size:12px;background:${histMode==='60'?'#1565c0':'#fff'};color:${histMode==='60'?'#fff':'#1565c0'};font-weight:${histMode==='60'?'700':'400'};border-left:1px solid #93c5fd">60分</button>
+        </div>
+        <span style="font-size:10px;color:#888">${h.records.filter(r=>r.level&&r.level!=='-'&&r.level!=='欠測').length}件</span>
       </div>
       <div style="overflow-x:auto;max-height:260px;overflow-y:auto">
         <table style="width:100%;border-collapse:collapse;font-size:12px">
