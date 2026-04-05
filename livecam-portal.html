@@ -1399,7 +1399,7 @@ function parseRiverData(infJs, datJs) {
     }
   }
 
-  // stnRecordsからhistory配列を構築（新しい順に並べる）
+  // stnRecordsからhistory配列を構築（古い順 = 左が過去、右が現在）
   for (const [sno, records] of Object.entries(stnRecords)) {
     const snoInt = parseInt(sno);
     if (!stnMap[snoInt]) continue;
@@ -1409,7 +1409,7 @@ function parseRiverData(infJs, datJs) {
       river:   stnMap[snoInt].river,
       danger:  almMap[snoInt]?.danger  ?? null,
       caution: almMap[snoInt]?.caution ?? null,
-      records: [...records].reverse(), // 新しい順
+      records: records, // 古い順（ファイルの順序のまま）
     });
   }
   console.log(`[水位経過] history=${history.length}局`);
@@ -1566,7 +1566,7 @@ function showKasenHist(sno){
     const AC2 = {'-1':'#aaa', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
     const AB2 = {'-1':'#eee', 0:'#fff',  1:'#fff9c4', 2:'#ffe0b2', 3:'#ffcdd2', 4:'#b71c1c'};
     const TR  = {up:'↑',down:'↓',stay:'→','':'→'};
-    const rows = h.records.map(r=>{
+    const rows = [...h.records].reverse().map(r=>{
       const c=AC2[r.alm]??'#333', bg=AB2[r.alm]??'#fff';
       const lv = (!r.level||r.level==='-'||r.level==='欠測') ? '欠測' : r.level+'m';
       return `<tr style="background:${bg};border-bottom:1px solid #ddd">
