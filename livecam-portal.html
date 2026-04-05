@@ -853,24 +853,50 @@ async function loadCameras(){
       
 // カメラpid → 河川名マッピング（DBDAT_inf.jsより）
 const CAM_RIVER_MAP = {
-  '01':'久茂地川','02':'久茂地川',
-  '04':'安里川',
-  '11':'真嘉比川',
-  '17':'国場川','20':'国場川',
+  // 久茂地川
+  '01':'久茂地川','02':'久茂地川','03':'久茂地川','05':'久茂地川',
+  // 安里川
+  '04':'安里川','06':'安里川','07':'安里川','08':'安里川',
+  '09':'安里川','10':'安里川','12':'安里川','13':'安里川','14':'安里川',
+  // 真嘉比川
+  '11':'真嘉比川','15':'真嘉比川','16':'真嘉比川','18':'真嘉比川',
+  // 国場川
+  '17':'国場川','20':'国場川','23':'国場川',
+  '42':'国場川','51':'国場川','65':'国場川','66':'国場川',
+  // 長堂川
   '21':'長堂川',
+  // 安謝川
   '22':'安謝川','25':'安謝川',
+  // 小波津川
   '41':'小波津川',
+  // 牧港川
   '43':'牧港川',
+  // 比謝川
   '44':'比謝川',
+  // 石川川
   '49':'石川川',
+  // 天願川
   '50':'天願川','52':'天願川','53':'天願川',
+  // 源河川
   '64':'源河川',
+};
+// カメラpid → 設置箇所名
+const CAM_NAME_MAP = {
+  '01':'御成橋','02':'美栄橋','03':'御成橋（上流）','04':'ひめゆり橋','05':'美栄橋（上流）',
+  '06':'泊高橋','07':'ひめゆり橋','08':'豊橋','09':'安里橋','10':'大道錬兵橋',
+  '11':'真嘉比川','12':'崇元寺橋','13':'指帰橋','14':'蔡温橋',
+  '15':'遊水地（下池）','16':'遊水地（中池）','17':'兼城','18':'遊水地（上池）',
+  '20':'真玉橋','21':'長堂川','22':'古島','23':'鏡原',
+  '25':'石嶺','41':'小波津川','42':'下茂橋','43':'牧港川',
+  '44':'比謝川','49':'石川川','50':'天願川','51':'石原橋',
+  '52':'赤田地橋','53':'栄野比','64':'源河川','65':'宮城川合流','66':'長堂川合流',
 };
 const SKIP_PIDS = new Set(['26','27','28','29','45']);
       CAMERAS=data.cameras.filter(c=>!SKIP_PIDS.has(String(c.pid))).map(c=>{
         const pid = String(c.pid).padStart(2,'0');
         const river = CAM_RIVER_MAP[pid] || 'その他';
-        return {type:'static',filename:`p-${pid}.jpg`,name:`${river} p-${pid}`,loc:river,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/',river};
+        const stnName = CAM_NAME_MAP[pid] || ('p-'+pid);
+        return {type:'static',filename:`p-${pid}.jpg`,name:`${river}　${stnName}`,loc:river,link:'http://bousai-kasen.pref.okinawa.jp/river/kasen/',river};
       });
       if(data.extra_cameras) data.extra_cameras.forEach(c=>{const info=EXTRA_CAM_INFO[c.key]||{};CAMERAS.push({type:'static',filename:`${c.key}.jpg`,name:info.name||c.name,loc:info.loc||c.loc,link:info.link||'#'});});
       YT_FIXED.forEach(y=>CAMERAS.push({type:'youtube',ytId:y.id,name:y.name,loc:y.loc,ytUrl:y.ytUrl}));
