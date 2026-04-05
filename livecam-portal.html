@@ -648,6 +648,49 @@ function pad(n){return String(n).padStart(2,'0');}
 function esc(s){return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 function imgSrc(f){return `img_cam/${f}?t=${Date.now()}`;}
 
+// 河川カメラ直接URL（Actions遅延回避）
+// HTTPSを試し、失敗したらwsrv.nlプロキシ、それも失敗したらimg_cam/にフォールバック
+const RIVER_BASE_HTTPS  = 'https://bousai-kasen.pref.okinawa.jp/river/kasen/img_cam/';
+const RIVER_BASE_PROXY  = 'https://wsrv.nl/?url=http://bousai-kasen.pref.okinawa.jp/river/kasen/img_cam/&n=-1&url=';
+const OKINAWA_CITY_BASE_HTTPS = 'https://www.city.okinawa.okinawa.jp/suiikanshi/';
+
+// 河川カメラ用: HTTPSで直接取得、失敗→プロキシ→GitHub順にフォールバック
+async function setRiverImg(imgEl, filename, fallbackPath) {
+  const httpsUrl  = RIVER_BASE_HTTPS + filename;
+  const proxyUrl  = 'https://wsrv.nl/?url=http%3A%2F%2Fbousai-kasen.pref.okinawa.jp%2Friver%2Fkasen%2Fimg_cam%2F' + filename + '&n=-1';
+  const localUrl  = fallbackPath || ('img_cam/' + filename);
+
+  // まずHTTPSを試す
+  try {
+    const res = await fetch(httpsUrl + '?t=' + Date.now(), {cache:'no-store', signal: AbortSignal.timeout(5000)});
+    if(res.ok && res.headers.get('content-type')?.startsWith('image')) {
+      const blob = await res.blob();
+      const old = imgEl.src;
+      imgEl.src = URL.createObjectURL(blob);
+      if(old?.startsWith('blob:')) URL.revokeObjectURL(old);
+      imgEl.dataset.directMode = 'https';
+      return;
+    }
+  } catch(e) {}
+
+  // wsrv.nlプロキシを試す
+  try {
+    const res2 = await fetch(proxyUrl, {cache:'no-store', signal: AbortSignal.timeout(8000)});
+    if(res2.ok) {
+      const blob2 = await res2.blob();
+      const old = imgEl.src;
+      imgEl.src = URL.createObjectURL(blob2);
+      if(old?.startsWith('blob:')) URL.revokeObjectURL(old);
+      imgEl.dataset.directMode = 'proxy';
+      return;
+    }
+  } catch(e) {}
+
+  // GitHub img_camにフォールバック
+  imgEl.dataset.directMode = 'local';
+  await setImgNoCache(imgEl, localUrl);
+}
+
 // キャッシュを完全に回避してimgにセットする
 async function setImgNoCache(imgEl, url) {
   try {
@@ -801,7 +844,14 @@ async function loadCameras(){
         if(!CAMERAS[i]||CAMERAS[i].type!=='static') continue;
         if(st[i]==='ok'){
           const img=document.getElementById('img-'+i);
-          if(img) setImgNoCache(img, `img_cam/${CAMERAS[i].filename}`);
+          if(img) {
+          // 河川カメラ（p-XX.jpg）は直接URLから取得を試みる
+          if(CAMERAS[i].filename && CAMERAS[i].filename.startsWith('p-')) {
+            setRiverImg(img, CAMERAS[i].filename, `img_cam/${CAMERAS[i].filename}`);
+          } else {
+            setImgNoCache(img, `img_cam/${CAMERAS[i].filename}`);
+          }
+        }
         }
       }
       if(data.road_cameras) data.road_cameras.forEach((cam,i)=>{
@@ -860,7 +910,15 @@ function bimgOK(uid){const img=document.getElementById('bimg-'+uid),ld=document.
 function bimgNG(uid){const img=document.getElementById('bimg-'+uid),ld=document.getElementById('bld-'+uid),er=document.getElementById('ber-'+uid),card=document.getElementById('bc-'+uid);if(ld)ld.style.display='none';if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';}
 function rimgOK(i){const img=document.getElementById('rimg-'+i),ld=document.getElementById('rld-'+i),card=document.getElementById('rcard-'+i);if(img)img.style.opacity='1';if(ld)ld.style.display='none';if(card)card.className='card ok';const now=new Date(),s=document.getElementById('rst-'+i);if(s)s.textContent='更新: '+pad(now.getHours())+':'+pad(now.getMinutes());}
 function rimgNG(i){const img=document.getElementById('rimg-'+i),ld=document.getElementById('rld-'+i),er=document.getElementById('rer-'+i),card=document.getElementById('rcard-'+i);if(ld)ld.style.display='none';if(img)img.style.display='none';if(er)er.style.display='flex';if(card)card.className='card err';}
-function loadImg(i){const img=document.getElementById('img-'+i);if(img)setImgNoCache(img,`img_cam/${CAMERAS[i].filename}`);}
+function loadImg(i){
+  const img=document.getElementById('img-'+i);
+  if(!img||!CAMERAS[i]) return;
+  if(CAMERAS[i].filename?.startsWith('p-')) {
+    setRiverImg(img, CAMERAS[i].filename, `img_cam/${CAMERAS[i].filename}`);
+  } else {
+    setImgNoCache(img, `img_cam/${CAMERAS[i].filename}`);
+  }
+}
 function imgOK(i){
   const img=document.getElementById('img-'+i),ld=document.getElementById('ld-'+i),card=document.getElementById('card-'+i);
   if(img)img.style.opacity='1';if(ld)ld.style.display='none';if(card)card.className='card ok';
