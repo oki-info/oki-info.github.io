@@ -1368,11 +1368,24 @@ function parseRiverData(infJs, datJs) {
   // 経過表（repdt）をパース
   const history = [];
   let inRep = false, curSno = null, curRecords = [];
+  let repLineCount = 0, repSnoCount = 0, repRecCount = 0;
+
+  // gDatのトップレベルキーを確認
+  const topKeys = [];
+  for (const line of datJs.split('\n')) {
+    const m = line.match(/^\s{0,4}(\w+)\s*:/);
+    if (m && !topKeys.includes(m[1])) topKeys.push(m[1]);
+    if (topKeys.length > 20) break;
+  }
+  console.log('[repdt] gDatキー候補:', topKeys.join(', '));
 
   for (const line of datJs.split('\n')) {
-    if (line.includes('repdt:')) inRep = true;
+    if (line.includes('repdt:')) { inRep = true; console.log('[repdt] セクション発見'); }
     if (!inRep) continue;
+    repLineCount++;
     if (/kind:\s*4[^0-9]/.test(line) && line.includes('sno:')) {
+      repSnoCount++;
+      if (repSnoCount <= 3) console.log('[repdt] 観測所行サンプル:', JSON.stringify(line.trim().slice(0,120)));
       // 前の観測所の記録を保存
       if (curSno !== null && stnMap[curSno] && curRecords.length) {
         history.push({
@@ -1388,6 +1401,8 @@ function parseRiverData(infJs, datJs) {
       curSno = m ? parseInt(m[1]) : null;
       curRecords = [];
     } else if (curSno && line.includes('dt:') && line.includes('item10:')) {
+      repRecCount++;
+      if (repRecCount <= 3) console.log('[repdt] レコード行サンプル:', JSON.stringify(line.trim().slice(0,120)));
       const dtM  = line.match(/dt:\s*\[\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)/);
       const lvM  = line.match(/item10:\s*\{\s*dat:\s*['"]([^'"]*)['"]/);
       const almM = line.match(/item10:\s*\{[^}]*alm:\s*(-?\d+)/);
@@ -1401,8 +1416,12 @@ function parseRiverData(infJs, datJs) {
           trend: trM ? trM[1] : '',
         });
       }
+    } else if (inRep && repLineCount <= 10) {
+      // repdt開始直後のサンプル行（構造確認用）
+      console.log('[repdt] その他行:', JSON.stringify(line.trim().slice(0,120)));
     }
   }
+  console.log(`[repdt] 合計: ${repLineCount}行, ${repSnoCount}観測所, ${repRecCount}レコード, history=${history.length}`);
   // 最後の観測所
   if (curSno !== null && stnMap[curSno] && curRecords.length) {
     history.push({
