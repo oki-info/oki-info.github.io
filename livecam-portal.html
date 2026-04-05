@@ -1365,68 +1365,82 @@ function parseRiverData(infJs, datJs) {
       caution: almMap[sno]?.caution ?? null,
     });
   }
-  // 経過表（rep_suii10min）をパース
-  // 構造: { tim:'04/05 11:10', sdat: [ { sno:1, dat:[{ dat:'0.21', alm:0, updw:0 }] }, ... ] }
-  const history = [];
-  const stnRecords = {}; // sno → [{time, level, alm, trend}]
-  let inRep = false, curTime = null;
-
-  for (const line of datJs.split('\n')) {
-    if (line.includes('rep_suii10min:')) { inRep = true; continue; }
-    if (!inRep) continue;
-
-    // 時刻行: { tim:'04/05 11:10', sdat: [
-    const timM = line.match(/tim:\s*'([^']+)'/);
-    if (timM) { curTime = timM[1]; continue; }
-
-    // 観測所行: { sno: 1, dat:[ { dat:'0.21', alm:0, updw:0 } ] },
-    if (curTime && line.includes('sno:') && line.includes('dat:')) {
-      const snoM  = line.match(/sno:\s*(\d+)/);
-      const lvM   = line.match(/dat:\s*\[\s*\{\s*dat:\s*'([^']*)'/);
-      const almM  = line.match(/alm:\s*(-?\d+)/);
-      const updwM = line.match(/updw:\s*(-?\d+)/);
-      if (snoM) {
-        const sno  = parseInt(snoM[1]);
-        const updw = updwM ? parseInt(updwM[1]) : 0;
-        if (!stnRecords[sno]) stnRecords[sno] = [];
-        stnRecords[sno].push({
-          time:  curTime,
-          level: lvM ? lvM[1] : '-',
-          alm:   almM ? parseInt(almM[1]) : 0,
-          trend: updw > 0 ? 'up' : updw < 0 ? 'down' : 'stay',
-        });
+  // 経過表パース（10分・60分）
+  // 構造: { tim:'04/05 11:10', sdat: [ { sno:1, dat:[{ dat:'0.21', alm:0, updw:0 }] } ] }
+  function parseRepSection(key) {
+    const recs = {};
+    let inSec = false, curTim = null;
+    for (const line of datJs.split('\n')) {
+      if (line.includes(key + ':')) { inSec = true; continue; }
+      if (!inSec) continue;
+      // 次のセクション開始で終了
+      if (inSec && line.match(/^\s{0,4}\w+:\s*\[/) && !line.includes(key)) break;
+      const timM = line.match(/tim:\s*'([^']+)'/);
+      if (timM) { curTim = timM[1]; continue; }
+      if (curTim && line.includes('sno:') && line.includes('dat:')) {
+        const snoM  = line.match(/sno:\s*(\d+)/);
+        const lvM   = line.match(/dat:\s*\[\s*\{\s*dat:\s*'([^']*)'/);
+        const almM  = line.match(/alm:\s*(-?\d+)/);
+        const updwM = line.match(/updw:\s*(-?\d+)/);
+        if (snoM) {
+          const sno  = parseInt(snoM[1]);
+          const updw = updwM ? parseInt(updwM[1]) : 0;
+          if (!recs[sno]) recs[sno] = [];
+          recs[sno].push({
+            time:  curTim,
+            level: lvM ? lvM[1] : '-',
+            alm:   almM ? parseInt(almM[1]) : 0,
+            trend: updw > 0 ? 'up' : updw < 0 ? 'down' : 'stay',
+          });
+        }
       }
     }
+    return recs;
   }
 
-  // stnRecordsからhistory配列を構築（古い順 = 左が過去、右が現在）
-  for (const [sno, records] of Object.entries(stnRecords)) {
-    const snoInt = parseInt(sno);
-    if (!stnMap[snoInt]) continue;
-    history.push({
-      sno:     snoInt,
-      stn:     stnMap[snoInt].stn,
-      river:   stnMap[snoInt].river,
-      danger:  almMap[snoInt]?.danger  ?? null,
-      caution: almMap[snoInt]?.caution ?? null,
-      records: records, // 古い順（ファイルの順序のまま）
-    });
-  }
-  console.log(`[水位経過] history=${history.length}局`);
+  const recs10 = parseRepSection('rep_suii10min');
+  const recs60 = parseRepSection('rep_suii60min');
 
-  // 現在水位（nowdt）を経過データの末尾に追加（最新値として）
-  const now = new Date();
-  const nowLabel = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  for (const h of history) {
-    const s = stations.find(x => x.sno === h.sno);
-    if (!s) continue;
-    const lastTime = h.records.length ? h.records[h.records.length-1].time : '';
-    if (lastTime !== nowLabel && s.level && s.level !== '-' && s.level !== '欠測') {
-      h.records.push({ time: nowLabel + ' ★', level: s.level, alm: s.alm, trend: 'stay' });
+  // 現在水位ラベル
+  const nowD = new Date();
+  const nowLabel = `${String(nowD.getMonth()+1).padStart(2,'0')}/${String(nowD.getDate()).padStart(2,'0')} ${String(nowD.getHours()).padStart(2,'0')}:${String(nowD.getMinutes()).padStart(2,'0')}`;
+
+  // MM/DD HH:mm形式の時刻を比較可能な数値に変換
+  function timeToNum(t) {
+    // '04/05 14:30' → 040514*100+30 のような数値で比較
+    const m = t.replace(' ★','').match(/(\d+)\/(\d+)\s+(\d+):(\d+)/);
+    if (!m) return 0;
+    return parseInt(m[1])*1000000 + parseInt(m[2])*10000 + parseInt(m[3])*100 + parseInt(m[4]);
+  }
+
+  function buildHistory(recsMap) {
+    const hist = [];
+    for (const [sno, records] of Object.entries(recsMap)) {
+      const snoInt = parseInt(sno);
+      if (!stnMap[snoInt]) continue;
+      // 時刻でソート（古い順）
+      const recs = [...records].sort((a, b) => timeToNum(a.time) - timeToNum(b.time));
+      // 現在水位を末尾に追加
+      const s = stations.find(x => x.sno === snoInt);
+      if (s && s.level && s.level !== '-' && s.level !== '欠測') {
+        const last = recs.length ? recs[recs.length-1].time : '';
+        if (last !== nowLabel) recs.push({ time: nowLabel + ' ★', level: s.level, alm: s.alm, trend: 'stay' });
+      }
+      hist.push({
+        sno: snoInt, stn: stnMap[snoInt].stn, river: stnMap[snoInt].river,
+        danger:  almMap[snoInt]?.danger  ?? null,
+        caution: almMap[snoInt]?.caution ?? null,
+        records: recs,
+      });
     }
+    return hist;
   }
 
-  return { stations, history };
+  const history   = buildHistory(recs10); // デフォルト: 10分
+  const history60 = buildHistory(recs60);
+  console.log(`[水位経過] 10分=${history.length}局 60分=${history60.length}局`);
+
+  return { stations, history, history60 };
 }
 
 async function fetchRiverDirect() {
@@ -1436,12 +1450,12 @@ async function fetchRiverDirect() {
       fetchRiverJs('DBDAT_dat.js'),
     ]);
     if (!infJs || !datJs) return null;
-    const { stations, history } = parseRiverData(infJs, datJs);
+    const { stations, history, history60 } = parseRiverData(infJs, datJs);
     if (!stations.length) return null;
     const now = new Date();
     const jst = now.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'});
     console.log(`河川水位直接取得: ${stations.length}局 経過: ${history.length}局`);
-    return { stations, history, updated: `直接取得 ${jst}`, fetched_jst: now.toLocaleString('ja-JP') };
+    return { stations, history, history60, updated: `直接取得 ${jst}`, fetched_jst: now.toLocaleString('ja-JP') };
   } catch(e) {
     console.warn('河川水位直接取得失敗:', e);
     return null;
@@ -1550,17 +1564,27 @@ function renderKasenNow(data){
     `<div id="kasen-hist-area"></div></div>`;
 }
 
+function switchHistMode(mode, sno) {
+  // showKasenHist内のhistModeを更新して再レンダリング
+  showKasenHist(sno, mode);
+}
+
 // Worker取得データをキャッシュ
 let _cachedRiverData = null;
 
-function showKasenHist(sno){
+function showKasenHist(sno, _mode){
   const el = document.getElementById('kasen-hist-area');
   if(!el) return;
 
+  let histMode = _mode || '10'; // '10' or '60'
+
   const render = (data) => {
-    const h = (data.history||[]).find(x=>x.sno===sno);
+    const hist = histMode === '60' ? (data.history60||[]) : (data.history||[]);
+    const h = hist.find(x=>x.sno===sno);
     if(!h){
-      el.innerHTML='<div style="padding:12px;color:#666;font-size:12px">経過データを取得できませんでした。</div>';
+      el.innerHTML=`<div style="padding:12px;color:#666;font-size:12px">
+        ${histMode==='60'?'60分':'10分'}間隔データを取得できませんでした。
+      </div>`;
       return;
     }
     const AC2 = {'-1':'#aaa', 0:'#333', 1:'#7c5800', 2:'#7c2000', 3:'#7c0000', 4:'#fff'};
@@ -1585,10 +1609,18 @@ function showKasenHist(sno){
     const ptColors = validRecs.map(r=>ALM_COL[r.alm]||'#2563eb');
 
     el.innerHTML = `<div style="background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;margin-bottom:8px">
-      <div style="background:#1565c0;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+      <div style="background:#1565c0;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
         <div style="color:#fff;font-weight:700;font-size:14px">📈 ${h.stn}（${h.river}） 水位経過</div>
-        <button onclick="document.getElementById('kasen-hist-area').innerHTML=''"
-          style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px">✕ 閉じる</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,.4)">
+            <button id="hist-btn-10" onclick="switchHistMode('10',${sno})"
+              style="padding:3px 10px;border:none;cursor:pointer;font-size:11px;background:${histMode==='10'?'rgba(255,255,255,.3)':'transparent'};color:#fff;font-weight:${histMode==='10'?'700':'400'}">10分</button>
+            <button id="hist-btn-60" onclick="switchHistMode('60',${sno})"
+              style="padding:3px 10px;border:none;cursor:pointer;font-size:11px;background:${histMode==='60'?'rgba(255,255,255,.3)':'transparent'};color:#fff;font-weight:${histMode==='60'?'700':'400'};border-left:1px solid rgba(255,255,255,.4)">60分</button>
+          </div>
+          <button onclick="document.getElementById('kasen-hist-area').innerHTML=''"
+            style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px">✕ 閉じる</button>
+        </div>
       </div>
       ${h.danger!=null||h.caution!=null ? `<div style="background:#fff8f0;padding:6px 14px;font-size:11px;color:#92400e">
         氾濫危険水位: <strong>${h.danger!=null?h.danger+'m':'－'}</strong>　護岸天端高: <strong>${h.caution!=null?h.caution+'m':'－'}</strong>
