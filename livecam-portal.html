@@ -1295,36 +1295,26 @@ let kasenHistSno = null;
 
 // ── 河川水位 直接取得（Actions遅延回避）──
 const RIVER_DAT_BASE = 'http://bousai-kasen.pref.okinawa.jp/river/kasen/dat_js/';
-const CORS_PROXY = 'https://corsproxy.io/?url=';
+// Cloudflare Worker経由でリアルタイム取得
+const WORKER_PROXY = 'https://okinawa-river-proxy.bergkamp218.workers.dev/?file=';
 
 async function fetchRiverJs(filename) {
-  const bust = Math.floor(Date.now() / 60000); // 1分ごとに変化
-  const rawUrl = RIVER_DAT_BASE + filename;
-  const urlWithTs = rawUrl + '?t=' + bust;
-  const proxies = [
-    // allorigins: シンプルで比較的安定
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(urlWithTs),
-    // corsproxy.io
-    'https://corsproxy.io/?' + encodeURIComponent(urlWithTs),
-    // thingproxy
-    'https://thingproxy.freeboard.io/fetch/' + urlWithTs,
-  ];
-  for (const pu of proxies) {
-    try {
-      const r = await fetch(pu, { cache:'no-store', signal: AbortSignal.timeout(8000) });
-      if (r.ok) {
-        const t = await r.text();
-        // DBDAT_inf.jsは5000字以上、DBDAT_dat.jsは1000字以上のはず
-        if (t.length > 500 && (t.includes('kind') || t.includes('sno'))) {
-          console.log(`河川JS取得成功(${filename}): ${pu.split('?')[0].split('/')[2]} ${t.length}chars`);
-          return t;
-        }
+  const bust = Math.floor(Date.now() / 60000);
+  try {
+    const r = await fetch(WORKER_PROXY + filename + '&t=' + bust, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10000)
+    });
+    if (r.ok) {
+      const t = await r.text();
+      if (t.length > 500 && (t.includes('kind') || t.includes('sno'))) {
+        console.log(`河川JS Worker取得成功(${filename}): ${t.length}chars`);
+        return t;
       }
-    } catch(e) {
-      console.warn(`河川JSプロキシNG: ${pu.split('?')[0].split('/')[2]}`, e.message);
     }
+  } catch(e) {
+    console.warn(`河川JS Worker失敗(${filename}):`, e.message);
   }
-  console.warn(`河川JS全プロキシ失敗: ${filename}`);
   return null;
 }
 
