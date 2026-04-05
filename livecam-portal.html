@@ -1367,11 +1367,16 @@ function parseRiverData(infJs, datJs) {
   }
   // 経過表（rep_suii10min = 10分間隔水位）をパース
   const history = [];
-  let inRep = false, curSno = null, curRecords = [];
+  let inRep = false, curSno = null, curRecords = [], _repDebugLines = 0;
 
   for (const line of datJs.split('\n')) {
     if (line.includes('rep_suii10min:')) { inRep = true; }
     if (!inRep) continue;
+    // セクション開始直後の20行をログ出力
+    if (inRep && curSno === null && curRecords.length === 0) {
+      _repDebugLines = (_repDebugLines || 0) + 1;
+      if (_repDebugLines <= 20) console.log('[rep構造]', JSON.stringify(line.trim().slice(0,150)));
+    }
     if (/kind:\s*4[^0-9]/.test(line) && line.includes('sno:')) {
       // 前の観測所の記録を保存
       if (curSno !== null && stnMap[curSno] && curRecords.length) {
