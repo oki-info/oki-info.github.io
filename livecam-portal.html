@@ -1596,6 +1596,9 @@ function showKasenHist(sno){
       </div>
     </div>`;
 
+    // スクロール
+    setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+
     // Chart.js でグラフ描画
     setTimeout(() => {
       const canvas = document.getElementById(chartId);
@@ -1633,8 +1636,9 @@ function showKasenHist(sno){
     }, 100);
   };
 
-  // ローディング表示
+  // ローディング表示 + スクロール
   el.innerHTML = '<div style="padding:12px;color:#666;font-size:12px">📡 経過データを取得中...</div>';
+  el.scrollIntoView({behavior:'smooth', block:'start'});
 
   // キャッシュにhistoryがあればそのまま使う、なければWorkerから取得
   const tryRender = (data) => {
