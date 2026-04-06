@@ -1,6 +1,6 @@
 {
-  "fetched_jst": "2026-04-07 04:09",
-  "updated": "2026/04/07 03:50",
+  "fetched_jst": "2026-04-07 05:01",
+  "updated": "2026/04/07 04:40",
   "stations": [
     {
       "sno": 1,
@@ -15,7 +15,7 @@
       "sno": 3,
       "stn": "御成橋",
       "river": "久茂地川",
-      "level": "1.25",
+      "level": "1.39",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -24,7 +24,7 @@
       "sno": 4,
       "stn": "美栄橋",
       "river": "久茂地川",
-      "level": "2.92",
+      "level": "3.09",
       "alm": 0,
       "danger": 4.55,
       "caution": 4.75
@@ -51,7 +51,7 @@
       "sno": 9,
       "stn": "真玉橋",
       "river": "国場川",
-      "level": "1.31",
+      "level": "1.37",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -69,7 +69,7 @@
       "sno": 11,
       "stn": "報得川",
       "river": "報得川",
-      "level": "0.24",
+      "level": "0.23",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -87,7 +87,7 @@
       "sno": 13,
       "stn": "古島",
       "river": "安謝川",
-      "level": "0.44",
+      "level": "0.77",
       "alm": 0,
       "danger": 3.45,
       "caution": 4.35
@@ -105,7 +105,7 @@
       "sno": 15,
       "stn": "小波津川",
       "river": "小波津川",
-      "level": "1.46",
+      "level": "1.45",
       "alm": 0,
       "danger": 2.45,
       "caution": 3.25
@@ -159,7 +159,7 @@
       "sno": 21,
       "stn": "天願川",
       "river": "天願川",
-      "level": "2.87",
+      "level": "2.85",
       "alm": 0,
       "danger": 6.65,
       "caution": 6.9
@@ -168,7 +168,7 @@
       "sno": 22,
       "stn": "石川川",
       "river": "石川川",
-      "level": "0.28",
+      "level": "0.47",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -195,7 +195,7 @@
       "sno": 23,
       "stn": "屋部川",
       "river": "屋部川",
-      "level": "0.27",
+      "level": "0.42",
       "alm": 0,
       "danger": 2.1,
       "caution": 2.6
@@ -213,7 +213,7 @@
       "sno": 25,
       "stn": "我部祖河川",
       "river": "我部祖河川",
-      "level": "0.33",
+      "level": "0.34",
       "alm": 0,
       "danger": 2.2,
       "caution": 2.7
@@ -222,7 +222,7 @@
       "sno": 26,
       "stn": "源河川",
       "river": "源河川",
-      "level": "0.12",
+      "level": "0.18",
       "alm": 0,
       "danger": null,
       "caution": null
