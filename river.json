@@ -1,6 +1,6 @@
 {
-  "fetched_jst": "2026-07-05 04:21",
-  "updated": "2026/07/05 04:10",
+  "fetched_jst": "2026-07-05 05:27",
+  "updated": "2026/07/05 05:20",
   "stations": [
     {
       "sno": 1,
@@ -15,7 +15,7 @@
       "sno": 3,
       "stn": "御成橋",
       "river": "久茂地川",
-      "level": "1.03",
+      "level": "1.20",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -24,7 +24,7 @@
       "sno": 4,
       "stn": "美栄橋",
       "river": "久茂地川",
-      "level": "2.70",
+      "level": "2.87",
       "alm": 0,
       "danger": 4.55,
       "caution": 4.75
@@ -51,7 +51,7 @@
       "sno": 9,
       "stn": "真玉橋",
       "river": "国場川",
-      "level": "1.09",
+      "level": "1.16",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -87,7 +87,7 @@
       "sno": 13,
       "stn": "古島",
       "river": "安謝川",
-      "level": "1.35",
+      "level": "1.38",
       "alm": 0,
       "danger": 3.45,
       "caution": 4.35
@@ -105,7 +105,7 @@
       "sno": 15,
       "stn": "小波津川",
       "river": "小波津川",
-      "level": "1.45",
+      "level": "1.46",
       "alm": 0,
       "danger": 2.45,
       "caution": 3.25
@@ -114,7 +114,7 @@
       "sno": 16,
       "stn": "牧港川",
       "river": "牧港川",
-      "level": "1.07",
+      "level": "1.10",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -123,7 +123,7 @@
       "sno": 17,
       "stn": "比謝川",
       "river": "比謝川",
-      "level": "0.71",
+      "level": "0.72",
       "alm": 0,
       "danger": 3.9,
       "caution": 4.7
@@ -168,7 +168,7 @@
       "sno": 22,
       "stn": "石川川",
       "river": "石川川",
-      "level": "0.07",
+      "level": "0.24",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -222,7 +222,7 @@
       "sno": 26,
       "stn": "源河川",
       "river": "源河川",
-      "level": "0.01",
+      "level": "0.03",
       "alm": 0,
       "danger": null,
       "caution": null
@@ -231,7 +231,7 @@
       "sno": 27,
       "stn": "幸地川",
       "river": "幸地川",
-      "level": "0.43",
+      "level": "0.44",
       "alm": 0,
       "danger": null,
       "caution": null
